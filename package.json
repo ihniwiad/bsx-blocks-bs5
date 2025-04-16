@@ -1,0 +1,43 @@
+{
+  "name": "bsx-blocks-bs5",
+  "version": "1.0.0",
+  "description": "A Bootstrap 5 based WordPress Block Editor Plugin.",
+  "main": "build/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wp-scripts start --webpack-src-dir=src",
+    "build": "wp-scripts build && node ./copy-diff-plugin.js copy",
+    "dev-all": "concurrently \"npm:dev\" \"npm:watch-copy\"",
+    "fix-imports": "node fix-import-extensions.js",
+    "watch-copy": "node ./copy-diff-plugin.js watch",
+    "build-copy": "node ./copy-diff-plugin.js copy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ihniwiad/bsx-blocks-bs5.git"
+  },
+  "keywords": [
+    "WordPress",
+    "Block Editor",
+    "Gutenberg",
+    "Plugin",
+    "Content Plugin",
+    "Bootstrap",
+    "Bootstrap 5"
+  ],
+  "author": "ihniwiad",
+  "license": "GPL-2.0-or-later",
+  "bugs": {
+    "url": "https://github.com/ihniwiad/bsx-blocks-bs5/issues"
+  },
+  "homepage": "https://github.com/ihniwiad/bsx-blocks-bs5#readme",
+  "devDependencies": {
+    "@wordpress/scripts": "^30.15.0",
+    "chokidar": "^4.0.3",
+    "concurrently": "^9.1.2",
+    "dotenv": "^16.5.0",
+    "fs-extra": "^11.3.0",
+    "path": "^0.12.7",
+    "picocolors": "^1.1.1"
+  }
+}

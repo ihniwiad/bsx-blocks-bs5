@@ -1,0 +1,11 @@
+// this file will be processed by gulpfile using `.env` variables
+// the result will be saved as `_sass-env.scss` and included in `src/_global-editor-style/editor.scss`
+
+
+@import "../../bsx-wordpress/src/scss/variables";
+// $body-bg: #ffffff !default;
+// $body-color: #333333 !default;
+
+//@import "../bsx-wordpress/node_modules/bootstrap/scss/mixins/breakpoints";
+//@import "../bsx-wordpress/node_modules/bootstrap/scss/mixins/grid-framework";
+//@import "../bsx-wordpress/node_modules/bootstrap/scss/mixins/grid";

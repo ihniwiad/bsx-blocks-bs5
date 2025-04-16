@@ -1,0 +1,1 @@
+(()=>{"use strict";(0,window.wp.hooks.addFilter)("blocks.getBlockDefaultClassName","bsx-blocks/set-custom-class-names",(function(s,t){const e=[];let l=!1;const n=s.split(" ");for(let s=0;s<e.length;s++)if(n.includes(e[s][0])){if(l=!0,!0===e[s][2]){const t=n.indexOf(e[s][0]);n.splice(t,1)}return n.includes(e[s][1])||n.push(e[s][1]),n.join(" ")}if(!l)return s}))})();
