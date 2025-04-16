@@ -10,25 +10,38 @@ const files = await glob('src/**/*.{js,jsx,ts,tsx}', {
     ignore: ['**/node_modules/**'],
 });
 
+const importRegex = new RegExp(
+    `(import\\s+[\\s\\S]*?from\\s+['"])(\\.\\/[^'"]+)(['"])`,
+    'gm' // g = global, m = multiline
+);
+
 for (const file of files) {
-    let content = fs.readFileSync(file, 'utf8');
+    let content = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
     let changed = false;
 
-    content = content.replace(/(import\s.*?from\s+['"])(\.\/[^'"]+)(['"])/g, (match, before, importPath, after) => {
+    const updated = content.replace(importRegex, (match, before, importPath, after) => {
+
         const fullDir = path.dirname(file);
         const fullPathWithoutExt = path.resolve(fullDir, importPath);
 
-        // Extension already present → skip.
+        // Skip if already has an extension
         if (extensions.some((ext) => importPath.endsWith(ext))) {
             return match;
         }
-
-        // Search for existing file with valid extension.
+    
+        // Check for direct file match
         for (const ext of extensions) {
-            const testPath = `${fullPathWithoutExt}${ext}`;
-            if (fs.existsSync(testPath)) {
+            const testFile = `${fullPathWithoutExt}${ext}`;
+            if (fs.existsSync(testFile)) {
                 changed = true;
                 return `${before}${importPath}${ext}${after}`;
+            }
+        
+            // Check for index file in folder
+            const indexFile = path.join(fullPathWithoutExt, `index${ext}`);
+            if (fs.existsSync(indexFile)) {
+                changed = true;
+                return `${before}${importPath}${ext}${after}`; // or: `${importPath}/index${ext}`
             }
         }
 

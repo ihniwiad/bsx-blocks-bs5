@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 3,
+  "name": "bsx-blocks/check-list-item",
+  "version": "0.1.0",
+  "title": "BSX Check List Item",
+  "category": "text",
+  "parent": [
+    "bsx-blocks/check-list"
+  ],
+  "allowedBlocks": [],
+  "description": "Create a check list item.",
+  "example": {},
+  "textdomain": "bsx-blocks",
+  "attributes": {
+    "content": {
+      "type": "string",
+      "source": "html",
+      "selector": "li",
+      "__experimentalRole": "content"
+    }
+  },
+  "supports": {
+    "anchor": false,
+    "className": false,
+    "splitting": true,
+    "__experimentalSelector": "li",
+    "__unstablePasteTextInline": true,
+    "interactivity": {
+      "clientNavigation": true
+    }
+  },
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css"
+}
