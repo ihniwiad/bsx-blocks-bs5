@@ -4,6 +4,8 @@ import { PanelBody, SelectControl } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { Fragment } from '@wordpress/element';
 
+console.log(`[core-extension:list] inspector controls`);
+
 // Add UI controls to backend, set extra props.
 const withCustomListControls = createHigherOrderComponent((BlockEdit) => (props) => {
 	if (props.name !== 'core/list') return <BlockEdit {...props} />;

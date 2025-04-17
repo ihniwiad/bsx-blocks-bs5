@@ -1,5 +1,7 @@
 import { addFilter } from '@wordpress/hooks';
 
+console.log(`[core-extension:list] custom attributes`);
+
 // Register extra props th the Block.
 addFilter(
 	'blocks.registerBlockType',

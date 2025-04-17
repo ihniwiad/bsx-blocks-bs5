@@ -1,5 +1,7 @@
 import { addFilter } from '@wordpress/hooks';
 
+console.log(`[core-extension:list] frontend class`);
+
 // Transform extra props to class names in frontend.
 addFilter(
 	'blocks.getSaveContent.extraProps',

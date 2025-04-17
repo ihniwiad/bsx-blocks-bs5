@@ -70,16 +70,16 @@ function bsx_blocks_init() {
     // var_dump($block);
     // exit;
 
-    // // Add style variation (will not show anything without this)
-    // register_block_style(
-    //     'core/list',
-    //     array(
-    //         'name'  => 'bsx-check-list',
-    //         'label' => 'BSX Check List',
-    //         // 'inline_style' => '.is-style-fancy-list { color: deeppink; padding-left: 1em; list-style: square; }',
-    //         'style_handle' => 'my-hidden-style', // No need to insert inline style
-    //     )
-    // );
+    // Add style variation (will not show anything without this)
+    register_block_style(
+        'core/list',
+        array(
+            'name'  => 'bsx-check-list',
+            'label' => 'BSX Check List',
+            // 'inline_style' => '.is-style-fancy-list { color: deeppink; padding-left: 1em; list-style: square; }',
+            'style_handle' => 'my-hidden-style', // No need to insert inline style
+        )
+    );
     
 
 }
@@ -98,17 +98,17 @@ function bsx_blocks_enqueue_block_editor_assets() {
     // Global class names.
     wp_enqueue_script('global-class-names', plugin_dir_url(__FILE__) . 'build/_global-class-names/index.js');
 
-    // // Block variations.
-    // wp_enqueue_script(
-    //     'block-variations',
-    //     plugin_dir_url(__FILE__) . 'build/_block-variations/index.js',
-	// 	array('wp-blocks', 'wp-dom-ready', 'wp-hooks'),
-	// 	filemtime(plugin_dir_path(__FILE__) . 'build/_block-variations/index.js' ),
-	// 	true,
-    // );
+    // Block variations.
+    wp_enqueue_script(
+        'block-variations',
+        plugin_dir_url(__FILE__) . 'build/_block-variations/index.js',
+		array('wp-blocks', 'wp-dom-ready', 'wp-hooks'),
+		filemtime(plugin_dir_path(__FILE__) . 'build/_block-variations/index.js' ),
+		true,
+    );
 
-    // Custom block settings for Core List Block.
-    wp_enqueue_script('global-block-settings', plugin_dir_url(__FILE__) . 'build/_core-extensions/index.js');
+    // // Custom block settings for Core List Block.
+    // wp_enqueue_script('core-extensions', plugin_dir_url(__FILE__) . 'build/_core-extensions/index.js');
 
 }
 add_action('enqueue_block_editor_assets', 'bsx_blocks_enqueue_block_editor_assets');
