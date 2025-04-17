@@ -1,0 +1,20 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "bsx-blocks/custom-list",
+    "version": "0.1.0",
+    "title": "BSX Custom List",
+    "category": "text",
+    "icon": "list",
+    "description": "A customized version of the Core List Block.",
+    "keywords": [ "list", "ul", "ol", "custom" ],
+    "example": {},
+    "supports": {
+        "html": false
+    },
+    "usesContext": ["context/key"], 
+    "attributes": {},
+    "editorScript": "file:./index.js",
+    "editorStyle": "file:./editor.scss"
+}
+  
