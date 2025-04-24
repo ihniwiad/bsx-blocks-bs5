@@ -25,5 +25,5 @@ registerBlockType( metadata.name, {
 	icon,
 	edit: Edit,
 	save,
-    deprecated,
+    // deprecated,
 } );

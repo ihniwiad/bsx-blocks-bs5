@@ -9,7 +9,7 @@ import {
 import { addClassNames } from './../_functions/add-class-names.js';
 import { makeSaveAttributes } from './../_functions/attributes.js';
 import { 
-    makeBase64PreloadImgSrc,
+    // makeBase64PreloadImgSrc,
     makeImgSizesFromImgData,
 } from './../_functions/img.js';
 
@@ -33,11 +33,6 @@ export default function save( { attributes } ) {
         // height,
         origWidth,
         origHeight,
-        portraitImgId,
-        portraitImgSizes,
-        portraitImgData,
-        portraitImgSizeIndex,
-        portraitImgMaxWidthBreakpoint,
         alt,
         figcaption,
         rounded,
@@ -53,7 +48,7 @@ export default function save( { attributes } ) {
         marginLeft,
         marginRight,
         aAdditionalClassName,
-        pictureAdditionalClassName,
+        // pictureAdditionalClassName,
         imgAdditionalClassName,
         href,
         target,
@@ -75,24 +70,13 @@ export default function save( { attributes } ) {
 
     // initial set, replaces old attr 'imgSizes'
     const hasOldAttrImgSizes = typeof imgSizes !== 'undefined' && Array.isArray( imgSizes ) && imgSizes.length > 0;
-    const hasOldAttrPortraitImgSizes = typeof portraitImgSizes !== 'undefined' && Array.isArray( portraitImgSizes ) && portraitImgSizes.length > 0;
+    // const hasOldAttrPortraitImgSizes = typeof portraitImgSizes !== 'undefined' && Array.isArray( portraitImgSizes ) && portraitImgSizes.length > 0;
 
-    const calcImgSizes = hasOldAttrImgSizes ? imgSizes : makeImgSizesFromImgData( imgData );
-    const calcPortraitImgSizes = hasOldAttrPortraitImgSizes ? portraitImgSizes : makeImgSizesFromImgData( portraitImgData );
+    const fullImgData = hasOldAttrImgSizes ? imgSizes : makeImgSizesFromImgData( imgData );
 
-    // console.log( 'calcImgSizes: ' + JSON.stringify( calcImgSizes, null, 2 ) + '\n' );
+    // console.log( 'fullImgData: ' + JSON.stringify( fullImgData, null, 2 ) + '\n' );
 
     // prepare img sources attributes
-
-    // const sourcesAttributesList = makeSourcesAttributesList( {
-    //     calcImgSizes,
-    //     imgSizeIndex,
-    //     calcPortraitImgSizes,
-    //     portraitImgSizeIndex,
-    //     portraitImgMaxWidthBreakpoint,
-    //     disableResponsiveDownsizing,
-    // } );
-
     // class names
 
     const classNames = addClassNames( {
@@ -130,10 +114,10 @@ export default function save( { attributes } ) {
     ;
 
     // manage zoomImgSizeIndex & href, target, rel
-    const aSaveAttributes = ( zoomable && typeof calcImgSizes[ zoomImgSizeIndex ] != 'undefined' ) ? 
+    const aSaveAttributes = ( zoomable && typeof fullImgData[ zoomImgSizeIndex ] != 'undefined' ) ? 
         makeSaveAttributes( {
-            'href': calcImgSizes[ zoomImgSizeIndex ].url,
-            'data-size': calcImgSizes[ zoomImgSizeIndex ].width + 'x' + calcImgSizes[ zoomImgSizeIndex ].height,
+            'href': fullImgData[ zoomImgSizeIndex ].url,
+            'data-size': fullImgData[ zoomImgSizeIndex ].width + 'x' + fullImgData[ zoomImgSizeIndex ].height,
         } )
         : 
         (
@@ -149,10 +133,10 @@ export default function save( { attributes } ) {
     ;
 
     // check if valid image(s)
-    const hasValidImg = ( typeof calcImgSizes !== 'undefined' && calcImgSizes.length > 0 && typeof calcImgSizes[ imgSizeIndex ] !== 'undefined' && imgSizeIndex < calcImgSizes.length );
-    const hasValidPortraitImg = ( typeof calcPortraitImgSizes !== 'undefined' && typeof calcPortraitImgSizes[ portraitImgSizeIndex ] !== 'undefined' ) && !! portraitImgSizeIndex;
+    const hasValidImg = ( typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && imgSizeIndex < fullImgData.length );
+    // const hasValidPortraitImg = false;
 
-           // const image = typeof calcImgSizes !== 'undefined' && typeof calcImgSizes[ imgSizeIndex ] !== 'undefined' ? (
+           // const image = typeof fullImgData !== 'undefined' && typeof fullImgData[ imgSizeIndex ] !== 'undefined' ? (
     //     <>
     //         <script>document.write( '
     //             <picture className={ ! noFigureTag ? pictureAdditionalClassName : classNames }>
@@ -161,10 +145,10 @@ export default function save( { attributes } ) {
     //                         <source { ...sourceAttributes } />
     //                     ) )
     //                 }
-    //                 <img className={ imgClassName } src={ makeBase64PreloadImgSrc( calcImgSizes[ imgSizeIndex ].width, calcImgSizes[ imgSizeIndex ].height ) } alt={ alt } data-src={ calcImgSizes[ imgSizeIndex ].url } width={ !! displayedWidth ? displayedWidth : calcImgSizes[ imgSizeIndex ].width } height={ !! displayedHeight ? displayedHeight : calcImgSizes[ imgSizeIndex ].height } data-fn="lazyload" />
+    //                 <img className={ imgClassName } src={ makeBase64PreloadImgSrc( fullImgData[ imgSizeIndex ].width, fullImgData[ imgSizeIndex ].height ) } alt={ alt } data-src={ fullImgData[ imgSizeIndex ].url } width={ !! displayedWidth ? displayedWidth : fullImgData[ imgSizeIndex ].width } height={ !! displayedHeight ? displayedHeight : fullImgData[ imgSizeIndex ].height } data-fn="lazyload" />
     //             </picture>
     //         ' );</script>
-    //         <noscript><img className={ imgClassName } src={ calcImgSizes[ imgSizeIndex ].url } alt={ alt } width={ !! displayedWidth ? displayedWidth : calcImgSizes[ imgSizeIndex ].width } height={ !! displayedHeight ? displayedHeight : calcImgSizes[ imgSizeIndex ].height } /></noscript>
+    //         <noscript><img className={ imgClassName } src={ fullImgData[ imgSizeIndex ].url } alt={ alt } width={ !! displayedWidth ? displayedWidth : fullImgData[ imgSizeIndex ].width } height={ !! displayedHeight ? displayedHeight : fullImgData[ imgSizeIndex ].height } /></noscript>
     //     </>
     // )
     // :
@@ -174,7 +158,7 @@ export default function save( { attributes } ) {
 
 
     // const srcsetList = [];
-    // calcImgSizes.forEach( ( imgSize, index ) => {
+    // fullImgData.forEach( ( imgSize, index ) => {
     //     if ( 
     //         ( ( imgSizeIndex == 0 && index == 0 ) || ( imgSize.width == imgSize.height ) )
     //         || ( imgSizeIndex > 0 && index > 0 )
@@ -191,24 +175,21 @@ export default function save( { attributes } ) {
     // const srcset = srcsetList.join( ', ' );
 
     const srcset = makeSrcset( {
-        calcImgSizes,
+        fullImgData,
         imgSizeIndex,
         disableResponsiveDownsizing,
     } );
-    const src = hasValidImg ? calcImgSizes[ imgSizeIndex ].url : '';
-    const width = ( hasValidImg && displayedWidth ) ? displayedWidth : hasValidImg ? calcImgSizes[ imgSizeIndex ].width : '';
-    const height = ( hasValidImg && displayedHeight ) ? displayedHeight : hasValidImg ? calcImgSizes[ imgSizeIndex ].height : '';
+    const src = hasValidImg ? fullImgData[ imgSizeIndex ].url : '';
+    const width = ( hasValidImg && displayedWidth ) ? displayedWidth : hasValidImg ? fullImgData[ imgSizeIndex ].width : '';
+    const height = ( hasValidImg && displayedHeight ) ? displayedHeight : hasValidImg ? fullImgData[ imgSizeIndex ].height : '';
     const sizes = ( width && height ) ? '(max-width: ' + width + 'px) 100vw, ' + width + 'px' : '';
-    const landscapeImgClassName = hasValidPortraitImg ? imgClassName + ' d-portrait-none' : imgClassName;
+    const landscapeImgClassName = false ? imgClassName + ' d-portrait-none' : imgClassName;
 
     // TODO: manage className (if is outer element)
 
     const image = hasValidImg ? (
         <>
-            <script>document.write( '
-                <img className={ landscapeImgClassName } src={ makeBase64PreloadImgSrc( width, height ) } data-src={ src } data-srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } data-fn="lazyload" />
-            ' );</script>
-            <noscript><img className={ landscapeImgClassName } src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } loading="lazy" /></noscript>
+            <img className={ landscapeImgClassName } src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } loading="lazy" decoding="async" />
         </>
     )
     :
@@ -216,31 +197,31 @@ export default function save( { attributes } ) {
         <></>
     );
 
-    let portraitImage = (
-        <></>
-    );
-    if ( hasValidPortraitImg ) {
+    // let portraitImage = (
+    //     <></>
+    // );
+    // if ( hasValidPortraitImg ) {
 
-        const portraitSrcset = makeSrcset( {
-            calcImgSizes: calcPortraitImgSizes,
-            imgSizeIndex: portraitImgSizeIndex,
-        } );
-        const portraitSrc = calcPortraitImgSizes[ portraitImgSizeIndex ].url;
-        const portraitWidth = calcPortraitImgSizes[ portraitImgSizeIndex ].width;
-        const portraitHeight = calcPortraitImgSizes[ portraitImgSizeIndex ].height;
-        const portaitSizes = '(max-width: ' + portraitWidth + 'px) 100vw, ' + portraitWidth + 'px';
-        const portraitImgClassName = imgClassName + ' d-landscape-none';
+    //     const portraitSrcset = makeSrcset( {
+    //         fullImgData: calcPortraitImgSizes,
+    //         imgSizeIndex: portraitImgSizeIndex,
+    //     } );
+    //     const portraitSrc = calcPortraitImgSizes[ portraitImgSizeIndex ].url;
+    //     const portraitWidth = calcPortraitImgSizes[ portraitImgSizeIndex ].width;
+    //     const portraitHeight = calcPortraitImgSizes[ portraitImgSizeIndex ].height;
+    //     const portaitSizes = '(max-width: ' + portraitWidth + 'px) 100vw, ' + portraitWidth + 'px';
+    //     const portraitImgClassName = imgClassName + ' d-landscape-none';
 
-        portraitImage = (
-            <>
-                <script>document.write( '
-                    <img className={ portraitImgClassName } src={ makeBase64PreloadImgSrc( portraitWidth, portraitHeight ) } data-src={ portraitSrc } data-srcset={ portraitSrcset } sizes={ portaitSizes } alt={ alt } width={ portraitWidth } height={ portraitHeight } data-fn="lazyload" />
-                ' );</script>
-                <noscript><img className={ portraitImgClassName } src={ portraitSrc } srcset={ portraitSrcset } sizes={ portaitSizes } alt={ alt } width={ portraitWidth } height={ portraitHeight } loading="lazy" /></noscript>
-            </>
-        );
+    //     portraitImage = (
+    //         <>
+    //             <script>document.write( '
+    //                 <img className={ portraitImgClassName } src={ makeBase64PreloadImgSrc( portraitWidth, portraitHeight ) } data-src={ portraitSrc } data-srcset={ portraitSrcset } sizes={ portaitSizes } alt={ alt } width={ portraitWidth } height={ portraitHeight } data-fn="lazyload" />
+    //             ' );</script>
+    //             <noscript><img className={ portraitImgClassName } src={ portraitSrc } srcset={ portraitSrcset } sizes={ portaitSizes } alt={ alt } width={ portraitWidth } height={ portraitHeight } loading="lazy" /></noscript>
+    //         </>
+    //     );
 
-    }
+    // }
 
 
     const aOrImage = (
@@ -249,14 +230,12 @@ export default function save( { attributes } ) {
                 zoomable || href ? (
                     <a className={ aClassName } { ...aSaveAttributes } { ...useBlockProps.save( { className: aClassName, ...saveAttributes } ) }>
                         { image }
-                        { portraitImage }
                     </a>
                 )
                 :
                 (
                     <>
                         { image }
-                        { portraitImage }
                     </>
                 ) 
             }
@@ -272,7 +251,7 @@ export default function save( { attributes } ) {
     //             (
     //                 <figure { ...useBlockProps.save( { ...saveAttributes } ) }>
     //                     {
-    //                         typeof calcImgSizes !== 'undefined' && typeof calcImgSizes[ imgSizeIndex ] !== 'undefined' && typeof calcImgSizes[ imgSizeIndex ].url !== 'undefined' && calcImgSizes[ imgSizeIndex ].url && (
+    //                         typeof fullImgData !== 'undefined' && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && typeof fullImgData[ imgSizeIndex ].url !== 'undefined' && fullImgData[ imgSizeIndex ].url && (
     //                             <>
     //                                 { 
     //                                     aOrImage
@@ -291,7 +270,7 @@ export default function save( { attributes } ) {
     //             (
     //                 <>
     //                     { 
-    //                         typeof calcImgSizes !== 'undefined' && typeof calcImgSizes[ imgSizeIndex ] !== 'undefined' && typeof calcImgSizes[ imgSizeIndex ].url !== 'undefined' && calcImgSizes[ imgSizeIndex ].url && (
+    //                         typeof fullImgData !== 'undefined' && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && typeof fullImgData[ imgSizeIndex ].url !== 'undefined' && fullImgData[ imgSizeIndex ].url && (
     //                             <>
     //                                 {
     //                                     aOrImage
@@ -313,7 +292,7 @@ export default function save( { attributes } ) {
                 (
                     <figure { ...useBlockProps.save( { className: classNames, ...saveAttributes } ) }>
                         {
-                            typeof calcImgSizes !== 'undefined' && typeof calcImgSizes[ imgSizeIndex ] !== 'undefined' && typeof calcImgSizes[ imgSizeIndex ].url !== 'undefined' && calcImgSizes[ imgSizeIndex ].url && (
+                            typeof fullImgData !== 'undefined' && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && typeof fullImgData[ imgSizeIndex ].url !== 'undefined' && fullImgData[ imgSizeIndex ].url && (
                                 <>
                                     { 
                                         aOrImage
@@ -332,7 +311,7 @@ export default function save( { attributes } ) {
                 (
                     <>
                         { 
-                            typeof calcImgSizes !== 'undefined' && typeof calcImgSizes[ imgSizeIndex ] !== 'undefined' && typeof calcImgSizes[ imgSizeIndex ].url !== 'undefined' && calcImgSizes[ imgSizeIndex ].url && (
+                            typeof fullImgData !== 'undefined' && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && typeof fullImgData[ imgSizeIndex ].url !== 'undefined' && fullImgData[ imgSizeIndex ].url && (
                                 <>
                                     {
                                         aOrImage

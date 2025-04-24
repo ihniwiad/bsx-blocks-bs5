@@ -15,6 +15,345 @@ import {
 } from './../_functions/img.js';
 
 
+
+/**
+ * Loads an image fully to get its natural dimensions.
+ *
+ * @param {string} url
+ * @returns {Promise<{ width: number, height: number } | null>}
+ */
+async function loadImageDimensions(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+        img.onerror = () => resolve(null);
+        img.src = url;
+    });
+}
+  
+  /**
+   * Checks if an image exists using a HEAD request.
+   *
+   * @param {string} url
+   * @returns {Promise<boolean>}
+   */
+async function doesImageExist(url) {
+    try {
+        const res = await fetch(url, { method: 'HEAD' });
+        return res.ok;
+    } catch {
+        return false;
+    }
+}
+  
+/**
+ * Scales dimensions proportionally.
+ *
+ * @param {number} originalWidth
+ * @param {number} originalHeight
+ * @param {number} max
+ * @returns {{ width: number, height: number }}
+ */
+function getScaledDimensions(originalWidth, originalHeight, max) {
+    if (originalWidth >= originalHeight) {
+        return {
+            width: max,
+            height: Math.round((originalHeight / originalWidth) * max),
+        };
+    } else {
+        return {
+            height: max,
+            width: Math.round((originalWidth / originalHeight) * max),
+        };
+    }
+}
+  
+/**
+ * Returns all known and calculated image sizes from a WP image object.
+ *
+ * @param {Object} image
+ * @returns {Promise<Array<{ key: string, url: string, width: number, height: number }>>}
+ */
+export async function getAllImageSizes(image) {
+    const sizes = image.sizes || {};
+    const results = [];
+  
+    // Add standard sizes if available
+    for (const key of ['thumbnail', 'medium', 'large', 'full']) {
+        const size = sizes[key];
+        if (size?.url && size?.width && size?.height) {
+            results.push({
+                key,
+                url: size.url,
+                width: size.width,
+                height: size.height,
+            });
+        }
+    }
+
+    let originalSize = null;
+
+    // Load true original size
+    if (image.originalImageURL) {
+        originalSize = await loadImageDimensions(image.originalImageURL);
+        if (originalSize) {
+            results.push({
+                key: 'original',
+                url: image.originalImageURL,
+                width: originalSize.width,
+                height: originalSize.height,
+            });
+        }
+    }
+
+    // Include medium_large if available or reconstruct if missing
+    if (sizes.medium_large?.url) {
+        results.push({
+            key: 'medium_large',
+            url: sizes.medium_large.url,
+            width: sizes.medium_large.width,
+            height: sizes.medium_large.height,
+        });
+    } else if (originalSize && originalSize.width > 770 && image.originalImageURL) {
+        const extMatch = image.originalImageURL.match(/\.(jpe?g|png|webp|gif|avif|svg)$/i);
+        const extension = extMatch ? extMatch[0] : '';
+        const base = image.originalImageURL.replace(/\-[0-9]+x[0-9]+(?=\.\w+$)/, '').replace(/\.(jpe?g|png|webp|gif|avif|svg)$/i, '');
+    
+        // Size `medium_large` has a differen calculation: It always reduces the width (not the height) to 768px.
+        const mediumLargeWidth = 768;
+        const ratio = originalSize.height / originalSize.width;
+        const mediumLargeHeight = Math.round(mediumLargeWidth * ratio);
+        const mediumLargeUrl = `${base}-${mediumLargeWidth}x${mediumLargeHeight}${extension}`;
+        if (await doesImageExist(mediumLargeUrl)) {
+            results.push({
+                key: 'medium_large',
+                url: mediumLargeUrl,
+                width: mediumLargeWidth,
+                height: mediumLargeHeight,
+            });
+        }
+    }
+  
+    // Reconstructed 2048 and 1536 versions
+    if (originalSize && image.originalImageURL) {
+        const extMatch = image.originalImageURL.match(/\.(jpe?g|png|webp|gif|avif|svg)$/i);
+        const extension = extMatch ? extMatch[0] : '';
+        const base = image.originalImageURL.replace(/\-[0-9]+x[0-9]+(?=\.\w+$)/, '').replace(/\.(jpe?g|png|webp|gif|avif|svg)$/i, '');
+    
+        for (const max of [2048, 1536]) {
+            const { width, height } = getScaledDimensions(originalSize.width, originalSize.height, max);
+            const constructedUrl = `${base}-${width}x${height}${extension}`;
+            if (await doesImageExist(constructedUrl)) {
+                results.push({
+                    key: `${max}`,
+                    url: constructedUrl,
+                    width,
+                    height,
+                });
+            }
+        }
+    }
+  
+    // Sort by size (area) ascending
+    results.sort((a, b) => a.width * a.height - b.width * b.height);
+  
+    return results;
+}
+  
+
+//   /**
+//    * Returns all known and calculated image sizes from a WP image object.
+//    *
+//    * @param {Object} image
+//    * @returns {Promise<Array<{ key: string, url: string, width: number, height: number }>>}
+//    */
+//   export async function getAllImageSizes(image) {
+//     const sizes = image.sizes || {};
+//     const results = [];
+  
+//     // Default known sizes
+//     for (const key of ['thumbnail', 'medium', 'large', 'full']) {
+//       const size = sizes[key];
+//       if (size?.url && size?.width && size?.height) {
+//         results.push({
+//           key,
+//           url: size.url,
+//           width: size.width,
+//           height: size.height,
+//         });
+//       }
+//     }
+  
+//     let originalSize = null;
+  
+//     // Load real original size
+//     if (image.originalImageURL) {
+//       originalSize = await loadImageDimensions(image.originalImageURL);
+//       if (originalSize) {
+//         results.push({
+//           key: 'original',
+//           url: image.originalImageURL,
+//           width: originalSize.width,
+//           height: originalSize.height,
+//         });
+//       }
+//     }
+  
+//     // Construct and check 2048 and 1536 variants
+//     if (originalSize && image.originalImageURL) {
+//       const extMatch = image.originalImageURL.match(/\.(jpe?g|png|webp|gif|avif|svg)$/i);
+//       const extension = extMatch ? extMatch[0] : '';
+//       const base = image.originalImageURL.replace(/\-[0-9]+x[0-9]+(?=\.\w+$)/, '').replace(/\.(jpe?g|png|webp|gif|avif|svg)$/i, '');
+  
+//       for (const max of [2048, 1536]) {
+//         const { width, height } = getScaledDimensions(originalSize.width, originalSize.height, max);
+//         const constructedUrl = `${base}-${width}x${height}${extension}`;
+//         if (await doesImageExist(constructedUrl)) {
+//           results.push({
+//             key: `${max}`,
+//             url: constructedUrl,
+//             width,
+//             height,
+//           });
+//         }
+//       }
+//     }
+  
+//     return results;
+// }
+  
+
+
+// /**
+//  * Try to get dimensions of an image via HTTP HEAD request.
+//  *
+//  * @param {string} url - The image URL to check.
+//  * @returns {Promise<{ width: number, height: number }|null>}
+//  */
+// async function getImageSizeFromURL(url) {
+//     console.log(`getImageSizeFromURL()`, url);
+//     try {
+//       const response = await fetch(url, { method: 'HEAD' });
+//       console.log(`response`, response);
+//       const width = parseInt(response.headers.get('x-image-width'), 10);
+//       const height = parseInt(response.headers.get('x-image-height'), 10);
+//       if (width && height) {
+//         return { width, height };
+//       }
+//     } catch (err) {
+//         console.error(err);
+//       // Image doesn't exist or CORS issue
+//     }
+//     console.log(`return null`);
+//     return null;
+//   }
+  
+//   /**
+//    * Calculate scaled dimensions keeping aspect ratio.
+//    *
+//    * @param {number} originalWidth
+//    * @param {number} originalHeight
+//    * @param {number} max
+//    * @returns {{ width: number, height: number }}
+//    */
+//   function getScaledDimensions(originalWidth, originalHeight, max) {
+//     if (originalWidth >= originalHeight) {
+//       const width = max;
+//       const height = Math.round((originalHeight / originalWidth) * max);
+//       return { width, height };
+//     } else {
+//       const height = max;
+//       const width = Math.round((originalWidth / originalHeight) * max);
+//       return { width, height };
+//     }
+//   }
+  
+//   /**
+//    * Extracts all known and constructed image sizes from a WordPress image object.
+//    *
+//    * @param {Object} image - The image object from MediaUpload.
+//    * @returns {Promise<Array>} Array of image size objects with { key, url, width, height }.
+//    */
+//   export async function getAllImageSizes(image) {
+
+//     console.log(`getAllImageSizes()`, image);
+
+//     const sizes = image.sizes || {};
+//     const results = [];
+  
+//     const addIfValid = (key, url, width, height) => {
+//       if (url && width && height) {
+//         results.push({ key, url, width, height });
+//       }
+//     };
+  
+//     // 1. Sizes from the object
+//     for (const key of ['thumbnail', 'medium', 'large', 'full']) {
+//       const size = sizes[key];
+//       if (size?.url && size?.width && size?.height) {
+//         results.push({
+//           key,
+//           url: size.url,
+//           width: size.width,
+//           height: size.height,
+//         });
+//       }
+//     }
+  
+//     let originalSize = null;
+  
+//     // 2. Handle "original" (non-scaled version)
+//     if (image.originalImageURL) {
+//         console.log(`originalImageURL`, image.originalImageURL);
+//       originalSize = await getImageSizeFromURL(image.originalImageURL);
+//       console.log(`return originalSize`, originalSize);
+//       if (originalSize) {
+//         results.push({
+//           key: 'original',
+//           url: image.originalImageURL,
+//           width: originalSize.width,
+//           height: originalSize.height,
+//         });
+//       }
+//     }
+  
+//     // 3. Construct and verify 2048/1536 variants
+//     if (originalSize && image.originalImageURL) {
+//       const originalBase = image.originalImageURL.replace(/\.(jpe?g|png|webp|gif|avif|svg)$/i, '');
+//       const extension = image.originalImageURL.match(/\.(jpe?g|png|webp|gif|avif|svg)$/i)?.[0] || '';
+  
+//       const candidates = [
+//         { key: '2048', max: 2048 },
+//         { key: '1536', max: 1536 },
+//       ];
+  
+//       for (const { key, max } of candidates) {
+//         const { width, height } = getScaledDimensions(originalSize.width, originalSize.height, max);
+//         const constructedUrl = `${originalBase}-${width}x${height}${extension}`;
+//         const check = await getImageSizeFromURL(constructedUrl);
+//         console.log(`check (${max})`, check);
+//         if (check) {
+//           results.push({
+//             key,
+//             url: constructedUrl,
+//             width: check.width,
+//             height: check.height,
+//           });
+//         }
+//       }
+//     }
+  
+//     return results;
+// }
+  
+
+
+
+
+
+
+
+
 // do not use – external function causes react error for unknown reason
 export function migrateToLazyimgV2( attributes, mediaSizes, portraitMediaSizes ) {
     
@@ -192,7 +531,7 @@ export const getSrcsetUrlsFromImgHtml = ( imgHtml ) => {
 export const makeSourcesAttributesList = ( attributes ) => {
 
     const {
-        calcImgSizes,
+        fullImgData,
         imgSizeIndex,
         calcPortraitImgSizes,
         portraitImgSizeIndex,
@@ -285,16 +624,16 @@ export const makeSourcesAttributesList = ( attributes ) => {
             ! disableResponsiveDownsizing
             && adaptedCurrentImgIndex < parseInt( imgSizeIndex ) 
             && adaptedCurrentImgIndex > skipIndex
-            && typeof calcImgSizes != 'undefined' 
-            && typeof calcImgSizes[ adaptedCurrentImgIndex ] != 'undefined' 
-            && typeof calcImgSizes[ adaptedCurrentImgIndex ].url != 'undefined' 
+            && typeof fullImgData != 'undefined' 
+            && typeof fullImgData[ adaptedCurrentImgIndex ] != 'undefined' 
+            && typeof fullImgData[ adaptedCurrentImgIndex ].url != 'undefined' 
         ) {
             sourcesAttributesList.push( {
                 media: '(max-width: ' + ( parseInt( item.breakpoint ) - 0.02 ) + 'px)',
-                srcset: makeBase64PreloadImgSrc( calcImgSizes[ adaptedCurrentImgIndex ].width, calcImgSizes[ adaptedCurrentImgIndex ].height ),
-                'data-srcset': calcImgSizes[ adaptedCurrentImgIndex ].url,
-                'data-width': calcImgSizes[ adaptedCurrentImgIndex ].width,
-                'data-height': calcImgSizes[ adaptedCurrentImgIndex ].height,
+                srcset: makeBase64PreloadImgSrc( fullImgData[ adaptedCurrentImgIndex ].width, fullImgData[ adaptedCurrentImgIndex ].height ),
+                'data-srcset': fullImgData[ adaptedCurrentImgIndex ].url,
+                'data-width': fullImgData[ adaptedCurrentImgIndex ].width,
+                'data-height': fullImgData[ adaptedCurrentImgIndex ].height,
             } );
         }
     } );
@@ -307,25 +646,25 @@ export const makeSourcesAttributesList = ( attributes ) => {
 export const makeSrcset = ( attributes ) => {
 
     const {
-        calcImgSizes,
+        fullImgData,
         imgSizeIndex,
         disableResponsiveDownsizing,
     } = attributes;
 
-    // console.log( 'calcImgSizes: ' + JSON.stringify( calcImgSizes, null, 2 ) + '\n' );
+    // console.log( 'fullImgData: ' + JSON.stringify( fullImgData, null, 2 ) + '\n' );
     // console.log( 'imgSizeIndex: ' + imgSizeIndex );
 
     const srcsetList = [];
     if ( disableResponsiveDownsizing ) {
         // exactly one src
-        srcsetList.push( calcImgSizes[ imgSizeIndex ].url + ' ' + calcImgSizes[ imgSizeIndex ].width + 'w' );
+        srcsetList.push( fullImgData[ imgSizeIndex ].url + ' ' + fullImgData[ imgSizeIndex ].width + 'w' );
     }
     else {
         // multiple sources
-        calcImgSizes.forEach( ( imgSize, index ) => {
+        fullImgData.forEach( ( imgSize, index ) => {
             if ( index === 0 ) {
                 // first loop, thumbnail image – add only if selected or if image has square format (use largest size since current loop size will always be square at first loop)
-                if ( imgSizeIndex == 0 || calcImgSizes[ calcImgSizes.length - 1 ].width == calcImgSizes[ calcImgSizes.length - 1 ].height ) {
+                if ( imgSizeIndex == 0 || fullImgData[ fullImgData.length - 1 ].width == fullImgData[ fullImgData.length - 1 ].height ) {
                     // add thumbnail to srcset
                     srcsetList.push( imgSize.url + ' ' + imgSize.width + 'w' );
                 }

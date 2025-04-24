@@ -1,6 +1,11 @@
 // editor style vars
 
 
+// Bootstrap config (TODO: Get from CSS variables?)
+
+$bsx-grid-gutter-width: 30px !default; 
+
+
 // wp
 
 $bsxui-list-appender-selector:          '.block-list-appender' !default;
