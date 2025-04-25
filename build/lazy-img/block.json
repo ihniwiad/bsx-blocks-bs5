@@ -8,13 +8,9 @@
   "description": "Lazy loading image with responsive image sizes.",
   "example": {},
   "attributes": {
-    "hasFigure": {
-      "boolean": "string",
-      "default": true
-    },
-    "imgSizes": {
-      "type": "array",
-      "default": []
+    "v": {
+      "type": "number",
+      "default": -1
     },
     "imgData": {
       "type": "array",
@@ -27,41 +23,17 @@
     "imgId": {
       "type": "number"
     },
-    "url": {
-      "type": "string"
-    },
-    "width": {
-      "type": "number"
-    },
-    "height": {
-      "type": "number"
-    },
     "origWidth": {
       "type": "number"
     },
     "origHeight": {
       "type": "number"
     },
-    "portraitImgId": {
-      "type": "number"
-    },
-    "portraitImgSizes": {
-      "type": "array",
-      "default": []
-    },
-    "portraitImgData": {
-      "type": "array",
-      "default": []
-    },
-    "portraitImgSizeIndex": {
-      "type": "string",
-      "default": "3"
-    },
-    "portraitImgMaxWidthBreakpoint": {
-      "type": "string"
-    },
     "alt": {
-      "type": "string"
+      "type": "string",
+      "selector": "img",
+      "source": "attribute",
+      "attribute": "alt"
     },
     "figcaption": {
       "type": "string",
@@ -107,37 +79,44 @@
     "aAdditionalClassName": {
       "type": "string"
     },
-    "pictureAdditionalClassName": {
-      "type": "string"
-    },
     "imgAdditionalClassName": {
       "type": "string"
     },
     "href": {
-      "type": "string"
+      "type": "string",
+      "selector": "a",
+      "source": "attribute",
+      "attribute": "href"
     },
     "target": {
-      "type": "string"
+      "type": "string",
+      "selector": "a",
+      "source": "attribute",
+      "attribute": "target"
     },
     "rel": {
-      "type": "string"
+      "type": "string",
+      "selector": "a",
+      "source": "attribute",
+      "attribute": "rel"
     },
     "scale": {
       "type": "number"
     },
     "displayedWidth": {
-      "type": "number"
+      "type": "number",
+      "selector": "img",
+      "source": "attribute",
+      "attribute": "width"
     },
     "displayedHeight": {
-      "type": "number"
+      "type": "number",
+      "selector": "img",
+      "source": "attribute",
+      "attribute": "height"
     },
     "noFigureTag": {
       "type": "boolean"
-    },
-    "imgHtml": {
-      "type": "string",
-      "source": "html",
-      "selector": "noscript"
     }
   },
   "supports": {

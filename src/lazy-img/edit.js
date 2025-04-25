@@ -19,16 +19,16 @@ import {
     SVG, 
     Path,
 } from '@wordpress/components';
-import {
-    useDispatch,
-    useRegistry,
-    select,
-    useSelect,
-    withSelect,
-} from '@wordpress/data';
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { store as coreStore } from '@wordpress/core-data';
-import { useEffect, useRef } from '@wordpress/element';
+// import {
+//     useDispatch,
+//     useRegistry,
+//     select,
+//     useSelect,
+//     withSelect,
+// } from '@wordpress/data';
+// import { store as blockEditorStore } from '@wordpress/block-editor';
+// import { store as coreStore } from '@wordpress/core-data';
+// import { useEffect, useRef } from '@wordpress/element';
 
 
 import { addClassNames } from './../_functions/add-class-names.js';
@@ -49,32 +49,11 @@ import {
     textAlignToolbar,
 } from './../_functions/controls.js';
 import { 
-    // getUrlTruncAndExtension,
-    // fullImgIsScaled,
-    // getOriginalImgUrl,
-    // getSizesAndWithoutSizesTruncFromUrlTrunc,
-    // makeSizedImgs,
-    // getImgWithHeight,
-    // imgExists,
-    // getImgSizesData,
-    // makeBase64PreloadImgSrc,
-    makeImgSizesFromImgData,
-    // makeImgData,
-    // getSizeSlugFromUrl,
-    // getImgAllDataFromMediaSizes,
-    // getImgWidthHeight,
-} from './../_functions/img.js';
-
-
-// utils
-import {
-	makeSourcesAttributesList,
-	makeSrcset,
-    getSrcsetUrlsFromImgHtml,
-    // migrateToLazyimgV2,
     getAllImageSizes,
-} from './utils.js';
-
+    maximizeImgData,
+    minimizeImgData,
+    makeSrcset,
+} from './../_functions/img.js';
 
 
 /**
@@ -89,7 +68,7 @@ function Edit( { attributes, setAttributes, clientId } ) {
 
 	const {
         imgId,
-        imgSizes,
+        // imgSizes,
         imgData,
         imgSizeIndex,
         // url,
@@ -112,7 +91,6 @@ function Edit( { attributes, setAttributes, clientId } ) {
         marginLeft,
         marginRight,
         aAdditionalClassName,
-        // pictureAdditionalClassName, // deprecated
         imgAdditionalClassName,
         href,
         target,
@@ -124,23 +102,18 @@ function Edit( { attributes, setAttributes, clientId } ) {
         imgHtml,
     } = attributes;
 
-    // initial set, replaces old attr 'imgSizes'
-    const hasOldAttrImgSizes = typeof imgSizes !== 'undefined' && Array.isArray( imgSizes ) && imgSizes.length > 0;
 
-    const fullImgData = makeImgSizesFromImgData(imgData);
+    const fullImgData = maximizeImgData(imgData);
 
-    // console.log( 'imgData: ' + JSON.stringify( imgData, null, 2 ) + '\n' );
-    // console.log( 'hasOldAttrImgSizes: ' + hasOldAttrImgSizes )
-    // console.log( 'attributes: ' + JSON.stringify( attributes, null, 2 ) + '\n' );
-    console.log(`fullImgData`, fullImgData);
-    // console.log( 'edit()' )
-    // console.log( 'imgSizeIndex: ' + imgSizeIndex )
+    console.log(`attributes (init)`, attributes);
+    console.log(`fullImgData (init)`, fullImgData);
+    
 
     // migrate deprecated attributes to new once
 
-    const registry = useRegistry();
-    const { updateBlockAttributes } =
-        useDispatch( blockEditorStore );
+    // const registry = useRegistry();
+    // const { updateBlockAttributes } =
+    //     useDispatch( blockEditorStore );
 
 
     // class names
@@ -163,39 +136,11 @@ function Edit( { attributes, setAttributes, clientId } ) {
             const sizes = await getAllImageSizes(img);
             console.log('All image sizes:', sizes);
 
-            // const newImgAllData = await getImgSizesData( img );
-            // const originalWidth = newImgAllData.originalWidth;
-            // const originalHeight = newImgAllData.originalHeight;
             const originalDims = sizes[sizes.length - 1];
             const originalWidth = originalDims.width;
             const originalHeight = originalDims.height;
-            const ext = img.url.split('.').pop();
-            const trunc = img.originalImageURL.replace(/\-[0-9]+x[0-9]+(?=\.\w+$)/, '').replace(/\.(jpe?g|png|webp|gif|avif|svg)$/i, '');
-            // console.log('originalDims:', [originalWidth, originalHeight]);
-            // console.log('trunc:', trunc);
-            // console.log('ext:', ext);
-            // console.log('newImgAllData:', newImgAllData);
 
-            // console.log( 'newImgAllData: ' + JSON.stringify( newImgAllData, null, 2 ) );
-            // console.log( 'original size: ' + originalWidth + 'x' + originalHeight )
-
-            // prepare attr 'imgData' to save in block (replacing old attr 'imgSizes')
-            // const newImgData = makeImgData( newImgAllData.imgs, newImgAllData.truncWithoutSizeSlug, newImgAllData.fileExt );
-
-            const shortSizes = [];
-            sizes.forEach(size => {
-                shortSizes.push({
-                    s: size.url.replace(trunc, '').replace('.' + ext, ''),
-                    w: size.width,
-                    h: size.height,
-                });
-            });
-
-            const newImgData = [{
-                trunc,
-                ext,
-                sizes: shortSizes,
-            }];
+            const newImgData = minimizeImgData(sizes);
 
             console.log('newImgData:', newImgData);
 
@@ -226,13 +171,13 @@ function Edit( { attributes, setAttributes, clientId } ) {
                 origHeight: originalHeight,
                 alt: img.alt,
                 zoomImgSizeIndex: newZoomImgSizeIndex,
-                // remove deprecated attributes if set
-                ...(imgSizes && imgSizes.length > 0) && {
-                    imgSizes: '', // save empty, replaced by imgData
-                    url: '', // save empty, replaced by imgData
-                    width: '', // save empty, replaced by imgData
-                    height: '', // save empty, replaced by imgData
-                },
+                // // remove deprecated attributes if set
+                // ...(imgSizes && imgSizes.length > 0) && {
+                //     imgSizes: '', // save empty, replaced by imgData
+                //     url: '', // save empty, replaced by imgData
+                //     width: '', // save empty, replaced by imgData
+                //     height: '', // save empty, replaced by imgData
+                // },
                 // displayedWidth or originalHeight might be preset before image is uploaded
                 ...(!displayedWidth && !displayedHeight && !scale) && {
                     scale: 1,
@@ -294,15 +239,13 @@ function Edit( { attributes, setAttributes, clientId } ) {
     };
 
     const onChangeZoomable = ( value ) => {
-        if ( zoomImgSizeIndex == undefined ) {
-            setAttributes( { 
-                zoomable: value,
-                zoomImgSizeIndex: ( fullImgData.length - 1 ).toString(),
-            } );
-        }
-        else {
-            setAttributes( { zoomable: value } );
-        }
+        const newZoomImgSizeIndex = zoomImgSizeIndex == undefined ? (fullImgData.length - 1).toString() : zoomImgSizeIndex;
+        setAttributes( { 
+            zoomable: value,
+            zoomImgSizeIndex: newZoomImgSizeIndex,
+            href: value ? fullImgData[zoomImgSizeIndex].url : null,
+            target: value ? '_blank' : null,
+        } );
     };
     const onChangeExternalGalleryParent = ( value ) => {
         setAttributes( { externalGalleryParent: value } );
@@ -335,10 +278,6 @@ function Edit( { attributes, setAttributes, clientId } ) {
     const onChangeAAdditionalClassName = ( value ) => {
         setAttributes( { aAdditionalClassName: value } );
     };
-     // deprecated:
-    // const onChangePictureAdditionalClassName = ( value ) => {
-    //     setAttributes( { pictureAdditionalClassName: value } );
-    // };
     const onChangeImgAdditionalClassName = ( value ) => {
         setAttributes( { imgAdditionalClassName: value } );
     };
@@ -356,14 +295,12 @@ function Edit( { attributes, setAttributes, clientId } ) {
         }
     };
     const onChangeTarget = ( value ) => {
+        // Currently a toggle: `true` means new tab so set `string` value '_blank'.
         setAttributes( { target: !! value ? '_blank' : '' } );
     };
     const onChangeRel = ( value ) => {
         setAttributes( { rel: value } );
     };
-    // const onChangeDataFn = ( value ) => {
-    //     setAttributes( { dataFn: value } );
-    // };
 
     const onChangeNoFigureTag = ( value ) => {
         setAttributes( { 
@@ -386,8 +323,9 @@ function Edit( { attributes, setAttributes, clientId } ) {
     const imgSizeRadioControlOptions = [];
     if ( typeof fullImgData !== 'undefined' ) {
         fullImgData.forEach( ( imgSize, index ) => {
+            const isSquareThumb = fullImgData[ fullImgData.length - 1 ].width !== fullImgData[ fullImgData.length - 1 ].height && imgSize.width === imgSize.height;
             imgSizeRadioControlOptions.push( 
-                { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + ( fullImgData[ fullImgData.length - 1 ].width !== fullImgData[ fullImgData.length - 1 ].height && imgSize.width === imgSize.height ? ' ' + __( '(Square format)', 'bsx-blocks' ) : '' ) } 
+                { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + ( isSquareThumb ? ' ' + __( '(Square format)', 'bsx-blocks' ) : '' ) + ` (${imgSize.key})` } 
             );
         } );
     }
@@ -396,8 +334,9 @@ function Edit( { attributes, setAttributes, clientId } ) {
     if ( typeof fullImgData !== 'undefined' ) {
         fullImgData.forEach( ( imgSize, index ) => {
             if ( index >= imgSizeIndex ) {
+                const isSquareThumb = fullImgData[ fullImgData.length - 1 ].width !== fullImgData[ fullImgData.length - 1 ].height && imgSize.width === imgSize.height;
                 zoomImgSizeRadioControlOptions.push( 
-                    { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + ( fullImgData[ fullImgData.length - 1 ].width !== fullImgData[ fullImgData.length - 1 ].height && imgSize.width === imgSize.height ? ' ' + __( '(Square format)', 'bsx-blocks' ) : '' ) } 
+                    { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + ( isSquareThumb ? ' ' + __( '(Square format)', 'bsx-blocks' ) : '' ) + ` (${imgSize.key})` } 
                 );
             }
         } );
@@ -563,7 +502,7 @@ function Edit( { attributes, setAttributes, clientId } ) {
 
                 <PanelBody title={ __( 'Zoomable (optional)', 'bsx-blocks' ) }>
                     {
-                        !! href ? (
+                        !! href && ! zoomable ? (
                             <div class="bsxui-config-panel-row">
                                 <div class="bsxui-alert">
                                     { 
@@ -583,7 +522,7 @@ function Edit( { attributes, setAttributes, clientId } ) {
                                     help={ __( 'If enabled click on image will open shadowbox gallery with large image.', 'bsx-blocks' ) }
                                 />
                                 {
-                                    zoomable ? (
+                                    zoomable && (
                                         <>
                                             <RadioControl
                                                 label={ __( 'Zoom image size', 'bsx-blocks' ) }
@@ -606,14 +545,6 @@ function Edit( { attributes, setAttributes, clientId } ) {
                                             />
                                         </>
                                     )
-                                    :
-                                    (
-                                        <div class="bsxui-config-panel-row">
-                                            <div class="bsxui-alert">
-                                                { __( 'Zoomable image is deactivated since No figure Tag is set.', 'bsx-blocks' ) }
-                                            </div>
-                                        </div>
-                                    )
                                 }
                             </>
                         )
@@ -625,7 +556,7 @@ function Edit( { attributes, setAttributes, clientId } ) {
                         !! zoomable ? (
                             <div class="bsxui-config-panel-row">
                                 <div class="bsxui-alert">
-                                    { __( 'Link is deactivated since <i>Zoomable image</i> is set.', 'bsx-blocks' ) }
+                                    { __( 'Link is deactivated since Zoomable image is set.', 'bsx-blocks' ) }
                                 </div>
                             </div>
                         )

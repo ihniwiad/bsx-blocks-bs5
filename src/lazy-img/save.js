@@ -9,14 +9,9 @@ import {
 import { addClassNames } from './../_functions/add-class-names.js';
 import { makeSaveAttributes } from './../_functions/attributes.js';
 import { 
-    // makeBase64PreloadImgSrc,
-    makeImgSizesFromImgData,
-} from './../_functions/img.js';
-
-// utils
-import {
+    maximizeImgData,
     makeSrcset,
-} from './utils.js';
+} from './../_functions/img.js';
 
 /**
  * @return {Element} Element to render.
@@ -26,7 +21,6 @@ export default function save( { attributes } ) {
     const {
         className,
         imgSizeIndex,
-        imgSizes,
         imgData,
         url,
         // width,
@@ -48,7 +42,6 @@ export default function save( { attributes } ) {
         marginLeft,
         marginRight,
         aAdditionalClassName,
-        // pictureAdditionalClassName,
         imgAdditionalClassName,
         href,
         target,
@@ -59,22 +52,7 @@ export default function save( { attributes } ) {
         noFigureTag,
     } = attributes;
 
-    // console.log( 'Hello from v3 save()!' )
-
-
-    // TEST
-    // console.log( 'imgData: ' + JSON.stringify( imgData, null, 2 ) );
-    // console.log( 'imgSizes: ' + JSON.stringify( imgSizes, null, 2 ) + '\n' );
-
-
-
-    // initial set, replaces old attr 'imgSizes'
-    const hasOldAttrImgSizes = typeof imgSizes !== 'undefined' && Array.isArray( imgSizes ) && imgSizes.length > 0;
-    // const hasOldAttrPortraitImgSizes = typeof portraitImgSizes !== 'undefined' && Array.isArray( portraitImgSizes ) && portraitImgSizes.length > 0;
-
-    const fullImgData = hasOldAttrImgSizes ? imgSizes : makeImgSizesFromImgData( imgData );
-
-    // console.log( 'fullImgData: ' + JSON.stringify( fullImgData, null, 2 ) + '\n' );
+    const fullImgData = maximizeImgData(imgData);
 
     // prepare img sources attributes
     // class names
@@ -107,30 +85,42 @@ export default function save( { attributes } ) {
     // allow zoomable img
     const saveAttributes = ( zoomable && ! externalGalleryParent ) ? 
         makeSaveAttributes( {
-            'data-fn': 'photoswipe',
+            'data-bsx': 'lightbox',
         } )
         :
         {}
     ;
 
     // manage zoomImgSizeIndex & href, target, rel
-    const aSaveAttributes = ( zoomable && typeof fullImgData[ zoomImgSizeIndex ] != 'undefined' ) ? 
-        makeSaveAttributes( {
-            'href': fullImgData[ zoomImgSizeIndex ].url,
-            'data-size': fullImgData[ zoomImgSizeIndex ].width + 'x' + fullImgData[ zoomImgSizeIndex ].height,
-        } )
-        : 
-        (
-            !! href ? 
-            {
-                'href': href,
-                'target': target,
-                rel: href ? ( rel ? rel + ' noopener noreferrer' : 'noopener noreferrer' ) : '',
-            } 
-            : 
-            {}
-        )
-    ;
+    // const aSaveAttributes = ( zoomable && typeof fullImgData[ zoomImgSizeIndex ] != 'undefined' ) ? 
+    //     makeSaveAttributes({
+    //         'href': href,
+    //         'target': target,
+    //         'data-pswp-width': fullImgData[zoomImgSizeIndex].width,
+    //         'data-pswp-height': fullImgData[zoomImgSizeIndex].height,
+    //         'data-bsx-t': 'lightbox-item',
+    //     })
+    //     : 
+    //     (
+    //         !! href ? 
+    //         {
+    //             'href': href,
+    //             'target': target,
+    //             'rel': rel,
+    //         } 
+    //         : 
+    //         {}
+    //     )
+    // ;
+
+    const aSaveAttributes = makeSaveAttributes({
+        'href': href,
+        'target': target,
+        'rel': rel,
+        'data-pswp-width': zoomable && typeof fullImgData[zoomImgSizeIndex] != 'undefined' ? fullImgData[zoomImgSizeIndex].width : null,
+        'data-pswp-height': zoomable && typeof fullImgData[zoomImgSizeIndex] != 'undefined' ? fullImgData[zoomImgSizeIndex].height : null,
+        'data-bsx-t': zoomable ? 'lightbox-item' : null,
+    });
 
     // check if valid image(s)
     const hasValidImg = ( typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && imgSizeIndex < fullImgData.length );
@@ -197,33 +187,6 @@ export default function save( { attributes } ) {
         <></>
     );
 
-    // let portraitImage = (
-    //     <></>
-    // );
-    // if ( hasValidPortraitImg ) {
-
-    //     const portraitSrcset = makeSrcset( {
-    //         fullImgData: calcPortraitImgSizes,
-    //         imgSizeIndex: portraitImgSizeIndex,
-    //     } );
-    //     const portraitSrc = calcPortraitImgSizes[ portraitImgSizeIndex ].url;
-    //     const portraitWidth = calcPortraitImgSizes[ portraitImgSizeIndex ].width;
-    //     const portraitHeight = calcPortraitImgSizes[ portraitImgSizeIndex ].height;
-    //     const portaitSizes = '(max-width: ' + portraitWidth + 'px) 100vw, ' + portraitWidth + 'px';
-    //     const portraitImgClassName = imgClassName + ' d-landscape-none';
-
-    //     portraitImage = (
-    //         <>
-    //             <script>document.write( '
-    //                 <img className={ portraitImgClassName } src={ makeBase64PreloadImgSrc( portraitWidth, portraitHeight ) } data-src={ portraitSrc } data-srcset={ portraitSrcset } sizes={ portaitSizes } alt={ alt } width={ portraitWidth } height={ portraitHeight } data-fn="lazyload" />
-    //             ' );</script>
-    //             <noscript><img className={ portraitImgClassName } src={ portraitSrc } srcset={ portraitSrcset } sizes={ portaitSizes } alt={ alt } width={ portraitWidth } height={ portraitHeight } loading="lazy" /></noscript>
-    //         </>
-    //     );
-
-    // }
-
-
     const aOrImage = (
         <>
             { 
@@ -241,49 +204,6 @@ export default function save( { attributes } ) {
             }
         </>
     );
-
-    // console.log( 'return save()' )
-
-    // const testOutput = (
-    //     <>
-    //         {
-    //             ! noFigureTag ?
-    //             (
-    //                 <figure { ...useBlockProps.save( { ...saveAttributes } ) }>
-    //                     {
-    //                         typeof fullImgData !== 'undefined' && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && typeof fullImgData[ imgSizeIndex ].url !== 'undefined' && fullImgData[ imgSizeIndex ].url && (
-    //                             <>
-    //                                 { 
-    //                                     aOrImage
-    //                                 }
-    //                                 {
-    //                                     figcaption && ! RichText.isEmpty( figcaption ) && (
-    //                                         <RichText.Content tagName="figcaption" className="font-italic" value={ figcaption } />
-    //                                     )
-    //                                 }
-    //                             </>
-    //                         )
-    //                     }
-    //                 </figure>
-    //             )
-    //             :
-    //             (
-    //                 <>
-    //                     { 
-    //                         typeof fullImgData !== 'undefined' && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && typeof fullImgData[ imgSizeIndex ].url !== 'undefined' && fullImgData[ imgSizeIndex ].url && (
-    //                             <>
-    //                                 {
-    //                                     aOrImage
-    //                                 }
-    //                             </>
-    //                         )
-    //                     }
-    //                 </>
-    //             )
-    //         }
-    //     </>
-    // );
-    // console.log( 'testOutput (save.js): ' + JSON.stringify( testOutput, null, 2 ) + '\n' );
 
 	return (
         <>
