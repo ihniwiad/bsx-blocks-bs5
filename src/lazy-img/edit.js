@@ -243,7 +243,7 @@ function Edit( { attributes, setAttributes, clientId } ) {
         setAttributes( { 
             zoomable: value,
             zoomImgSizeIndex: newZoomImgSizeIndex,
-            href: value ? fullImgData[zoomImgSizeIndex].url : null,
+            href: value ? fullImgData[newZoomImgSizeIndex].url : null,
             target: value ? '_blank' : null,
         } );
     };
