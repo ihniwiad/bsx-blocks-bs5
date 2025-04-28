@@ -62,6 +62,9 @@ $bsxui-icon-text-button-list-item-inline-width: 	7.5rem !default;
 $bsxui-alert-background-color: 		#fef8ee !default; // @wordpress
 $bsxui-alert-color: 				inherit !default; // @wordpress
 $bsxui-alert-border-color: 			darken($bsxui-alert-background-color, 15%) !default; // @wordpress
+// $bsxui-alert-border-color: 			color.adjust($bsxui-alert-background-color, -15%) !default; // @wordpress
+// $bsxui-alert-border-color: 			color.scale($bsxui-alert-background-color, -15%) !default; // @wordpress
+
 $bsxui-alert-border-radius: 		.25rem !default; 
 $bsxui-alert-padding: 				.125rem .25rem !default; 
 

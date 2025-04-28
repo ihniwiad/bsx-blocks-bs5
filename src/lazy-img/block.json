@@ -100,17 +100,14 @@
 			"source": "attribute",
 			"attribute": "rel"
 		},
-		"scale": {
-			"type": "number"
-		},
 		"displayedWidth": {
-			"type": "number",
+			"type": "string",
 			"selector": "img",
 			"source": "attribute",
 			"attribute": "width"
 		},
 		"displayedHeight": {
-			"type": "number",
+			"type": "string",
 			"selector": "img",
 			"source": "attribute",
 			"attribute": "height"

@@ -61,10 +61,10 @@ import {
  *
  * @return {Element} Element to render.
  */
-// export default function Edit( { attributes, setAttributes, clientId } ) {
-function Edit( { attributes, setAttributes, clientId } ) {
+// export default function Edit({ attributes, setAttributes, clientId }) {
+function Edit({ attributes, setAttributes, clientId }) {
 
-    // console.log( 'Edit()' )
+    // console.log('Edit()')
 
 	const {
         imgId,
@@ -95,7 +95,7 @@ function Edit( { attributes, setAttributes, clientId } ) {
         href,
         target,
         rel,
-        scale,
+        // scale,
         displayedWidth,
         displayedHeight,
         noFigureTag,
@@ -103,34 +103,40 @@ function Edit( { attributes, setAttributes, clientId } ) {
     } = attributes;
 
 
+    // Note: `displayedWidth` and `displayedHeight` must be extracted as `string` since 
+    // type `number` doesn’t work. Please parse to int yourself!
+
     const fullImgData = maximizeImgData(imgData);
+    let scale = (parseInt(displayedWidth) / fullImgData[imgSizeIndex].width) || null;
 
     console.log(`attributes (init)`, attributes);
-    console.log(`fullImgData (init)`, fullImgData);
+    // console.log(`fullImgData (init)`, fullImgData);
+    console.log(`displayed sizes (init)`, [displayedWidth, displayedHeight]);
+    console.log(`scale (init)`, scale);
     
 
     // migrate deprecated attributes to new once
 
     // const registry = useRegistry();
     // const { updateBlockAttributes } =
-    //     useDispatch( blockEditorStore );
+    //     useDispatch(blockEditorStore);
 
 
     // class names
 
-    const classNames = addClassNames( {
+    const classNames = addClassNames({
         textAlign,
         marginBefore,
         marginAfter,
         marginLeft,
         marginRight,
-    } );
+    });
 
-    const blockProps = useBlockProps( { className: classNames } );
+    const blockProps = useBlockProps({ className: classNames });
 
-    async function onSelectImage( img ) {
+    async function onSelectImage(img) {
 
-        if ( typeof img.url !== 'undefined' ) {
+        if (typeof img.url !== 'undefined') {
 
             // Get all data of new image (detect even the unscaled original size and the non listed scaled sizes 1536px & 2048px).
             const sizes = await getAllImageSizes(img);
@@ -145,10 +151,10 @@ function Edit( { attributes, setAttributes, clientId } ) {
             console.log('newImgData:', newImgData);
 
             // check if current img size index fits to new img (might be too large)
-            let newImgSizeIndex = parseInt( imgSizeIndex );
-            if ( parseInt( imgSizeIndex ) >= sizes.length ) {
+            let newImgSizeIndex = parseInt(imgSizeIndex);
+            if (parseInt(imgSizeIndex) >= sizes.length) {
                 newImgSizeIndex = sizes.length - 1;
-                // console.log( 'reduce initial imgSizeIndex to: ' + newImgSizeIndex );
+                // console.log('reduce initial imgSizeIndex to: ' + newImgSizeIndex);
             }
 
             // do not use thumbnail for srcset if has square format, start with img sizes index 1 then
@@ -156,14 +162,14 @@ function Edit( { attributes, setAttributes, clientId } ) {
 
             // check if current zoom img size index fits to new img (might be too large) or is unset
             let newZoomImgSizeIndex = zoomImgSizeIndex;
-            if ( ( zoomable && ! zoomImgSizeIndex ) || parseInt( zoomImgSizeIndex ) < parseInt( newImgSizeIndex ) || parseInt( zoomImgSizeIndex ) >= parseInt( sizes.length ) ) {
-                newZoomImgSizeIndex = ( sizes.length - 1 ).toString();
+            if ((zoomable && ! zoomImgSizeIndex) || parseInt(zoomImgSizeIndex) < parseInt(newImgSizeIndex) || parseInt(zoomImgSizeIndex) >= parseInt(sizes.length)) {
+                newZoomImgSizeIndex = (sizes.length - 1).toString();
             }
 
-            const imgSelectedWidth = sizes[ newImgSizeIndex ].width;
-            const imgSelectedHeight = sizes[ newImgSizeIndex ].height;
+            const imgSelectedWidth = sizes[newImgSizeIndex].width;
+            const imgSelectedHeight = sizes[newImgSizeIndex].height;
 
-            setAttributes( {
+            setAttributes({
                 imgId: img.id,
                 imgData: newImgData,
                 imgSizeIndex: newImgSizeIndex.toString(),
@@ -179,218 +185,222 @@ function Edit( { attributes, setAttributes, clientId } ) {
                 //     height: '', // save empty, replaced by imgData
                 // },
                 // displayedWidth or originalHeight might be preset before image is uploaded
-                ...(!displayedWidth && !displayedHeight && !scale) && {
-                    scale: 1,
-                },
+                // ...(!displayedWidth && !displayedHeight && !scale) && {
+                //     scale: 1,
+                // },
                 ...(scale && !displayedWidth && !displayedHeight) && {
                     displayedWidth: imgSelectedWidth * scale,
                     displayedHeight: imgSelectedHeight * scale,
                 },
                 ...(displayedWidth) && {
-                    scale: displayedWidth / imgSelectedWidth,
+                    // scale: displayedWidth / imgSelectedWidth,
                     displayedHeight: imgSelectedHeight * displayedWidth / imgSelectedWidth,
                 },
                 ...(displayedHeight) && {
-                    scale: displayedHeight / imgSelectedHeight,
+                    // scale: displayedHeight / imgSelectedHeight,
                     displayedWidth: imgSelectedWidth * displayedHeight / imgSelectedHeight,
                 },
-            } );
+            });
             
         }
     };
 
-    const onChangeMediaAlt = ( value ) => {
-        setAttributes( { alt: value } );
+    const onChangeMediaAlt = (value) => {
+        setAttributes({ alt: value });
     };
-    const onChangeFigcaption = ( value ) => {
-        setAttributes( { figcaption: value } );
-    };
-
-    const onChangeScale = ( value ) => {
-        setAttributes( { 
-            scale: parseFloat( value ),
-            displayedWidth: ( !! value && value != fullImgData[ imgSizeIndex ].width ) ? Math.round( fullImgData[ imgSizeIndex ].width * parseFloat( value ) ) : '',
-            displayedHeight: ( !! value && value != fullImgData[ imgSizeIndex ].height ) ? Math.round( fullImgData[ imgSizeIndex ].height * parseFloat( value ) ) : '',
-        } );
-    };
-    const onChangeDisplayedWidth = ( value ) => {
-        setAttributes( { 
-            displayedWidth: value != fullImgData[ imgSizeIndex ].width ? parseFloat( value ) : '',
-            displayedHeight: value != fullImgData[ imgSizeIndex ].height ? Math.round( value / fullImgData[ imgSizeIndex ].width * fullImgData[ imgSizeIndex ].height ) : '',
-            scale: parseFloat( value / fullImgData[ imgSizeIndex ].width ),
-        } );
-    };
-    const onChangeDisplayedHeight = ( value ) => {
-        setAttributes( { 
-            displayedHeight: value != fullImgData[ imgSizeIndex ].width ? parseFloat( value ) : fullImgData[ imgSizeIndex ].width,
-            displayedWidth: value != fullImgData[ imgSizeIndex ].height ? Math.round( value / fullImgData[ imgSizeIndex ].height * fullImgData[ imgSizeIndex ].width ) : '',
-            scale: parseFloat( value / fullImgData[ imgSizeIndex ].height ),
-        } );
+    const onChangeFigcaption = (value) => {
+        setAttributes({ figcaption: value });
     };
 
-    const onChangeRounded = ( value ) => {
-        setAttributes( { rounded: value } );
+    const onChangeScale = (value) => {
+        scale = value;
+        setAttributes({ 
+            // scale: parseFloat(value),
+            displayedWidth: (!! value && value != fullImgData[imgSizeIndex].width) ? Math.round(fullImgData[imgSizeIndex].width * parseFloat(value)) : '',
+            displayedHeight: (!! value && value != fullImgData[imgSizeIndex].height) ? Math.round(fullImgData[imgSizeIndex].height * parseFloat(value)) : '',
+        });
     };
-    const onChangeImgThumbnail = ( value ) => {
-        setAttributes( { imgThumbnail: value } );
+    const onChangeDisplayedWidth = (value) => {
+        scale = parseFloat(value / fullImgData[imgSizeIndex].width);
+        setAttributes({ 
+            displayedWidth: value != fullImgData[imgSizeIndex].width ? parseFloat(value) : '',
+            displayedHeight: value != fullImgData[imgSizeIndex].height ? Math.round(value / fullImgData[imgSizeIndex].width * fullImgData[imgSizeIndex].height) : '',
+            // scale: parseFloat(value / fullImgData[imgSizeIndex].width),
+        });
     };
-    const onChangeBorderState = ( value ) => {
-        setAttributes( { borderState: value } );
+    const onChangeDisplayedHeight = (value) => {
+        scale = parseFloat(value / fullImgData[imgSizeIndex].height);
+        setAttributes({ 
+            displayedHeight: value != fullImgData[imgSizeIndex].width ? parseFloat(value) : fullImgData[imgSizeIndex].width,
+            displayedWidth: value != fullImgData[imgSizeIndex].height ? Math.round(value / fullImgData[imgSizeIndex].height * fullImgData[imgSizeIndex].width) : '',
+            // scale: parseFloat(value / fullImgData[imgSizeIndex].height),
+        });
     };
 
-    const onChangeZoomable = ( value ) => {
+    const onChangeRounded = (value) => {
+        setAttributes({ rounded: value });
+    };
+    const onChangeImgThumbnail = (value) => {
+        setAttributes({ imgThumbnail: value });
+    };
+    const onChangeBorderState = (value) => {
+        setAttributes({ borderState: value });
+    };
+
+    const onChangeZoomable = (value) => {
         const newZoomImgSizeIndex = zoomImgSizeIndex == undefined ? (fullImgData.length - 1).toString() : zoomImgSizeIndex;
-        setAttributes( { 
+        setAttributes({ 
             zoomable: value,
             zoomImgSizeIndex: newZoomImgSizeIndex,
             href: value ? fullImgData[newZoomImgSizeIndex].url : null,
             target: value ? '_blank' : null,
-        } );
+        });
     };
-    const onChangeExternalGalleryParent = ( value ) => {
-        setAttributes( { externalGalleryParent: value } );
+    const onChangeExternalGalleryParent = (value) => {
+        setAttributes({ externalGalleryParent: value });
     };
-    const onChangeZoomImgSizeIndex = ( value ) => {
-        setAttributes( { zoomImgSizeIndex: value.toString() } );
-    };
-
-    const onChangeDisableResponsiveDownsizing = ( value ) => {
-        setAttributes( { disableResponsiveDownsizing: value } );
+    const onChangeZoomImgSizeIndex = (value) => {
+        setAttributes({ zoomImgSizeIndex: value.toString() });
     };
 
-    const onChangeTextAlign = ( value ) => {
-        setAttributes( { textAlign: value } );
+    const onChangeDisableResponsiveDownsizing = (value) => {
+        setAttributes({ disableResponsiveDownsizing: value });
     };
 
-    const onChangeMarginBefore = ( value ) => {
-        setAttributes( { marginBefore: value } );
-    };
-    const onChangeMarginAfter = ( value ) => {
-        setAttributes( { marginAfter: value } );
-    };
-    const onChangeMarginLeft = ( value ) => {
-        setAttributes( { marginLeft: value } );
-    };
-    const onChangeMarginRight = ( value ) => {
-        setAttributes( { marginRight: value } );
+    const onChangeTextAlign = (value) => {
+        setAttributes({ textAlign: value });
     };
 
-    const onChangeAAdditionalClassName = ( value ) => {
-        setAttributes( { aAdditionalClassName: value } );
+    const onChangeMarginBefore = (value) => {
+        setAttributes({ marginBefore: value });
     };
-    const onChangeImgAdditionalClassName = ( value ) => {
-        setAttributes( { imgAdditionalClassName: value } );
+    const onChangeMarginAfter = (value) => {
+        setAttributes({ marginAfter: value });
+    };
+    const onChangeMarginLeft = (value) => {
+        setAttributes({ marginLeft: value });
+    };
+    const onChangeMarginRight = (value) => {
+        setAttributes({ marginRight: value });
     };
 
-    const onChangeHref = ( value ) => {
-        if ( href == '' ) {
+    const onChangeAAdditionalClassName = (value) => {
+        setAttributes({ aAdditionalClassName: value });
+    };
+    const onChangeImgAdditionalClassName = (value) => {
+        setAttributes({ imgAdditionalClassName: value });
+    };
+
+    const onChangeHref = (value) => {
+        if (href == '') {
             // reset aAdditionalClassName
-            setAttributes( { 
+            setAttributes({ 
                 href: value,
                 aAdditionalClassName: '',
-            } );
+            });
         }
         else {
-            setAttributes( { href: value } );
+            setAttributes({ href: value });
         }
     };
-    const onChangeTarget = ( value ) => {
+    const onChangeTarget = (value) => {
         // Currently a toggle: `true` means new tab so set `string` value '_blank'.
-        setAttributes( { target: !! value ? '_blank' : '' } );
+        setAttributes({ target: !! value ? '_blank' : '' });
     };
-    const onChangeRel = ( value ) => {
-        setAttributes( { rel: value } );
+    const onChangeRel = (value) => {
+        setAttributes({ rel: value });
     };
 
-    const onChangeNoFigureTag = ( value ) => {
-        setAttributes( { 
+    const onChangeNoFigureTag = (value) => {
+        setAttributes({ 
             noFigureTag: value,
             zoomable: false,
             figcaption: [],
-        } );
+        });
     };
 
 
-    const onChangeImgSizeIndex = ( value ) => {
-        setAttributes( { 
+    const onChangeImgSizeIndex = (value) => {
+        scale = parseFloat(fullImgData[value].width / fullImgData[value].height);
+        setAttributes({ 
             imgSizeIndex: value.toString(),
-            // url: fullImgData[ value ].url,
-            displayedWidth: parseInt( fullImgData[ value ].width ),
-            displayedHeight: parseInt( fullImgData[ value ].height ),
-            scale: parseFloat( fullImgData[ value ].width / fullImgData[ value ].height ),
-        } );
+            // url: fullImgData[value].url,
+            displayedWidth: parseInt(fullImgData[value].width),
+            displayedHeight: parseInt(fullImgData[value].height),
+            // scale: parseFloat(fullImgData[value].width / fullImgData[value].height),
+        });
     };
     const imgSizeRadioControlOptions = [];
-    if ( typeof fullImgData !== 'undefined' ) {
-        fullImgData.forEach( ( imgSize, index ) => {
-            const isSquareThumb = fullImgData[ fullImgData.length - 1 ].width !== fullImgData[ fullImgData.length - 1 ].height && imgSize.width === imgSize.height;
-            imgSizeRadioControlOptions.push( 
-                { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + ( isSquareThumb ? ' ' + __( '(Square format)', 'bsx-blocks' ) : '' ) + ` (${imgSize.key})` } 
-            );
-        } );
+    if (typeof fullImgData !== 'undefined') {
+        fullImgData.forEach((imgSize, index) => {
+            const isSquareThumb = fullImgData[fullImgData.length - 1].width !== fullImgData[fullImgData.length - 1].height && imgSize.width === imgSize.height;
+            imgSizeRadioControlOptions.push(
+                { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + (isSquareThumb ? ' ' + __('(Square format)', 'bsx-blocks') : '') + ` (${imgSize.key})` } 
+           );
+        });
     }
 
     const zoomImgSizeRadioControlOptions = [];
-    if ( typeof fullImgData !== 'undefined' ) {
-        fullImgData.forEach( ( imgSize, index ) => {
-            if ( index >= imgSizeIndex ) {
-                const isSquareThumb = fullImgData[ fullImgData.length - 1 ].width !== fullImgData[ fullImgData.length - 1 ].height && imgSize.width === imgSize.height;
-                zoomImgSizeRadioControlOptions.push( 
-                    { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + ( isSquareThumb ? ' ' + __( '(Square format)', 'bsx-blocks' ) : '' ) + ` (${imgSize.key})` } 
-                );
+    if (typeof fullImgData !== 'undefined') {
+        fullImgData.forEach((imgSize, index) => {
+            if (index >= imgSizeIndex) {
+                const isSquareThumb = fullImgData[fullImgData.length - 1].width !== fullImgData[fullImgData.length - 1].height && imgSize.width === imgSize.height;
+                zoomImgSizeRadioControlOptions.push(
+                    { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + (isSquareThumb ? ' ' + __('(Square format)', 'bsx-blocks') : '') + ` (${imgSize.key})` } 
+               );
             }
-        } );
+        });
     }
 
     // class names
 
-    // const classNames = addClassNames( {
+    // const classNames = addClassNames({
     //     textAlign,
     //     marginBefore,
     //     marginAfter,
     //     marginLeft,
     //     marginRight,
-    // } );
+    // });
 
-    const imgClassName = addClassNames( {
+    const imgClassName = addClassNames({
         rounded,
         imgThumbnail,
         borderState,
-    }, 'img-fluid' + ( imgAdditionalClassName ? ' ' + imgAdditionalClassName : '' )  );
+    }, 'img-fluid' + (imgAdditionalClassName ? ' ' + imgAdditionalClassName : '') );
 
     // image
 
-    const hasValidImg = ( imgId && typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && imgSizeIndex < fullImgData.length );
+    const hasValidImg = (imgId && typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[imgSizeIndex] !== 'undefined' && imgSizeIndex < fullImgData.length);
 
-    const srcset = makeSrcset( {
+    const srcset = makeSrcset({
         fullImgData,
         imgSizeIndex,
-    } );
+    });
 
-    const src = hasValidImg ? fullImgData[ imgSizeIndex ].url : '';
-    const width = ( hasValidImg && displayedWidth ) ? displayedWidth : hasValidImg ? fullImgData[ imgSizeIndex ].width : '';
-    const height = ( hasValidImg && displayedHeight ) ? displayedHeight : hasValidImg ? fullImgData[ imgSizeIndex ].height : '';
-    const sizes = ( width && height ) ? '(max-width: ' + width + 'px) 100vw, ' + width + 'px' : '';
+    const src = hasValidImg ? fullImgData[imgSizeIndex].url : '';
+    const width = (hasValidImg && displayedWidth) ? displayedWidth : hasValidImg ? fullImgData[imgSizeIndex].width : '';
+    const height = (hasValidImg && displayedHeight) ? displayedHeight : hasValidImg ? fullImgData[imgSizeIndex].height : '';
+    const sizes = (width && height) ? '(max-width: ' + width + 'px) 100vw, ' + width + 'px' : '';
 
     const image = hasValidImg ? (
         <img className={ imgClassName } src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } loading="lazy" />
-    )
+   )
     :
     (
         <></>
-    );
+   );
 
     const controls = (
     	<>
     		<BlockControls>
                 {
-                    textAlignToolbar( textAlign, onChangeTextAlign )
+                    textAlignToolbar(textAlign, onChangeTextAlign)
                 }
             </BlockControls>
             <InspectorControls>
-                <PanelBody title={ __( 'Image', 'bsx-blocks' ) }>
+                <PanelBody title={ __('Image', 'bsx-blocks') }>
                     <TextControl 
-                        label={ __( 'Alt', 'bsx-blocks' ) }
+                        label={ __('Alt', 'bsx-blocks') }
                         value={ alt } 
                         onChange={ onChangeMediaAlt }
                     />
@@ -400,209 +410,211 @@ function Edit( { attributes, setAttributes, clientId } ) {
                                 onSelect={ onSelectImage }
                                 allowedTypes="image"
                                 value={ imgId }
-                                render={ ( { open } ) => (
+                                render={ ({ open }) => (
                                     <Button
                                         className="bsxui-config-panel-img-button has-margin-bottom"
                                         onClick={ open }
                                     >
-                                        <img class="bsxui-config-panel-img" src={ fullImgData[ imgSizeIndex ].url } alt={ __( 'Change / upload image', 'bsx-blocks' ) } />
+                                        <img class="bsxui-config-panel-img" src={ fullImgData[imgSizeIndex].url } alt={ __('Change / upload image', 'bsx-blocks') } />
                                     </Button>
-                                ) }
+                               ) }
                             />
-                        )
+                       )
                         : 
                         (
                             <div class="bsxui-config-panel-row">
-                                <div class="bsxui-config-panel-text">{ __( '– No image selected yet –', 'bsx-blocks' ) }</div>
+                                <div class="bsxui-config-panel-text">{ __('– No image selected yet –', 'bsx-blocks') }</div>
                             </div>
-                        )
+                       )
                     }
                     <div class="bsxui-config-panel-row">
                         <MediaUpload
                             onSelect={ onSelectImage }
                             allowedTypes="image"
                             value={ imgId }
-                            render={ ( { open } ) => (
+                            render={ ({ open }) => (
                                 <Button 
                                     onClick={ open }
                                     isSecondary
                                 >
-                                    { __( 'Change / upload image', 'bsx-blocks' ) }
+                                    { __('Change / upload image', 'bsx-blocks') }
                                 </Button>
-                            ) }
+                           ) }
                         />
                     </div>
                     <RadioControl
-                        label={ __( 'Image size and format', 'bsx-blocks' ) }
+                        label={ __('Image size and format', 'bsx-blocks') }
                         selected={ imgSizeIndex.toString() }
                         options={ imgSizeRadioControlOptions }
                         onChange={ onChangeImgSizeIndex }
                     />
                     {
-                        fullImgData[ imgSizeIndex ] != undefined && fullImgData[ imgSizeIndex ].url != undefined && (
+                        fullImgData[imgSizeIndex] != undefined && fullImgData[imgSizeIndex].url != undefined && (
                             <div class="bsxui-config-panel-row">
                                 <div class="bsxui-config-panel-text">
-                                    <a class="bsxui-link" href={ fullImgData[ imgSizeIndex ].url } target="_blank">{ __( 'Preview selected image', 'bsx-blocks' ) }</a>
+                                    <a class="bsxui-link" href={ fullImgData[imgSizeIndex].url } target="_blank">{ __('Preview selected image', 'bsx-blocks') }</a>
                                 </div>
                             </div>
-                        )
+                       )
                     }
                     {
-                        imgId && typeof fullImgData !== 'undefined' && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && (
+                        imgId && typeof fullImgData !== 'undefined' && typeof fullImgData[imgSizeIndex] !== 'undefined' && (
                             <>
                                 <TextControl 
-                                    label={ __( 'Displayed width', 'bsx-blocks' ) }
-                                    value={ !! displayedWidth ? displayedWidth : fullImgData[ imgSizeIndex ].width  } 
+                                    label={ __('Displayed width', 'bsx-blocks') }
+                                    value={ !! displayedWidth ? displayedWidth : fullImgData[imgSizeIndex].width  } 
                                     onChange={ onChangeDisplayedWidth }
                                 />
                                 <TextControl 
-                                    label={ __( 'Displayed height', 'bsx-blocks' ) }
-                                    value={ !! displayedHeight ? displayedHeight : fullImgData[ imgSizeIndex ].height } 
+                                    label={ __('Displayed height', 'bsx-blocks') }
+                                    value={ !! displayedHeight ? displayedHeight : fullImgData[imgSizeIndex].height } 
                                     onChange={ onChangeDisplayedHeight }
                                 />
                                 {
-                                    scaleSelect( scale, onChangeScale )
+                                    scaleSelect(scale, onChangeScale)
                                 }
                             </>
-                        )
+                       )
                     }
                     <SelectControl 
-                        label={ __( 'Rounded', 'bsx-blocks' ) }
+                        label={ __('Rounded', 'bsx-blocks') }
                         value={ rounded }
                         onChange={ onChangeRounded }
                         options={ [
-                            { value: '', label: __( '– unset –', 'bsx-blocks' ) },
-                            { value: 'rounded', label: __( 'Rounded corners', 'bsx-blocks' ) },
-                            { value: 'circle', label: __( 'Circle', 'bsx-blocks' ) },
-                        ] }
+                            { value: '', label: __('– unset –', 'bsx-blocks') },
+                            { value: 'rounded', label: __('Rounded corners', 'bsx-blocks') },
+                            { value: 'circle', label: __('Circle', 'bsx-blocks') },
+                       ] }
                     />
                     <ToggleControl
-                        label={ __( 'Border', 'bsx-blocks' ) }
+                        label={ __('Border', 'bsx-blocks') }
                         checked={ !! imgThumbnail }
                         onChange={ onChangeImgThumbnail }
                     />
                     <SelectControl 
-                        label={ __( 'Border color', 'bsx-blocks' ) }
+                        label={ __('Border color', 'bsx-blocks') }
                         value={ borderState }
                         onChange={ onChangeBorderState }
                         options={ [
-                            { value: '', label: __( '– unset –', 'bsx-blocks' ) },
-                            { value: 'white', label: __( 'White', 'bsx-blocks' ) },
-                            { value: 'primary', label: __( 'Primary', 'bsx-blocks' ) },
-                            { value: 'secondary', label: __( 'Secondary', 'bsx-blocks' ) },
-                            { value: 'success', label: __( 'Success', 'bsx-blocks' ) },
-                            { value: 'danger', label: __( 'Danger', 'bsx-blocks' ) },
-                            { value: 'warning', label: __( 'Warning', 'bsx-blocks' ) },
-                            { value: 'info', label: __( 'Info', 'bsx-blocks' ) },
-                            { value: 'light', label: __( 'Light', 'bsx-blocks' ) },
-                            { value: 'dark', label: __( 'Dark', 'bsx-blocks' ) },
-                        ] }
+                            { value: '', label: __('– unset –', 'bsx-blocks') },
+                            { value: 'white', label: __('White', 'bsx-blocks') },
+                            { value: 'primary', label: __('Primary', 'bsx-blocks') },
+                            { value: 'secondary', label: __('Secondary', 'bsx-blocks') },
+                            { value: 'success', label: __('Success', 'bsx-blocks') },
+                            { value: 'danger', label: __('Danger', 'bsx-blocks') },
+                            { value: 'warning', label: __('Warning', 'bsx-blocks') },
+                            { value: 'info', label: __('Info', 'bsx-blocks') },
+                            { value: 'light', label: __('Light', 'bsx-blocks') },
+                            { value: 'dark', label: __('Dark', 'bsx-blocks') },
+                       ] }
                     />
                 </PanelBody>
 
-                <PanelBody title={ __( 'Zoomable (optional)', 'bsx-blocks' ) }>
+                <PanelBody title={ __('Zoomable (optional)', 'bsx-blocks') }>
                     {
                         !! href && ! zoomable ? (
                             <div class="bsxui-config-panel-row">
                                 <div class="bsxui-alert">
                                     { 
-                                        __( 'Zoomable image is deactivated since href is set.', 'bsx-blocks' ) 
+                                        __('Zoomable image is deactivated since href is set.', 'bsx-blocks') 
                                     }
                                 </div>
                             </div>
-                        )
+                       )
                         :
                         (
                             <>
                                 <ToggleControl
                                     className={ !! noFigureTag ? 'bsxui-disabled' : '' }
-                                    label={ __( 'Zoomable image', 'bsx-blocks' ) }
+                                    label={ __('Zoomable image', 'bsx-blocks') }
                                     checked={ !! zoomable }
                                     onChange={ onChangeZoomable }
-                                    help={ __( 'If enabled click on image will open shadowbox gallery with large image.', 'bsx-blocks' ) }
+                                    help={ __('If enabled click on image will open shadowbox gallery with large image.', 'bsx-blocks') }
                                 />
                                 {
                                     zoomable && (
                                         <>
                                             <RadioControl
-                                                label={ __( 'Zoom image size', 'bsx-blocks' ) }
+                                                label={ __('Zoom image size', 'bsx-blocks') }
                                                 selected={ zoomImgSizeIndex }
                                                 options={ zoomImgSizeRadioControlOptions }
                                                 onChange={ onChangeZoomImgSizeIndex }
                                             />
                                             {
                                                 imgSizeIndex == zoomImgSizeIndex && (
-                                                    <div class="bsxui-config-panel-text">
-                                                        { __( 'Currently your zoom image is not larger than your original image.', 'bsx-blocks' ) }
+                                                    <div class="bsxui-config-panel-row">
+                                                        <div class="bsxui-alert">
+                                                        { __('Currently your zoom image is not larger than your original image.', 'bsx-blocks') }
+                                                        </div>
                                                     </div>
-                                                )
+                                               )
                                             }
                                             <ToggleControl
-                                                label={ __( 'External gallery parent', 'bsx-blocks' ) }
+                                                label={ __('External gallery parent', 'bsx-blocks') }
                                                 checked={ !! externalGalleryParent }
                                                 onChange={ onChangeExternalGalleryParent }
-                                                help={ __( 'Enabled if using custom external shadowbox gallery element (e.g. configured BSX Wrapper) wrapping this image.', 'bsx-blocks' ) }
+                                                help={ __('Enabled if using custom external shadowbox gallery element (e.g. configured BSX Wrapper) wrapping this image.', 'bsx-blocks') }
                                             />
                                         </>
-                                    )
+                                   )
                                 }
                             </>
-                        )
+                       )
                     }
                 </PanelBody>
 
-                <PanelBody title={ __( 'Link (optional)', 'bsx-blocks' ) }>
+                <PanelBody title={ __('Link (optional)', 'bsx-blocks') }>
                     {
                         !! zoomable ? (
                             <div class="bsxui-config-panel-row">
                                 <div class="bsxui-alert">
-                                    { __( 'Link is deactivated since Zoomable image is set.', 'bsx-blocks' ) }
+                                    { __('Link is deactivated since Zoomable image is set.', 'bsx-blocks') }
                                 </div>
                             </div>
-                        )
+                       )
                         :
                         (
                             <>
                                 {
-                                    linkUrlInput( href, onChangeHref )
+                                    linkUrlInput(href, onChangeHref)
                                 }
                                 {
-                                    targetToggle( target, onChangeTarget )
+                                    targetToggle(target, onChangeTarget)
                                 }
                                 {
-                                    relInput( rel, onChangeRel )
+                                    relInput(rel, onChangeRel)
                                 }
                                 {
-                                    // dataFnInput( dataFn, onChangeDataFn )
+                                    // dataFnInput(dataFn, onChangeDataFn)
                                 }
                             </>
-                        )
+                       )
                     }
                 </PanelBody>
                 
-                <PanelBody title={ __( 'Margin', 'bsx-blocks' ) }>
+                <PanelBody title={ __('Margin', 'bsx-blocks') }>
                     {
-                        marginLeftSelect( marginLeft, onChangeMarginLeft )
+                        marginLeftSelect(marginLeft, onChangeMarginLeft)
                     }
                     {
-                        marginRightSelect( marginRight, onChangeMarginRight )
+                        marginRightSelect(marginRight, onChangeMarginRight)
                     }
                     {
-                        marginBeforeSelect( marginBefore, onChangeMarginBefore )
+                        marginBeforeSelect(marginBefore, onChangeMarginBefore)
                     }
                     {
-                        marginAfterSelect( marginAfter, onChangeMarginAfter )
+                        marginAfterSelect(marginAfter, onChangeMarginAfter)
                     }
                 </PanelBody>
 
             </InspectorControls>
             <InspectorAdvancedControls>
                 {
-                    disableResponsiveDownsizingToggle( disableResponsiveDownsizing, onChangeDisableResponsiveDownsizing )
+                    disableResponsiveDownsizingToggle(disableResponsiveDownsizing, onChangeDisableResponsiveDownsizing)
                 }
                 <ToggleControl
                     className={ !! zoomable ? 'bsxui-disabled' : '' }
-                    label={ __( 'No figure tag', 'bsx-blocks' ) }
+                    label={ __('No figure tag', 'bsx-blocks') }
                     checked={ !! noFigureTag }
                     onChange={ onChangeNoFigureTag }
                 />
@@ -610,40 +622,40 @@ function Edit( { attributes, setAttributes, clientId } ) {
                     !! zoomable && (
                         <div class="bsxui-config-panel-row">
                             <div class="bsxui-alert">
-                                { __( 'Figure tag must exist since Zoomable image is set.', 'bsx-blocks' ) }
+                                { __('Figure tag must exist since Zoomable image is set.', 'bsx-blocks') }
                             </div>
                         </div>
-                    )
+                   )
                 }
                 {
                     !! href && (
                         <TextControl 
-                            label={ __( 'A element additional class(es)', 'bsx-blocks' ) }
+                            label={ __('A element additional class(es)', 'bsx-blocks') }
                             value={ aAdditionalClassName } 
                             onChange={ onChangeAAdditionalClassName }
                         />
-                    )
+                   )
                 }
                 {/* {
                     ! noFigureTag ? (
                         <TextControl 
-                            label={ __( 'Picture element additional class(es) – DEPRECATED', 'bsx-blocks' ) }
+                            label={ __('Picture element additional class(es) – DEPRECATED', 'bsx-blocks') }
                             value={ pictureAdditionalClassName } 
                             onChange={ onChangePictureAdditionalClassName }
                         />
-                    )
+                   )
                     :
                     (
                         <div class="bsxui-config-panel-row">
                             <div class="bsxui-alert">
-                                { __( 'Picture element additional class(es) is deactivated since No figure tag is set. Use Additional class(es) instead.', 'bsx-blocks' ) }
+                                { __('Picture element additional class(es) is deactivated since No figure tag is set. Use Additional class(es) instead.', 'bsx-blocks') }
                                 . 
                             </div>
                         </div>
-                    )
+                   )
                 } */}
                 <TextControl 
-                    label={ __( 'Image element additional class(es)', 'bsx-blocks' ) }
+                    label={ __('Image element additional class(es)', 'bsx-blocks') }
                     value={ imgAdditionalClassName } 
                     onChange={ onChangeImgAdditionalClassName }
                 />
@@ -652,8 +664,8 @@ function Edit( { attributes, setAttributes, clientId } ) {
 	);
 
     // add class names to blockProps
-    // const blockProps = useBlockProps( { className: imgClassName } );
-	// console.log( 'blockProps: ' + JSON.stringify( blockProps, null, 2 ) );
+    // const blockProps = useBlockProps({ className: imgClassName });
+	// console.log('blockProps: ' + JSON.stringify(blockProps, null, 2));
 
 	return (
 		<>
@@ -666,16 +678,16 @@ function Edit( { attributes, setAttributes, clientId } ) {
                                     <>
                                         { image }
                                     </>
-                                )
+                               )
                                 :
                                 (
                                     <a className={ 'zoomable-img' }>
                                         { image }
                                     </a>
-                                ) 
+                               ) 
                             }
                         </>
-                    )
+                   )
                     : 
                     (
                         <div className={ 'bsxui-img-upload-placeholder' }>
@@ -683,22 +695,22 @@ function Edit( { attributes, setAttributes, clientId } ) {
                                 onSelect={ onSelectImage }
                                 allowedTypes="image"
                                 value={ imgId }
-                                render={ ( { open } ) => (
+                                render={ ({ open }) => (
                                     <Button 
                                         onClick={ open }
                                         isSecondary
                                     >
-                                        { __( 'Select / upload Image', 'bsx-blocks' ) }
+                                        { __('Select / upload Image', 'bsx-blocks') }
                                     </Button>
-                                ) }
+                               ) }
                             />
                         </div>
-                    )
+                   )
                 }
                 <RichText
                     tagName="figcaption"
                     multiline={ false }
-                    placeholder={ __( 'Caption (optional)', 'bsx-blocks' ) }
+                    placeholder={ __('Caption (optional)', 'bsx-blocks') }
                     value={ figcaption }
                     onChange={ onChangeFigcaption }
                     keepPlaceholderOnFocus
