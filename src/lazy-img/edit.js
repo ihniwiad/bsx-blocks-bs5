@@ -67,10 +67,11 @@ function Edit({ attributes, setAttributes, clientId }) {
     // console.log('Edit()')
 
 	const {
+        priority,
         imgId,
         // imgSizes,
         imgData,
-        imgSizeIndex,
+        sizeIndex,
         // url,
         // width,
         // height,
@@ -83,7 +84,7 @@ function Edit({ attributes, setAttributes, clientId }) {
         borderState,
         zoomable,
         externalGalleryParent,
-        zoomImgSizeIndex,
+        zoomSizeIndex,
         disableResponsiveDownsizing,
         textAlign,
         marginBefore,
@@ -99,7 +100,7 @@ function Edit({ attributes, setAttributes, clientId }) {
         displayedWidth,
         displayedHeight,
         noFigureTag,
-        imgHtml,
+        // imgHtml,
     } = attributes;
 
 
@@ -107,12 +108,12 @@ function Edit({ attributes, setAttributes, clientId }) {
     // type `number` doesn’t work. Please parse to int yourself!
 
     const fullImgData = maximizeImgData(imgData);
-    let scale = (parseInt(displayedWidth) / fullImgData[imgSizeIndex].width) || null;
+    let scale = sizeIndex && fullImgData?.[sizeIndex]?.width && displayedWidth ? (parseInt(displayedWidth) / fullImgData[sizeIndex].width) : null;
 
-    console.log(`attributes (init)`, attributes);
-    // console.log(`fullImgData (init)`, fullImgData);
-    console.log(`displayed sizes (init)`, [displayedWidth, displayedHeight]);
-    console.log(`scale (init)`, scale);
+    // console.log(`attributes (init)`, attributes);
+    // // console.log(`fullImgData (init)`, fullImgData);
+    // console.log(`displayed sizes (init)`, [displayedWidth, displayedHeight]);
+    // console.log(`scale (init)`, scale);
     
 
     // migrate deprecated attributes to new once
@@ -140,7 +141,7 @@ function Edit({ attributes, setAttributes, clientId }) {
 
             // Get all data of new image (detect even the unscaled original size and the non listed scaled sizes 1536px & 2048px).
             const sizes = await getAllImageSizes(img);
-            console.log('All image sizes:', sizes);
+            // console.log('All image sizes:', sizes);
 
             const originalDims = sizes[sizes.length - 1];
             const originalWidth = originalDims.width;
@@ -148,21 +149,21 @@ function Edit({ attributes, setAttributes, clientId }) {
 
             const newImgData = minimizeImgData(sizes);
 
-            console.log('newImgData:', newImgData);
+            // console.log('newImgData:', newImgData);
 
             // check if current img size index fits to new img (might be too large)
-            let newImgSizeIndex = parseInt(imgSizeIndex);
-            if (parseInt(imgSizeIndex) >= sizes.length) {
+            let newImgSizeIndex = parseInt(sizeIndex);
+            if (parseInt(sizeIndex) >= sizes.length) {
                 newImgSizeIndex = sizes.length - 1;
-                // console.log('reduce initial imgSizeIndex to: ' + newImgSizeIndex);
+                // console.log('reduce initial sizeIndex to: ' + newImgSizeIndex);
             }
 
             // do not use thumbnail for srcset if has square format, start with img sizes index 1 then
             const newLowestSrcsetImgSizeIndex = img.sizes.thumbnail.width !== img.sizes.thumbnail.height ? 0 : 1;
 
             // check if current zoom img size index fits to new img (might be too large) or is unset
-            let newZoomImgSizeIndex = zoomImgSizeIndex;
-            if ((zoomable && ! zoomImgSizeIndex) || parseInt(zoomImgSizeIndex) < parseInt(newImgSizeIndex) || parseInt(zoomImgSizeIndex) >= parseInt(sizes.length)) {
+            let newZoomImgSizeIndex = zoomSizeIndex;
+            if ((zoomable && ! zoomSizeIndex) || parseInt(zoomSizeIndex) < parseInt(newImgSizeIndex) || parseInt(zoomSizeIndex) >= parseInt(sizes.length)) {
                 newZoomImgSizeIndex = (sizes.length - 1).toString();
             }
 
@@ -172,11 +173,11 @@ function Edit({ attributes, setAttributes, clientId }) {
             setAttributes({
                 imgId: img.id,
                 imgData: newImgData,
-                imgSizeIndex: newImgSizeIndex.toString(),
+                sizeIndex: newImgSizeIndex.toString(),
                 origWidth: originalWidth,
                 origHeight: originalHeight,
                 alt: img.alt,
-                zoomImgSizeIndex: newZoomImgSizeIndex,
+                zoomSizeIndex: newZoomImgSizeIndex,
                 // // remove deprecated attributes if set
                 // ...(imgSizes && imgSizes.length > 0) && {
                 //     imgSizes: '', // save empty, replaced by imgData
@@ -216,24 +217,24 @@ function Edit({ attributes, setAttributes, clientId }) {
         scale = value;
         setAttributes({ 
             // scale: parseFloat(value),
-            displayedWidth: (!! value && value != fullImgData[imgSizeIndex].width) ? Math.round(fullImgData[imgSizeIndex].width * parseFloat(value)) : '',
-            displayedHeight: (!! value && value != fullImgData[imgSizeIndex].height) ? Math.round(fullImgData[imgSizeIndex].height * parseFloat(value)) : '',
+            displayedWidth: (!! value && value != fullImgData[sizeIndex].width) ? Math.round(fullImgData[sizeIndex].width * parseFloat(value)) : '',
+            displayedHeight: (!! value && value != fullImgData[sizeIndex].height) ? Math.round(fullImgData[sizeIndex].height * parseFloat(value)) : '',
         });
     };
     const onChangeDisplayedWidth = (value) => {
-        scale = parseFloat(value / fullImgData[imgSizeIndex].width);
+        scale = parseFloat(value / fullImgData[sizeIndex].width);
         setAttributes({ 
-            displayedWidth: value != fullImgData[imgSizeIndex].width ? parseFloat(value) : '',
-            displayedHeight: value != fullImgData[imgSizeIndex].height ? Math.round(value / fullImgData[imgSizeIndex].width * fullImgData[imgSizeIndex].height) : '',
-            // scale: parseFloat(value / fullImgData[imgSizeIndex].width),
+            displayedWidth: value != fullImgData[sizeIndex].width ? parseFloat(value) : '',
+            displayedHeight: value != fullImgData[sizeIndex].height ? Math.round(value / fullImgData[sizeIndex].width * fullImgData[sizeIndex].height) : '',
+            // scale: parseFloat(value / fullImgData[sizeIndex].width),
         });
     };
     const onChangeDisplayedHeight = (value) => {
-        scale = parseFloat(value / fullImgData[imgSizeIndex].height);
+        scale = parseFloat(value / fullImgData[sizeIndex].height);
         setAttributes({ 
-            displayedHeight: value != fullImgData[imgSizeIndex].width ? parseFloat(value) : fullImgData[imgSizeIndex].width,
-            displayedWidth: value != fullImgData[imgSizeIndex].height ? Math.round(value / fullImgData[imgSizeIndex].height * fullImgData[imgSizeIndex].width) : '',
-            // scale: parseFloat(value / fullImgData[imgSizeIndex].height),
+            displayedHeight: value != fullImgData[sizeIndex].width ? parseFloat(value) : fullImgData[sizeIndex].width,
+            displayedWidth: value != fullImgData[sizeIndex].height ? Math.round(value / fullImgData[sizeIndex].height * fullImgData[sizeIndex].width) : '',
+            // scale: parseFloat(value / fullImgData[sizeIndex].height),
         });
     };
 
@@ -248,10 +249,10 @@ function Edit({ attributes, setAttributes, clientId }) {
     };
 
     const onChangeZoomable = (value) => {
-        const newZoomImgSizeIndex = zoomImgSizeIndex == undefined ? (fullImgData.length - 1).toString() : zoomImgSizeIndex;
+        const newZoomImgSizeIndex = zoomSizeIndex == undefined ? (fullImgData.length - 1).toString() : zoomSizeIndex;
         setAttributes({ 
             zoomable: value,
-            zoomImgSizeIndex: newZoomImgSizeIndex,
+            zoomSizeIndex: newZoomImgSizeIndex,
             href: value ? fullImgData[newZoomImgSizeIndex].url : null,
             target: value ? '_blank' : null,
         });
@@ -260,7 +261,7 @@ function Edit({ attributes, setAttributes, clientId }) {
         setAttributes({ externalGalleryParent: value });
     };
     const onChangeZoomImgSizeIndex = (value) => {
-        setAttributes({ zoomImgSizeIndex: value.toString() });
+        setAttributes({ zoomSizeIndex: value.toString() });
     };
 
     const onChangeDisableResponsiveDownsizing = (value) => {
@@ -323,7 +324,7 @@ function Edit({ attributes, setAttributes, clientId }) {
     const onChangeImgSizeIndex = (value) => {
         scale = parseFloat(fullImgData[value].width / fullImgData[value].height);
         setAttributes({ 
-            imgSizeIndex: value.toString(),
+            sizeIndex: value.toString(),
             // url: fullImgData[value].url,
             displayedWidth: parseInt(fullImgData[value].width),
             displayedHeight: parseInt(fullImgData[value].height),
@@ -343,7 +344,7 @@ function Edit({ attributes, setAttributes, clientId }) {
     const zoomImgSizeRadioControlOptions = [];
     if (typeof fullImgData !== 'undefined') {
         fullImgData.forEach((imgSize, index) => {
-            if (index >= imgSizeIndex) {
+            if (index >= sizeIndex) {
                 const isSquareThumb = fullImgData[fullImgData.length - 1].width !== fullImgData[fullImgData.length - 1].height && imgSize.width === imgSize.height;
                 zoomImgSizeRadioControlOptions.push(
                     { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + (isSquareThumb ? ' ' + __('(Square format)', 'bsx-blocks') : '') + ` (${imgSize.key})` } 
@@ -351,6 +352,10 @@ function Edit({ attributes, setAttributes, clientId }) {
             }
         });
     }
+
+    const onChangePriority = (value) => {
+        setAttributes({ priority: value });
+    };
 
     // class names
 
@@ -370,25 +375,30 @@ function Edit({ attributes, setAttributes, clientId }) {
 
     // image
 
-    const hasValidImg = (imgId && typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[imgSizeIndex] !== 'undefined' && imgSizeIndex < fullImgData.length);
+    const hasValidImg = (imgId && sizeIndex && typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[sizeIndex] !== 'undefined' && sizeIndex < fullImgData.length);
+    let image;
 
-    const srcset = makeSrcset({
-        fullImgData,
-        imgSizeIndex,
-    });
+    if (hasValidImg) {
+        const srcset = makeSrcset({
+            fullImgData,
+            sizeIndex,
+        });
+    
+        const src = hasValidImg ? fullImgData[sizeIndex].url : '';
+        const width = (hasValidImg && displayedWidth) ? displayedWidth : hasValidImg ? fullImgData[sizeIndex].width : '';
+        const height = (hasValidImg && displayedHeight) ? displayedHeight : hasValidImg ? fullImgData[sizeIndex].height : '';
+        const sizes = (width && height) ? '(max-width: ' + width + 'px) 100vw, ' + width + 'px' : '';
 
-    const src = hasValidImg ? fullImgData[imgSizeIndex].url : '';
-    const width = (hasValidImg && displayedWidth) ? displayedWidth : hasValidImg ? fullImgData[imgSizeIndex].width : '';
-    const height = (hasValidImg && displayedHeight) ? displayedHeight : hasValidImg ? fullImgData[imgSizeIndex].height : '';
-    const sizes = (width && height) ? '(max-width: ' + width + 'px) 100vw, ' + width + 'px' : '';
-
-    const image = hasValidImg ? (
-        <img className={ imgClassName } src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } loading="lazy" />
-   )
-    :
-    (
-        <></>
-   );
+        image = (
+            <img className={ imgClassName } src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } {...(priority ? { loading: "eager", fetchpriority: "high" } : { loading: "lazy" })} decoding="async" />
+        );
+    }
+    else {
+        image = (
+            <>Empty image</>
+        );
+    }
+    
 
     const controls = (
     	<>
@@ -405,7 +415,7 @@ function Edit({ attributes, setAttributes, clientId }) {
                         onChange={ onChangeMediaAlt }
                     />
                     {
-                        imgId ? (
+                        imgId && sizeIndex ? (
                             <MediaUpload
                                 onSelect={ onSelectImage }
                                 allowedTypes="image"
@@ -415,7 +425,7 @@ function Edit({ attributes, setAttributes, clientId }) {
                                         className="bsxui-config-panel-img-button has-margin-bottom"
                                         onClick={ open }
                                     >
-                                        <img class="bsxui-config-panel-img" src={ fullImgData[imgSizeIndex].url } alt={ __('Change / upload image', 'bsx-blocks') } />
+                                        <img class="bsxui-config-panel-img" src={ fullImgData[sizeIndex].url } alt={ __('Change / upload image', 'bsx-blocks') } />
                                     </Button>
                                ) }
                             />
@@ -425,7 +435,7 @@ function Edit({ attributes, setAttributes, clientId }) {
                             <div class="bsxui-config-panel-row">
                                 <div class="bsxui-config-panel-text">{ __('– No image selected yet –', 'bsx-blocks') }</div>
                             </div>
-                       )
+                        )
                     }
                     <div class="bsxui-config-panel-row">
                         <MediaUpload
@@ -442,32 +452,37 @@ function Edit({ attributes, setAttributes, clientId }) {
                            ) }
                         />
                     </div>
+                    <ToggleControl
+                        label={ __('Enable priority loading', 'bsx-blocks') }
+                        checked={ priority }
+                        onChange={ onChangePriority }
+                    />
                     <RadioControl
                         label={ __('Image size and format', 'bsx-blocks') }
-                        selected={ imgSizeIndex.toString() }
+                        selected={ sizeIndex ? sizeIndex.toString() : null }
                         options={ imgSizeRadioControlOptions }
                         onChange={ onChangeImgSizeIndex }
                     />
                     {
-                        fullImgData[imgSizeIndex] != undefined && fullImgData[imgSizeIndex].url != undefined && (
+                        sizeIndex && fullImgData[sizeIndex] != undefined && fullImgData[sizeIndex].url != undefined && (
                             <div class="bsxui-config-panel-row">
                                 <div class="bsxui-config-panel-text">
-                                    <a class="bsxui-link" href={ fullImgData[imgSizeIndex].url } target="_blank">{ __('Preview selected image', 'bsx-blocks') }</a>
+                                    <a class="bsxui-link" href={ fullImgData[sizeIndex].url } target="_blank">{ __('Preview selected image', 'bsx-blocks') }</a>
                                 </div>
                             </div>
                        )
                     }
                     {
-                        imgId && typeof fullImgData !== 'undefined' && typeof fullImgData[imgSizeIndex] !== 'undefined' && (
+                        imgId && sizeIndex && typeof fullImgData !== 'undefined' && typeof fullImgData[sizeIndex] !== 'undefined' && (
                             <>
                                 <TextControl 
                                     label={ __('Displayed width', 'bsx-blocks') }
-                                    value={ !! displayedWidth ? displayedWidth : fullImgData[imgSizeIndex].width  } 
+                                    value={ !! displayedWidth ? displayedWidth : fullImgData[sizeIndex].width  } 
                                     onChange={ onChangeDisplayedWidth }
                                 />
                                 <TextControl 
                                     label={ __('Displayed height', 'bsx-blocks') }
-                                    value={ !! displayedHeight ? displayedHeight : fullImgData[imgSizeIndex].height } 
+                                    value={ !! displayedHeight ? displayedHeight : fullImgData[sizeIndex].height } 
                                     onChange={ onChangeDisplayedHeight }
                                 />
                                 {
@@ -536,12 +551,12 @@ function Edit({ attributes, setAttributes, clientId }) {
                                         <>
                                             <RadioControl
                                                 label={ __('Zoom image size', 'bsx-blocks') }
-                                                selected={ zoomImgSizeIndex }
+                                                selected={ zoomSizeIndex }
                                                 options={ zoomImgSizeRadioControlOptions }
                                                 onChange={ onChangeZoomImgSizeIndex }
                                             />
                                             {
-                                                imgSizeIndex == zoomImgSizeIndex && (
+                                                sizeIndex == zoomSizeIndex && (
                                                     <div class="bsxui-config-panel-row">
                                                         <div class="bsxui-alert">
                                                         { __('Currently your zoom image is not larger than your original image.', 'bsx-blocks') }
@@ -671,7 +686,7 @@ function Edit({ attributes, setAttributes, clientId }) {
 		<>
 			<figure { ...blockProps }>
                 {
-                    imgId ? (
+                    imgId && sizeIndex ? (
                         <>
                             { 
                                 ! zoomable ? (
@@ -687,7 +702,7 @@ function Edit({ attributes, setAttributes, clientId }) {
                                ) 
                             }
                         </>
-                   )
+                    )
                     : 
                     (
                         <div className={ 'bsxui-img-upload-placeholder' }>

@@ -40,6 +40,8 @@ function bsx_blocks_init() {
     // Test extended Core Block.
     register_block_type(__DIR__ . '/build/custom-list');
 
+    register_block_type(__DIR__ . '/build/accordion');
+    register_block_type(__DIR__ . '/build/accordion-item');
     register_block_type(__DIR__ . '/build/badge');
     register_block_type(__DIR__ . '/build/banner');
     register_block_type(__DIR__ . '/build/button');

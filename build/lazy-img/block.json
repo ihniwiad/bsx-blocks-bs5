@@ -12,11 +12,15 @@
       "type": "number",
       "default": -1
     },
+    "priority": {
+      "type": "boolean",
+      "default": false
+    },
     "imgData": {
       "type": "array",
       "default": []
     },
-    "imgSizeIndex": {
+    "sizeIndex": {
       "type": "string",
       "default": "3"
     },
@@ -55,7 +59,7 @@
     "externalGalleryParent": {
       "type": "boolean"
     },
-    "zoomImgSizeIndex": {
+    "zoomSizeIndex": {
       "type": "string"
     },
     "disableResponsiveDownsizing": {
@@ -100,17 +104,14 @@
       "source": "attribute",
       "attribute": "rel"
     },
-    "scale": {
-      "type": "number"
-    },
     "displayedWidth": {
-      "type": "number",
+      "type": "string",
       "selector": "img",
       "source": "attribute",
       "attribute": "width"
     },
     "displayedHeight": {
-      "type": "number",
+      "type": "string",
       "selector": "img",
       "source": "attribute",
       "attribute": "height"

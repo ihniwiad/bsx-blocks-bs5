@@ -219,24 +219,24 @@ export const makeSrcset = ( attributes ) => {
 
     const {
         fullImgData,
-        imgSizeIndex,
+        sizeIndex,
         disableResponsiveDownsizing,
     } = attributes;
 
     // console.log( 'fullImgData: ' + JSON.stringify( fullImgData, null, 2 ) + '\n' );
-    // console.log( 'imgSizeIndex: ' + imgSizeIndex );
+    // console.log( 'sizeIndex: ' + sizeIndex );
 
     const srcsetList = [];
     if ( disableResponsiveDownsizing ) {
         // exactly one src
-        srcsetList.push( fullImgData[ imgSizeIndex ].url + ' ' + fullImgData[ imgSizeIndex ].width + 'w' );
+        srcsetList.push( fullImgData[ sizeIndex ].url + ' ' + fullImgData[ sizeIndex ].width + 'w' );
     }
     else {
         // multiple sources
         fullImgData.forEach( ( imgSize, index ) => {
             if ( index === 0 ) {
                 // first loop, thumbnail image – add only if selected or if image has square format (use largest size since current loop size will always be square at first loop)
-                if ( imgSizeIndex == 0 || fullImgData[ fullImgData.length - 1 ].width == fullImgData[ fullImgData.length - 1 ].height ) {
+                if ( sizeIndex == 0 || fullImgData[ fullImgData.length - 1 ].width == fullImgData[ fullImgData.length - 1 ].height ) {
                     // add thumbnail to srcset
                     srcsetList.push( imgSize.url + ' ' + imgSize.width + 'w' );
                 }
@@ -244,7 +244,7 @@ export const makeSrcset = ( attributes ) => {
             else {
                 // other loops, non thumbnail images
                 // never add img larger current selected size (or if allowing larger sizes than selected, never allow unscaled img index >6)
-                if ( index <= imgSizeIndex ) {
+                if ( index <= sizeIndex ) {
                     // add if current size is smaller than selected size
                     srcsetList.push( imgSize.url + ' ' + imgSize.width + 'w' );
                 }

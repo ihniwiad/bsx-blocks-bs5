@@ -19,10 +19,11 @@ import {
 export default function save( { attributes } ) {
 
     const {
+        priority,
         className,
-        imgSizeIndex,
+        sizeIndex,
         imgData,
-        url,
+        // url,
         // width,
         // height,
         origWidth,
@@ -34,7 +35,7 @@ export default function save( { attributes } ) {
         borderState,
         zoomable,
         externalGalleryParent,
-        zoomImgSizeIndex,
+        zoomSizeIndex,
         disableResponsiveDownsizing,
         textAlign,
         marginBefore,
@@ -46,7 +47,7 @@ export default function save( { attributes } ) {
         href,
         target,
         rel,
-        scale,
+        // scale,
         displayedWidth,
         displayedHeight,
         noFigureTag,
@@ -91,13 +92,13 @@ export default function save( { attributes } ) {
         {}
     ;
 
-    // manage zoomImgSizeIndex & href, target, rel
-    // const aSaveAttributes = ( zoomable && typeof fullImgData[ zoomImgSizeIndex ] != 'undefined' ) ? 
+    // manage zoomSizeIndex & href, target, rel
+    // const aSaveAttributes = ( zoomable && typeof fullImgData[ zoomSizeIndex ] != 'undefined' ) ? 
     //     makeSaveAttributes({
     //         'href': href,
     //         'target': target,
-    //         'data-pswp-width': fullImgData[zoomImgSizeIndex].width,
-    //         'data-pswp-height': fullImgData[zoomImgSizeIndex].height,
+    //         'data-pswp-width': fullImgData[zoomSizeIndex].width,
+    //         'data-pswp-height': fullImgData[zoomSizeIndex].height,
     //         'data-bsx-t': 'lightbox-item',
     //     })
     //     : 
@@ -117,16 +118,16 @@ export default function save( { attributes } ) {
         'href': href,
         'target': target,
         'rel': rel,
-        'data-pswp-width': zoomable && typeof fullImgData[zoomImgSizeIndex] != 'undefined' ? fullImgData[zoomImgSizeIndex].width : null,
-        'data-pswp-height': zoomable && typeof fullImgData[zoomImgSizeIndex] != 'undefined' ? fullImgData[zoomImgSizeIndex].height : null,
+        'data-pswp-width': zoomable && typeof fullImgData[zoomSizeIndex] != 'undefined' ? fullImgData[zoomSizeIndex].width : null,
+        'data-pswp-height': zoomable && typeof fullImgData[zoomSizeIndex] != 'undefined' ? fullImgData[zoomSizeIndex].height : null,
         'data-bsx-t': zoomable ? 'lightbox-item' : null,
     });
 
     // check if valid image(s)
-    const hasValidImg = ( typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && imgSizeIndex < fullImgData.length );
+    const hasValidImg = ( typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[ sizeIndex ] !== 'undefined' && sizeIndex < fullImgData.length );
     // const hasValidPortraitImg = false;
 
-           // const image = typeof fullImgData !== 'undefined' && typeof fullImgData[ imgSizeIndex ] !== 'undefined' ? (
+           // const image = typeof fullImgData !== 'undefined' && typeof fullImgData[ sizeIndex ] !== 'undefined' ? (
     //     <>
     //         <script>document.write( '
     //             <picture className={ ! noFigureTag ? pictureAdditionalClassName : classNames }>
@@ -135,10 +136,10 @@ export default function save( { attributes } ) {
     //                         <source { ...sourceAttributes } />
     //                     ) )
     //                 }
-    //                 <img className={ imgClassName } src={ makeBase64PreloadImgSrc( fullImgData[ imgSizeIndex ].width, fullImgData[ imgSizeIndex ].height ) } alt={ alt } data-src={ fullImgData[ imgSizeIndex ].url } width={ !! displayedWidth ? displayedWidth : fullImgData[ imgSizeIndex ].width } height={ !! displayedHeight ? displayedHeight : fullImgData[ imgSizeIndex ].height } data-fn="lazyload" />
+    //                 <img className={ imgClassName } src={ makeBase64PreloadImgSrc( fullImgData[ sizeIndex ].width, fullImgData[ sizeIndex ].height ) } alt={ alt } data-src={ fullImgData[ sizeIndex ].url } width={ !! displayedWidth ? displayedWidth : fullImgData[ sizeIndex ].width } height={ !! displayedHeight ? displayedHeight : fullImgData[ sizeIndex ].height } data-fn="lazyload" />
     //             </picture>
     //         ' );</script>
-    //         <noscript><img className={ imgClassName } src={ fullImgData[ imgSizeIndex ].url } alt={ alt } width={ !! displayedWidth ? displayedWidth : fullImgData[ imgSizeIndex ].width } height={ !! displayedHeight ? displayedHeight : fullImgData[ imgSizeIndex ].height } /></noscript>
+    //         <noscript><img className={ imgClassName } src={ fullImgData[ sizeIndex ].url } alt={ alt } width={ !! displayedWidth ? displayedWidth : fullImgData[ sizeIndex ].width } height={ !! displayedHeight ? displayedHeight : fullImgData[ sizeIndex ].height } /></noscript>
     //     </>
     // )
     // :
@@ -150,12 +151,12 @@ export default function save( { attributes } ) {
     // const srcsetList = [];
     // fullImgData.forEach( ( imgSize, index ) => {
     //     if ( 
-    //         ( ( imgSizeIndex == 0 && index == 0 ) || ( imgSize.width == imgSize.height ) )
-    //         || ( imgSizeIndex > 0 && index > 0 )
+    //         ( ( sizeIndex == 0 && index == 0 ) || ( imgSize.width == imgSize.height ) )
+    //         || ( sizeIndex > 0 && index > 0 )
     //     ) {
-    //         // add square thumb img if selected (imgSizeIndex == 0) or original img is square format too, else skip
+    //         // add square thumb img if selected (sizeIndex == 0) or original img is square format too, else skip
     //         srcsetList.push( imgSize.url + ' ' + imgSize.width + 'w' );
-    //         if ( imgSizeIndex == 0 ) {
+    //         if ( sizeIndex == 0 ) {
     //             // skip other sizes but square
     //             return; // `break` will cause error “Unsyntactic break.”
     //         }
@@ -166,20 +167,22 @@ export default function save( { attributes } ) {
 
     const srcset = makeSrcset( {
         fullImgData,
-        imgSizeIndex,
+        sizeIndex,
         disableResponsiveDownsizing,
     } );
-    const src = hasValidImg ? fullImgData[ imgSizeIndex ].url : '';
-    const width = ( hasValidImg && displayedWidth ) ? displayedWidth : hasValidImg ? fullImgData[ imgSizeIndex ].width : '';
-    const height = ( hasValidImg && displayedHeight ) ? displayedHeight : hasValidImg ? fullImgData[ imgSizeIndex ].height : '';
+    const src = hasValidImg ? fullImgData[ sizeIndex ].url : '';
+    const width = ( hasValidImg && displayedWidth ) ? displayedWidth : hasValidImg ? fullImgData[ sizeIndex ].width : '';
+    const height = ( hasValidImg && displayedHeight ) ? displayedHeight : hasValidImg ? fullImgData[ sizeIndex ].height : '';
     const sizes = ( width && height ) ? '(max-width: ' + width + 'px) 100vw, ' + width + 'px' : '';
     const landscapeImgClassName = false ? imgClassName + ' d-portrait-none' : imgClassName;
 
     // TODO: manage className (if is outer element)
 
+    // console.log(`SRCSET: ${srcset}`);
+
     const image = hasValidImg ? (
         <>
-            <img className={ landscapeImgClassName } src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } loading="lazy" decoding="async" />
+            <img className={ landscapeImgClassName } src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } {...(priority ? { loading: "eager", fetchpriority: "high" } : { loading: "lazy" })} decoding="async" />
         </>
     )
     :
@@ -212,7 +215,7 @@ export default function save( { attributes } ) {
                 (
                     <figure { ...useBlockProps.save( { className: classNames, ...saveAttributes } ) }>
                         {
-                            typeof fullImgData !== 'undefined' && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && typeof fullImgData[ imgSizeIndex ].url !== 'undefined' && fullImgData[ imgSizeIndex ].url && (
+                            typeof fullImgData !== 'undefined' && typeof fullImgData[ sizeIndex ] !== 'undefined' && typeof fullImgData[ sizeIndex ].url !== 'undefined' && fullImgData[ sizeIndex ].url && (
                                 <>
                                     { 
                                         aOrImage
@@ -231,7 +234,7 @@ export default function save( { attributes } ) {
                 (
                     <>
                         { 
-                            typeof fullImgData !== 'undefined' && typeof fullImgData[ imgSizeIndex ] !== 'undefined' && typeof fullImgData[ imgSizeIndex ].url !== 'undefined' && fullImgData[ imgSizeIndex ].url && (
+                            typeof fullImgData !== 'undefined' && typeof fullImgData[ sizeIndex ] !== 'undefined' && typeof fullImgData[ sizeIndex ].url !== 'undefined' && fullImgData[ sizeIndex ].url && (
                                 <>
                                     {
                                         aOrImage
