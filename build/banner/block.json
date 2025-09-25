@@ -37,9 +37,19 @@
       "type": "array",
       "default": []
     },
-    "imgSizeIndex": {
+    "sizeIndex": {
       "type": "string",
       "default": "6"
+    },
+    "alt": {
+      "type": "string",
+      "selector": "img",
+      "source": "attribute",
+      "attribute": "alt"
+    },
+    "priority": {
+      "type": "boolean",
+      "default": false
     },
     "url": {
       "type": "string"
@@ -55,7 +65,7 @@
       "type": "array",
       "default": []
     },
-    "portraitImgSizeIndex": {
+    "portraitSizeIndex": {
       "type": "string",
       "default": "3"
     },

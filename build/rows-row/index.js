@@ -67,7 +67,8 @@ function addClassNames(attributes, classNamesString) {
     isBottom0,
     isLeft0,
     isRight0,
-    position
+    position,
+    flexDirection
   } = attributes;
   const classNames = typeof classNamesString != 'undefined' && classNamesString.trim().length > 0 ? classNamesString.split(' ') : [];
   if (!!belowNavbar) {
@@ -148,7 +149,17 @@ function addClassNames(attributes, classNamesString) {
     }
   }
   if (!!bgColor) {
-    classNames.push('bg-' + bgColor);
+    // Check if bgColor contains string `-transparent`, if so, add additional class `bg-opacity-50` and remove `-transparent` from bgColor.
+    // Check if contains `-opaque`, too, add `bg-opacity-75` and remove `-opaque`.
+    if (bgColor.indexOf('-transparent') !== -1) {
+      classNames.push('bg-opacity-50');
+      classNames.push('bg-' + bgColor.replace('-transparent', ''));
+    } else if (bgColor.indexOf('-opaque') !== -1) {
+      classNames.push('bg-opacity-75');
+      classNames.push('bg-' + bgColor.replace('-opaque', ''));
+    } else {
+      classNames.push('bg-' + bgColor);
+    }
   }
   if (!!textColor) {
     classNames.push('text-' + textColor);
@@ -258,7 +269,7 @@ function addClassNames(attributes, classNamesString) {
     classNames.push('z-' + zIndex);
   }
   if (!!isBannerInner) {
-    classNames.push('banner-inner');
+    classNames.push('banner-inner w-100 position-relative');
   }
   if (!!isTop0) {
     classNames.push('top-0');
@@ -274,6 +285,15 @@ function addClassNames(attributes, classNamesString) {
   }
   if (!!position) {
     classNames.push('position-' + position);
+  }
+
+  // Do after handle display flex above.
+  if (!!flexDirection) {
+    // Check if `d-flex` is already in classNames, if not, add it.
+    if (classNames.indexOf('d-flex') === -1) {
+      classNames.push('d-flex');
+    }
+    classNames.push('flex-' + flexDirection);
   }
   return classNames.join(' ');
 }
@@ -3565,10 +3585,11 @@ const makeColumnRowClassNames = attributes => {
   const classNames = [];
   if (columnRowType != 'unset') {
     if (!!columnRowType) {
-      classNames.push('column-row-' + columnRowType);
+      // Auto: height according to content.
+      // classNames.push( 'column-row-' + columnRowType );
     } else {
-      // default class name
-      classNames.push('column-row');
+      // Grow to max.
+      classNames.push('flex-grow-1');
     }
   }
   if (!!alignItems) {

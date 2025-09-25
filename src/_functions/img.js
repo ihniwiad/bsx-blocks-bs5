@@ -215,7 +215,7 @@ export const minimizeImgData = (sizes) => {
 }
 
 
-export const makeSrcset = ( attributes ) => {
+export const makeSrcset = (attributes) => {
 
     const {
         fullImgData,
@@ -227,34 +227,34 @@ export const makeSrcset = ( attributes ) => {
     // console.log( 'sizeIndex: ' + sizeIndex );
 
     const srcsetList = [];
-    if ( disableResponsiveDownsizing ) {
+    if (disableResponsiveDownsizing) {
         // exactly one src
-        srcsetList.push( fullImgData[ sizeIndex ].url + ' ' + fullImgData[ sizeIndex ].width + 'w' );
+        srcsetList.push(fullImgData[sizeIndex].url + ' ' + fullImgData[sizeIndex].width + 'w');
     }
     else {
         // multiple sources
-        fullImgData.forEach( ( imgSize, index ) => {
-            if ( index === 0 ) {
+        fullImgData.forEach((imgSize, index) => {
+            if (index === 0) {
                 // first loop, thumbnail image – add only if selected or if image has square format (use largest size since current loop size will always be square at first loop)
-                if ( sizeIndex == 0 || fullImgData[ fullImgData.length - 1 ].width == fullImgData[ fullImgData.length - 1 ].height ) {
+                if (sizeIndex == 0 || fullImgData[fullImgData.length - 1].width == fullImgData[fullImgData.length - 1].height) {
                     // add thumbnail to srcset
-                    srcsetList.push( imgSize.url + ' ' + imgSize.width + 'w' );
+                    srcsetList.push(imgSize.url + ' ' + imgSize.width + 'w');
                 }
             }
             else {
                 // other loops, non thumbnail images
                 // never add img larger current selected size (or if allowing larger sizes than selected, never allow unscaled img index >6)
-                if ( index <= sizeIndex ) {
+                if (index <= sizeIndex) {
                     // add if current size is smaller than selected size
-                    srcsetList.push( imgSize.url + ' ' + imgSize.width + 'w' );
+                    srcsetList.push(imgSize.url + ' ' + imgSize.width + 'w');
                 }
             }
-        } );
+        });
     }
 
     // console.log( 'srcsetList: ' + JSON.stringify( srcsetList, null, 2 ) + '\n' );
 
-    return srcsetList.join( ', ' );
+    return srcsetList.join(', ');
 }
 
 

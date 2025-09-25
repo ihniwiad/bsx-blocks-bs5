@@ -67,7 +67,8 @@ function addClassNames(attributes, classNamesString) {
     isBottom0,
     isLeft0,
     isRight0,
-    position
+    position,
+    flexDirection
   } = attributes;
   const classNames = typeof classNamesString != 'undefined' && classNamesString.trim().length > 0 ? classNamesString.split(' ') : [];
   if (!!belowNavbar) {
@@ -148,7 +149,17 @@ function addClassNames(attributes, classNamesString) {
     }
   }
   if (!!bgColor) {
-    classNames.push('bg-' + bgColor);
+    // Check if bgColor contains string `-transparent`, if so, add additional class `bg-opacity-50` and remove `-transparent` from bgColor.
+    // Check if contains `-opaque`, too, add `bg-opacity-75` and remove `-opaque`.
+    if (bgColor.indexOf('-transparent') !== -1) {
+      classNames.push('bg-opacity-50');
+      classNames.push('bg-' + bgColor.replace('-transparent', ''));
+    } else if (bgColor.indexOf('-opaque') !== -1) {
+      classNames.push('bg-opacity-75');
+      classNames.push('bg-' + bgColor.replace('-opaque', ''));
+    } else {
+      classNames.push('bg-' + bgColor);
+    }
   }
   if (!!textColor) {
     classNames.push('text-' + textColor);
@@ -258,7 +269,7 @@ function addClassNames(attributes, classNamesString) {
     classNames.push('z-' + zIndex);
   }
   if (!!isBannerInner) {
-    classNames.push('banner-inner');
+    classNames.push('banner-inner w-100 position-relative');
   }
   if (!!isTop0) {
     classNames.push('top-0');
@@ -274,6 +285,15 @@ function addClassNames(attributes, classNamesString) {
   }
   if (!!position) {
     classNames.push('position-' + position);
+  }
+
+  // Do after handle display flex above.
+  if (!!flexDirection) {
+    // Check if `d-flex` is already in classNames, if not, add it.
+    if (classNames.indexOf('d-flex') === -1) {
+      classNames.push('d-flex');
+    }
+    classNames.push('flex-' + flexDirection);
   }
   return classNames.join(' ');
 }
@@ -3998,7 +4018,7 @@ const getFileName = filePath => {
   \*******************************/
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"bsx-blocks/banner","version":"0.1.0","title":"BSX Banner","category":"layout","description":"Image or color background banner e.g. for header of Page.","example":{},"attributes":{"nodeName":{"type":"string","default":"div"},"templateName":{"type":"string"},"belowNavbar":{"type":"boolean","default":false},"touchFooter":{"type":"boolean","default":false},"bgColor":{"type":"string"},"imgId":{"type":"number"},"imgSizes":{"type":"array","default":[]},"imgData":{"type":"array","default":[]},"imgSizeIndex":{"type":"string","default":"6"},"url":{"type":"string"},"portraitImgId":{"type":"number"},"portraitImgSizes":{"type":"array","default":[]},"portraitImgData":{"type":"array","default":[]},"portraitImgSizeIndex":{"type":"string","default":"3"},"bannerType":{"type":"string","default":"vh"},"bannerSize":{"type":"string","default":"2"},"bgAttachment":{"type":"string","default":"fixed"},"bgAttachmentFixedLimited":{"type":"boolean"},"bgSize":{"type":"string","default":"cover"},"bgPosition":{"type":"string","default":"c"},"alignItems":{"type":"string","default":"center"},"rounded":{"type":"boolean"},"marginBefore":{"type":"string","default":""},"marginAfter":{"type":"string","default":""},"paddingBefore":{"type":"string","default":""},"paddingAfter":{"type":"string","default":""},"href":{"type":"string"},"target":{"type":"string"},"rel":{"type":"string"},"dataFn":{"type":"string"},"disableResponsiveDownsizing":{"type":"boolean"},"multilayer":{"type":"string"}},"supports":{"html":false,"className":false},"textdomain":"bsx-blocks","editorScript":"file:./index.js","editorStyle":"file:./index.css"}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"bsx-blocks/banner","version":"0.1.0","title":"BSX Banner","category":"layout","description":"Image or color background banner e.g. for header of Page.","example":{},"attributes":{"nodeName":{"type":"string","default":"div"},"templateName":{"type":"string"},"belowNavbar":{"type":"boolean","default":false},"touchFooter":{"type":"boolean","default":false},"bgColor":{"type":"string"},"imgId":{"type":"number"},"imgSizes":{"type":"array","default":[]},"imgData":{"type":"array","default":[]},"sizeIndex":{"type":"string","default":"6"},"alt":{"type":"string","selector":"img","source":"attribute","attribute":"alt"},"priority":{"type":"boolean","default":false},"url":{"type":"string"},"portraitImgId":{"type":"number"},"portraitImgSizes":{"type":"array","default":[]},"portraitImgData":{"type":"array","default":[]},"portraitSizeIndex":{"type":"string","default":"3"},"bannerType":{"type":"string","default":"vh"},"bannerSize":{"type":"string","default":"2"},"bgAttachment":{"type":"string","default":"fixed"},"bgAttachmentFixedLimited":{"type":"boolean"},"bgSize":{"type":"string","default":"cover"},"bgPosition":{"type":"string","default":"c"},"alignItems":{"type":"string","default":"center"},"rounded":{"type":"boolean"},"marginBefore":{"type":"string","default":""},"marginAfter":{"type":"string","default":""},"paddingBefore":{"type":"string","default":""},"paddingAfter":{"type":"string","default":""},"href":{"type":"string"},"target":{"type":"string"},"rel":{"type":"string"},"dataFn":{"type":"string"},"disableResponsiveDownsizing":{"type":"boolean"},"multilayer":{"type":"string"}},"supports":{"html":false,"className":false},"textdomain":"bsx-blocks","editorScript":"file:./index.js","editorStyle":"file:./index.css"}');
 
 /***/ }),
 
@@ -4025,6 +4045,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _templates_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./templates.js */ "./src/banner/templates.js");
 /* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./editor.scss */ "./src/banner/editor.scss");
 /* harmony import */ var react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! react/jsx-runtime */ "react/jsx-runtime");
+
 
 
 
@@ -4071,12 +4092,13 @@ function Edit({
     imgId,
     imgSizes,
     imgData,
-    imgSizeIndex,
-    url,
+    sizeIndex,
+    alt,
+    priority,
     portraitImgId,
     portraitImgSizes,
     portraitImgData,
-    portraitImgSizeIndex,
+    portraitSizeIndex,
     bannerType,
     bannerSize,
     bgAttachment,
@@ -4105,11 +4127,19 @@ function Edit({
   };
   let template = (0,_functions_utilities_js__WEBPACK_IMPORTED_MODULE_6__.getTemplate)(_templates_js__WEBPACK_IMPORTED_MODULE_10__["default"], templateName).template;
 
+  // Extract full image data (all sizes) from imgData attribute.
+  const fullImgData = (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.maximizeImgData)(imgData);
+  const fullPortraitImgData = (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.maximizeImgData)(portraitImgData);
+
+  // console.log('fullImgData (init):', fullImgData);
+  // console.log('fullPortraitImgData (init):', fullPortraitImgData);
+
   // initial set, replaces old attr 'imgSizes'
-  const hasOldAttrImgSizes = typeof imgSizes !== 'undefined' && Array.isArray(imgSizes) && imgSizes.length > 0;
-  const hasOldAttrPortraitImgSizes = typeof portraitImgSizes !== 'undefined' && Array.isArray(portraitImgSizes) && portraitImgSizes.length > 0;
-  const calcImgSizes = hasOldAttrImgSizes ? imgSizes : (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.makeImgSizesFromImgData)(imgData);
-  const calcPortraitImgSizes = hasOldAttrPortraitImgSizes ? portraitImgSizes : (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.makeImgSizesFromImgData)(portraitImgData);
+  // const hasOldAttrImgSizes = typeof imgSizes !== 'undefined' && Array.isArray( imgSizes ) && imgSizes.length > 0;
+  // const hasOldAttrPortraitImgSizes = typeof portraitImgSizes !== 'undefined' && Array.isArray( portraitImgSizes ) && portraitImgSizes.length > 0;
+
+  // const calcImgSizes = hasOldAttrImgSizes ? imgSizes : makeImgSizesFromImgData( imgData );
+  // const calcPortraitImgSizes = hasOldAttrPortraitImgSizes ? portraitImgSizes : makeImgSizesFromImgData( portraitImgData );
 
   // TEST
   // console.log( 'props.attributes: ' + JSON.stringify( props.attributes, null, 2 ) );
@@ -4151,80 +4181,46 @@ function Edit({
       bgColor: value
     });
   };
-  async function onSelectImage(img) {
+  async function onSelectImage(img, type = 'landscape') {
     if (typeof img.url !== 'undefined') {
-      const newImgAllData = await (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.getImgSizesData)(img);
+      // Get all data of new image (detect even the unscaled original size and the non listed scaled sizes 1536px & 2048px).
+      const sizes = await (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.getAllImageSizes)(img);
+      // console.log('All image sizes:', sizes);
 
-      // check if current img size index fits to new img (might be too large)
-      let newImgSizeIndex = parseInt(imgSizeIndex);
-      if (parseInt(imgSizeIndex) >= newImgAllData.imgs.length) {
-        newImgSizeIndex = newImgAllData.imgs.length - 1;
+      const originalDims = sizes[sizes.length - 1];
+      const newImgData = (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.minimizeImgData)(sizes);
+
+      // console.log('newImgData:', newImgData);
+
+      // Check if current img size index fits to new img (might be too large).
+      let newImgSizeIndex = parseInt(sizeIndex);
+      if (parseInt(sizeIndex) >= sizes.length) {
+        newImgSizeIndex = sizes.length - 1;
+        // console.log('reduce initial sizeIndex to: ' + newImgSizeIndex);
       }
-
-      // prepare attr 'imgData' to save in block (replacing old attr 'imgSizes')
-      const newImgData = (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.makeImgData)(newImgAllData.imgs, newImgAllData.truncWithoutSizeSlug, newImgAllData.fileExt);
-
-      // avoid creating deprecated (empty) attr 'imgSizes'
-      if (imgSizes && imgSizes.length > 0) {
-        // delete value of 'imgSizes'
+      if (type === 'portrait') {
+        // Portrait image.
         setAttributes({
-          imgId: img.id,
-          imgSizes: '',
-          // save empty, replaced by imgData
-          imgData: newImgData,
-          imgSizeIndex: newImgSizeIndex.toString(),
-          url: '' // save empty, replaced by imgData
+          portraitImgId: img.id,
+          portraitImgData: newImgData,
+          portraitSizeIndex: newImgSizeIndex.toString()
         });
       } else {
-        // skip 'imgSizes'
+        // Default (landscape) image.
         setAttributes({
           imgId: img.id,
           imgData: newImgData,
-          imgSizeIndex: newImgSizeIndex.toString()
+          sizeIndex: newImgSizeIndex.toString(),
+          alt: img.alt
         });
       }
-
-      // console.log( 'url: ' + newImgAllData.imgs[ newImgSizeIndex ].url );
     }
   }
   ;
   async function onSelectPortraitImage(portraitImg) {
-    if (typeof portraitImg.url !== 'undefined') {
-      const newPortraitImgAllData = await (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.getImgSizesData)(portraitImg);
-
-      // check if current img size index fits to new img (might be too large)
-      let newPortraitImgSizeIndex = parseInt(portraitImgSizeIndex);
-      if (parseInt(portraitImgSizeIndex) >= newPortraitImgAllData.imgs.length) {
-        newPortraitImgSizeIndex = newPortraitImgAllData.imgs.length - 1;
-      }
-      // console.log( 'newPortraitImgSizeIndex: ' + newPortraitImgSizeIndex );
-
-      // prepare attr 'imgData' to save in block (replacing old attr 'portraitImgSizes')
-      const newPortraitImgData = (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.makeImgData)(newPortraitImgAllData.imgs, newPortraitImgAllData.truncWithoutSizeSlug, newPortraitImgAllData.fileExt);
-
-      // avoid creating deprecated (empty) attr 'portraitImgSizes'
-      if (portraitImgSizes && portraitImgSizes.length > 0) {
-        // delete value of 'portraitImgSizes'
-        setAttributes({
-          portraitImgId: portraitImg.id,
-          portraitImgSizes: '',
-          // save empty, replaced by portraitImgData
-          portraitImgData: newPortraitImgData,
-          portraitImgSizeIndex: newPortraitImgSizeIndex.toString()
-        });
-      } else {
-        // skip 'portraitImgSizes'
-        setAttributes({
-          portraitImgId: portraitImg.id,
-          portraitImgData: newPortraitImgData,
-          portraitImgSizeIndex: newPortraitImgSizeIndex.toString()
-        });
-      }
-
-      // console.log( 'portraitImgSizes[ portraitImgSizeIndex ].url: ' + newPortraitImgAllData.imgs[ newPortraitImgSizeIndex ].url );
-    }
+    // Use `onSelectImage` with type 'portrait'.
+    await onSelectImage(portraitImg, 'portrait');
   }
-  ;
   const onDeleteImage = () => {
     // avoid creating deprecated attr 'imgSizes'
     if (imgSizes && imgSizes.length > 0) {
@@ -4359,30 +4355,48 @@ function Edit({
       multilayer: value
     });
   };
-  const onChangeImgSizeIndex = value => {
+  const onChangeAlt = value => {
     setAttributes({
-      imgSizeIndex: value.toString()
+      alt: value
+    });
+  };
+  const onChangePriority = value => {
+    setAttributes({
+      priority: value
+    });
+  };
+  const onChangeSizeIndex = value => {
+    setAttributes({
+      sizeIndex: value.toString()
     });
   };
   const imgSizeRadioControlOptions = [];
-  calcImgSizes.forEach((imgSize, index) => {
-    imgSizeRadioControlOptions.push({
-      value: index.toString(),
-      label: imgSize.width + 'x' + imgSize.height + (imgSize.width === imgSize.height ? ' ' + (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('(Square format)', 'bsx-blocks') : '')
+  if (typeof fullImgData !== 'undefined') {
+    fullImgData.forEach((imgSize, index) => {
+      const isSquareThumb = fullImgData[fullImgData.length - 1].width !== fullImgData[fullImgData.length - 1].height && imgSize.width === imgSize.height;
+      imgSizeRadioControlOptions.push({
+        value: index.toString(),
+        label: imgSize.width + 'x' + imgSize.height + (isSquareThumb ? ' ' + (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('(Square format)', 'bsx-blocks') : '') + ` (${imgSize.key})`
+      });
     });
-  });
+  }
   const onChangePortraitImgSizeIndex = value => {
     setAttributes({
-      portraitImgSizeIndex: value.toString()
+      portraitSizeIndex: value.toString()
     });
   };
   const portraitImgSizeRadioControlOptions = [];
-  calcPortraitImgSizes.forEach((portraitImgSize, index) => {
-    portraitImgSizeRadioControlOptions.push({
-      value: index.toString(),
-      label: portraitImgSize.width + 'x' + portraitImgSize.height + (portraitImgSize.width === portraitImgSize.height ? ' ' + (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('(Square format)', 'bsx-blocks') : '')
+  if (typeof fullPortraitImgData !== 'undefined') {
+    fullPortraitImgData.forEach((imgSize, index) => {
+      const isSquareThumb = fullPortraitImgData[fullPortraitImgData.length - 1].width !== fullPortraitImgData[fullPortraitImgData.length - 1].height && imgSize.width === imgSize.height;
+      portraitImgSizeRadioControlOptions.push({
+        value: index.toString(),
+        label: imgSize.width + 'x' + imgSize.height + (isSquareThumb ? ' ' + (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('(Square format)', 'bsx-blocks') : '') + ` (${imgSize.key})`
+      });
     });
-  });
+  }
+
+  // TODO: Refactore, replace background image styling by object fit styling.
   let bannerClassName = (0,_utils_js__WEBPACK_IMPORTED_MODULE_9__.makeBannerClassNames)({
     bannerType,
     bannerSize,
@@ -4396,7 +4410,7 @@ function Edit({
     templateName,
     rounded,
     href
-  });
+  }, 'position-relative');
   bannerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_4__.addClassNames)({
     belowNavbar,
     touchFooter,
@@ -4408,13 +4422,105 @@ function Edit({
     paddingAfter,
     multilayer
   }, bannerClassName);
-  const bannerInnerClassName = (0,_utils_js__WEBPACK_IMPORTED_MODULE_9__.makeBannerInnerClassNames)({
-    templateName
+  let bannerInnerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_4__.addClassNames)({
+    isBannerInner: true
   });
+  if (!!templateName && templateName == 'column-row-banner') {
+    bannerInnerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_4__.addClassNames)({
+      flexDirection: 'row',
+      w: '100'
+    }, bannerInnerClassName);
+  }
   const TagName = nodeName;
-  const bannerStyle = typeof calcImgSizes[imgSizeIndex] !== 'undefined' ? {
-    backgroundImage: `url(${calcImgSizes[imgSizeIndex].url})`
-  } : {};
+
+  // image
+  const hasValidImg = typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[sizeIndex] !== 'undefined' && sizeIndex < fullImgData.length;
+  const srcset = (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.makeSrcset)({
+    fullImgData,
+    sizeIndex,
+    disableResponsiveDownsizing
+  });
+  const src = hasValidImg ? fullImgData[sizeIndex].url : '';
+  const width = hasValidImg ? fullImgData[sizeIndex].width : '';
+  const height = hasValidImg ? fullImgData[sizeIndex].height : '';
+  const sizes = width && height ? '(max-width: ' + width + 'px) 100vw, ' + width + 'px' : '';
+
+  // portraitImage (if exists)
+  const hasValidPortraitImg = typeof fullPortraitImgData !== 'undefined' && fullPortraitImgData.length > 0 && typeof fullPortraitImgData[portraitSizeIndex] !== 'undefined' && portraitSizeIndex < fullPortraitImgData.length;
+  const portraitSrcset = (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_7__.makeSrcset)({
+    fullImgData: fullPortraitImgData,
+    sizeIndex: portraitSizeIndex,
+    disableResponsiveDownsizing
+  });
+  const portraitWidth = hasValidPortraitImg ? fullPortraitImgData[portraitSizeIndex].width : '';
+  const portraitHeight = hasValidPortraitImg ? fullPortraitImgData[portraitSizeIndex].height : '';
+  const portraitSizes = portraitWidth && portraitHeight ? '(max-width: ' + portraitWidth + 'px) 100vw, ' + portraitWidth + 'px' : '';
+
+  // If portrait image is given, create `image` as a picture tag with portrait and landscape sources – if not, create as image tag only.
+  let image = /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.Fragment, {});
+  if (hasValidPortraitImg) {
+    // with portrait image
+    image = hasValidImg && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.Fragment, {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)("picture", {
+        className: "position-absolute w-100 h-100 top-0 left-0",
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("source", {
+          srcset: portraitSrcset,
+          sizes: portraitSizes,
+          media: "(orientation: portrait)"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("img", {
+          className: "w-100 h-100 object-fit-cover",
+          src: src,
+          srcset: srcset,
+          sizes: sizes,
+          alt: alt,
+          width: width,
+          height: height,
+          ...(priority ? {
+            loading: "eager",
+            fetchpriority: "high"
+          } : {
+            loading: "lazy"
+          }),
+          decoding: "async"
+        })]
+      })
+    });
+  } else {
+    // without portrait image
+    image = hasValidImg && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.Fragment, {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("img", {
+        className: "position-absolute w-100 h-100 top-0 left-0 object-fit-cover",
+        src: src,
+        srcset: srcset,
+        sizes: sizes,
+        alt: alt,
+        width: width,
+        height: height,
+        ...(priority ? {
+          loading: "eager",
+          fetchpriority: "high"
+        } : {
+          loading: "lazy"
+        }),
+        decoding: "async"
+      })
+    });
+  }
+
+  // // without portrait image
+
+  // const image = hasValidImg ? (
+  //     <>
+  //         <img className={ imgClassName } src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } {...(priority ? { loading: "eager", fetchpriority: "high" } : { loading: "lazy" })} decoding="async" />
+  //     </>
+  // )
+  // :
+  // (
+  //     <></>
+  // );
+
+  // const bannerStyle = typeof calcImgSizes[ sizeIndex ] !== 'undefined' ? { backgroundImage: `url(${ calcImgSizes[ sizeIndex ].url })` } : {};
+
   const controls = /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.Fragment, {
     children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.InspectorControls, {
       children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.PanelBody, {
@@ -4423,7 +4529,7 @@ function Edit({
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.PanelBody, {
         title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Banner image', 'bsx-blocks'),
         children: [imgId ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.Fragment, {
-          children: (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.imgUploadClickableImg)(imgId, calcImgSizes[imgSizeIndex].url, onSelectImage)
+          children: (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.imgUploadClickableImg)(imgId, fullImgData[sizeIndex].url, onSelectImage)
         }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
           class: "bsxui-config-panel-row",
           children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
@@ -4442,24 +4548,32 @@ function Edit({
             isDestructive: true,
             children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Remove image', 'bsx-blocks')
           })
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
+          label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Alt', 'bsx-blocks'),
+          value: alt,
+          onChange: onChangeAlt
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.ToggleControl, {
+          label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Enable priority loading', 'bsx-blocks'),
+          checked: priority,
+          onChange: onChangePriority
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.RadioControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Image size and format', 'bsx-blocks'),
-          selected: imgSizeIndex.toString(),
+          selected: sizeIndex.toString(),
           options: imgSizeRadioControlOptions,
-          onChange: onChangeImgSizeIndex
-        }), calcImgSizes[imgSizeIndex] != undefined && calcImgSizes[imgSizeIndex].url != undefined && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
+          onChange: onChangeSizeIndex
+        }), fullImgData[sizeIndex] != undefined && fullImgData[sizeIndex].url != undefined && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
           class: "bsxui-config-panel-text",
           children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("a", {
             class: "bsxui-link",
-            href: calcImgSizes[imgSizeIndex].url,
+            href: fullImgData[sizeIndex].url,
             target: "_blank",
             children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Preview selected image', 'bsx-blocks')
           })
         })]
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.PanelBody, {
         title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Banner portrait image (optional)', 'bsx-blocks'),
-        children: [portraitImgId && typeof calcPortraitImgSizes[portraitImgSizeIndex] != 'undefined' && typeof calcPortraitImgSizes[portraitImgSizeIndex].url != 'undefined' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.Fragment, {
-          children: (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.imgUploadClickableImg)(portraitImgId, calcPortraitImgSizes[portraitImgSizeIndex].url, onSelectPortraitImage, 'p')
+        children: [portraitImgId && typeof fullPortraitImgData[portraitSizeIndex] != 'undefined' && typeof fullPortraitImgData[portraitSizeIndex].url != 'undefined' ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.Fragment, {
+          children: (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.imgUploadClickableImg)(portraitImgId, fullPortraitImgData[portraitSizeIndex].url, onSelectPortraitImage, 'p')
         }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
           class: "bsxui-config-panel-row",
           children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
@@ -4480,14 +4594,14 @@ function Edit({
           })
         }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.RadioControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Image size and format', 'bsx-blocks'),
-          selected: portraitImgSizeIndex.toString(),
+          selected: portraitSizeIndex.toString(),
           options: portraitImgSizeRadioControlOptions,
           onChange: onChangePortraitImgSizeIndex
-        }), typeof calcPortraitImgSizes[portraitImgSizeIndex] != 'undefined' && typeof calcPortraitImgSizes[portraitImgSizeIndex].url != 'undefined' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
+        }), typeof fullPortraitImgData[portraitSizeIndex] != 'undefined' && typeof fullPortraitImgData[portraitSizeIndex].url != 'undefined' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
           class: "bsxui-config-panel-text",
           children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("a", {
             class: "bsxui-link",
-            href: calcPortraitImgSizes[portraitImgSizeIndex].url,
+            href: fullPortraitImgData[portraitSizeIndex].url,
             target: "_blank",
             children: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Preview selected portrait image', 'bsx-blocks')
           })
@@ -4515,10 +4629,15 @@ function Edit({
   // console.log( 'template: ' + JSON.stringify( template, null, 2 ) );
   // console.log( 'template[ 0 ][ 1 ].isBannerInner: ' + JSON.stringify( template[ 0 ][ 1 ].isBannerInner, null, 2 ) );
 
+  const tmpBannerStyle = {
+    minHeight: '50vh'
+  };
+
   // add class names to blockProps
+  // const blockProps = useBlockProps( { className: bannerClassName, style: bannerStyle } );
   const blockProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.useBlockProps)({
     className: bannerClassName,
-    style: bannerStyle
+    style: tmpBannerStyle
   });
   // console.log( 'blockProps: ' + JSON.stringify( blockProps, null, 2 ) );
   const innerBlocksProps = (0,_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.useInnerBlocksProps)(blockProps, {
@@ -4553,15 +4672,19 @@ function Edit({
         children: typeof template[0] !== 'undefined' && typeof template[0][1] !== 'undefined' && typeof template[0][1].isBannerInner !== 'undefined' && template[0][1].isBannerInner ?
         /*#__PURE__*/
         // is column row with class name .banner-inner, needs no additional inner element, inset template directly
-        (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(TagName, {
-          ...innerBlocksProps
+        // <TagName { ...innerBlocksProps }/>
+        (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)(TagName, {
+          ...innerBlocksProps,
+          children: [image, innerBlocksProps.children]
         }) :
         /*#__PURE__*/
         // is not column row, needs additional inner element .banner-inner to inset template
         (0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(TagName, {
           ...blockProps,
-          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
-            ...bannerInnerInnerBlocksProps
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.Fragment, {
+            children: [image, /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)("div", {
+              ...bannerInnerInnerBlocksProps
+            })]
           })
         })
       })
@@ -4656,6 +4779,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 // utils
 
 
@@ -4675,15 +4799,13 @@ function save({
     belowNavbar,
     touchFooter,
     bgColor,
-    imgId,
-    imgSizes,
+    // imgId,
     imgData,
-    imgSizeIndex,
-    url,
-    portraitImgId,
-    portraitImgSizes,
+    sizeIndex,
+    alt,
+    priority,
     portraitImgData,
-    portraitImgSizeIndex,
+    portraitSizeIndex,
     bannerType,
     bannerSize,
     bgAttachment,
@@ -4701,24 +4823,17 @@ function save({
     href,
     target,
     rel,
-    dataFn,
     disableResponsiveDownsizing,
     multilayer
   } = attributes;
 
-  // initial set, replaces old attr 'imgSizes'
-  const hasOldAttrImgSizes = typeof imgSizes !== 'undefined' && Array.isArray(imgSizes) && imgSizes.length > 0;
-  const hasOldAttrPortraitImgSizes = typeof portraitImgSizes !== 'undefined' && Array.isArray(portraitImgSizes) && portraitImgSizes.length > 0;
-  const calcImgSizes = hasOldAttrImgSizes ? imgSizes : (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_4__.makeImgSizesFromImgData)(imgData);
-  const calcPortraitImgSizes = hasOldAttrPortraitImgSizes ? portraitImgSizes : (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_4__.makeImgSizesFromImgData)(portraitImgData);
-
-  // TEST
-  // console.log( 'props.attributes: ' + JSON.stringify( props.attributes, null, 2 ) );
-  // console.log( 'calcImgSizes: ' + JSON.stringify( calcImgSizes, null, 2 ) );
-  // console.log( 'calcPortraitImgSizes: ' + JSON.stringify( calcPortraitImgSizes, null, 2 ) + '\n\n' );
+  // Extract full img data arrays.
+  const fullImgData = (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_4__.maximizeImgData)(imgData);
+  const fullPortraitImgData = (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_4__.maximizeImgData)(portraitImgData);
 
   // class names
 
+  // TODO: Refactore, replace background image styling by object fit styling.
   let bannerClassName = (0,_utils_js__WEBPACK_IMPORTED_MODULE_5__.makeBannerClassNames)({
     bannerType,
     bannerSize,
@@ -4732,7 +4847,7 @@ function save({
     templateName,
     rounded,
     href
-  });
+  }, 'position-relative');
   bannerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_1__.addClassNames)({
     belowNavbar,
     touchFooter,
@@ -4744,22 +4859,94 @@ function save({
     paddingAfter,
     multilayer
   }, bannerClassName);
-  const bannerInnerClassName = (0,_utils_js__WEBPACK_IMPORTED_MODULE_5__.makeBannerInnerClassNames)({
-    templateName
+  let bannerInnerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_1__.addClassNames)({
+    isBannerInner: true
   });
-  const srcsetJson = (0,_utils_js__WEBPACK_IMPORTED_MODULE_5__.makeSrcsetJson)({
-    calcImgSizes,
-    imgSizeIndex,
-    calcPortraitImgSizes,
-    portraitImgSizeIndex,
+  if (!!templateName && templateName == 'column-row-banner') {
+    bannerInnerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_1__.addClassNames)({
+      flexDirection: 'row',
+      w: '100'
+    }, bannerInnerClassName);
+  }
+
+  // Image data.
+  const hasValidImg = typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[sizeIndex] !== 'undefined' && sizeIndex < fullImgData.length;
+  const srcset = (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_4__.makeSrcset)({
+    fullImgData,
+    sizeIndex,
     disableResponsiveDownsizing
   });
+  const src = hasValidImg ? fullImgData[sizeIndex].url : '';
+  const width = hasValidImg ? fullImgData[sizeIndex].width : '';
+  const height = hasValidImg ? fullImgData[sizeIndex].height : '';
+  const sizes = width && height ? '(max-width: ' + width + 'px) 100vw, ' + width + 'px' : '';
 
-  // there might be no images at all, e.g. if background color banner
+  // Portrait image data (if exists).
+  const hasValidPortraitImg = typeof fullPortraitImgData !== 'undefined' && fullPortraitImgData.length > 0 && typeof fullPortraitImgData[portraitSizeIndex] !== 'undefined' && portraitSizeIndex < fullPortraitImgData.length;
+  const portraitSrcset = (0,_functions_img_js__WEBPACK_IMPORTED_MODULE_4__.makeSrcset)({
+    fullImgData: fullPortraitImgData,
+    sizeIndex: portraitSizeIndex,
+    disableResponsiveDownsizing
+  });
+  const portraitWidth = hasValidPortraitImg ? fullPortraitImgData[portraitSizeIndex].width : '';
+  const portraitHeight = hasValidPortraitImg ? fullPortraitImgData[portraitSizeIndex].height : '';
+  const portraitSizes = portraitWidth && portraitHeight ? '(max-width: ' + portraitWidth + 'px) 100vw, ' + portraitWidth + 'px' : '';
+
+  // If portrait image is given, create `image` as a picture tag with portrait and landscape sources – if not, create as image tag only.
+  let image = /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.Fragment, {});
+  if (hasValidPortraitImg) {
+    // With portrait image
+    image = hasValidImg && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.Fragment, {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)("picture", {
+        className: "position-absolute w-100 h-100 top-0 left-0",
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("source", {
+          srcset: portraitSrcset,
+          sizes: portraitSizes,
+          media: "(orientation: portrait)"
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("img", {
+          className: "w-100 h-100 object-fit-cover",
+          src: src,
+          srcset: srcset,
+          sizes: sizes,
+          alt: alt,
+          width: width,
+          height: height,
+          ...(priority ? {
+            loading: "eager",
+            fetchpriority: "high"
+          } : {
+            loading: "lazy"
+          }),
+          decoding: "async"
+        })]
+      })
+    });
+  } else {
+    // Without portrait image
+    image = hasValidImg && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.Fragment, {
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("img", {
+        className: "position-absolute w-100 h-100 top-0 left-0 object-fit-cover",
+        src: src,
+        srcset: srcset,
+        sizes: sizes,
+        alt: alt,
+        width: width,
+        height: height,
+        ...(priority ? {
+          loading: "eager",
+          fetchpriority: "high"
+        } : {
+          loading: "lazy"
+        }),
+        decoding: "async"
+      })
+    });
+  }
+
+  // There might be no images at all, e.g. if background color banner
   const saveAttributes = (0,_functions_attributes_js__WEBPACK_IMPORTED_MODULE_2__.makeSaveAttributes)({
-    'data-fn': imgId ? 'lazyload' : dataFn,
-    'data-src': imgId ? calcImgSizes[imgSizeIndex].url : '',
-    'data-srcset': imgId ? srcsetJson : '',
+    style: 'min-height: 50vh;',
+    // TODO: Replace by height classes if implemented
     href: href,
     target: target,
     rel: href ? rel ? rel + ' noopener noreferrer' : 'noopener noreferrer' : ''
@@ -4771,9 +4958,13 @@ function save({
       className: bannerClassName,
       ...saveAttributes
     }),
-    children: typeof template !== 'undefined' && template[0] !== 'undefined' && typeof template[0][1] !== 'undefined' && typeof template[0][1].isBannerInner !== 'undefined' && template[0][1].isBannerInner ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.InnerBlocks.Content, {}) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
-      className: bannerInnerClassName,
-      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.InnerBlocks.Content, {})
+    children: typeof template !== 'undefined' && template[0] !== 'undefined' && typeof template[0][1] !== 'undefined' && typeof template[0][1].isBannerInner !== 'undefined' && template[0][1].isBannerInner ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.Fragment, {
+      children: [image, /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.InnerBlocks.Content, {})]
+    }) : /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsxs)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.Fragment, {
+      children: [image, /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)("div", {
+        className: bannerInnerClassName,
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_0__.InnerBlocks.Content, {})
+      })]
     })
   });
 }
@@ -4962,7 +5153,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   makeBannerInnerClassNames: () => (/* binding */ makeBannerInnerClassNames),
 /* harmony export */   makeSrcsetJson: () => (/* binding */ makeSrcsetJson)
 /* harmony export */ });
-const makeBannerClassNames = attributes => {
+const makeBannerClassNames = (attributes, className) => {
   const {
     bannerType,
     bannerSize,
@@ -4977,7 +5168,7 @@ const makeBannerClassNames = attributes => {
     rounded,
     href
   } = attributes;
-  const classNames = [];
+  const classNames = className ? [className] : [];
   if (!!bannerType) {
     // always set bannerType and bannerSize to keep debugging easy
     classNames.push('banner-' + bannerType + '-' + bannerSize);
@@ -5032,11 +5223,11 @@ const makeBannerClassNames = attributes => {
   }
   return classNames.join(' ');
 };
-const makeBannerInnerClassNames = attributes => {
+const makeBannerInnerClassNames = (attributes, className) => {
   const {
     templateName
   } = attributes;
-  const classNames = ['banner-inner'];
+  const classNames = ['banner-inner', ...(className ? [className] : [])];
   if (!!templateName && templateName == 'column-row-banner') {
     classNames.push('w-100');
     classNames.push('d-flex');
@@ -5066,7 +5257,7 @@ const makeSrcsetJson = attributes => {
     calcImgSizes,
     imgSizeIndex,
     calcPortraitImgSizes,
-    portraitImgSizeIndex,
+    portraitSizeIndex,
     disableResponsiveDownsizing
   } = attributes;
 
@@ -5076,7 +5267,7 @@ const makeSrcsetJson = attributes => {
     // add item if img resulting indes > skipIndex (no square format)
     if (!disableResponsiveDownsizing || index == 0) {
       // always add 1st item, others only if downsizing is enabled
-      const currentPortraitImgSizeIndex = parseInt(portraitImgSizeIndex) + parseInt(item.imgSizeIndexShift);
+      const currentPortraitImgSizeIndex = parseInt(portraitSizeIndex) + parseInt(item.imgSizeIndexShift);
       if (typeof calcPortraitImgSizes !== 'undefined' && currentPortraitImgSizeIndex > skipIndex && currentPortraitImgSizeIndex < calcPortraitImgSizes.length) {
         srcsetJson += '{ media: \'' + item.media + '\', src: \'' + calcPortraitImgSizes[currentPortraitImgSizeIndex].url + '\' }, ';
       }

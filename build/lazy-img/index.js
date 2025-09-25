@@ -67,7 +67,8 @@ function addClassNames(attributes, classNamesString) {
     isBottom0,
     isLeft0,
     isRight0,
-    position
+    position,
+    flexDirection
   } = attributes;
   const classNames = typeof classNamesString != 'undefined' && classNamesString.trim().length > 0 ? classNamesString.split(' ') : [];
   if (!!belowNavbar) {
@@ -148,7 +149,17 @@ function addClassNames(attributes, classNamesString) {
     }
   }
   if (!!bgColor) {
-    classNames.push('bg-' + bgColor);
+    // Check if bgColor contains string `-transparent`, if so, add additional class `bg-opacity-50` and remove `-transparent` from bgColor.
+    // Check if contains `-opaque`, too, add `bg-opacity-75` and remove `-opaque`.
+    if (bgColor.indexOf('-transparent') !== -1) {
+      classNames.push('bg-opacity-50');
+      classNames.push('bg-' + bgColor.replace('-transparent', ''));
+    } else if (bgColor.indexOf('-opaque') !== -1) {
+      classNames.push('bg-opacity-75');
+      classNames.push('bg-' + bgColor.replace('-opaque', ''));
+    } else {
+      classNames.push('bg-' + bgColor);
+    }
   }
   if (!!textColor) {
     classNames.push('text-' + textColor);
@@ -258,7 +269,7 @@ function addClassNames(attributes, classNamesString) {
     classNames.push('z-' + zIndex);
   }
   if (!!isBannerInner) {
-    classNames.push('banner-inner');
+    classNames.push('banner-inner w-100 position-relative');
   }
   if (!!isTop0) {
     classNames.push('top-0');
@@ -274,6 +285,15 @@ function addClassNames(attributes, classNamesString) {
   }
   if (!!position) {
     classNames.push('position-' + position);
+  }
+
+  // Do after handle display flex above.
+  if (!!flexDirection) {
+    // Check if `d-flex` is already in classNames, if not, add it.
+    if (classNames.indexOf('d-flex') === -1) {
+      classNames.push('d-flex');
+    }
+    classNames.push('flex-' + flexDirection);
   }
   return classNames.join(' ');
 }
@@ -5446,9 +5466,6 @@ function Edit({
         // console.log('reduce initial sizeIndex to: ' + newImgSizeIndex);
       }
 
-      // do not use thumbnail for srcset if has square format, start with img sizes index 1 then
-      const newLowestSrcsetImgSizeIndex = img.sizes.thumbnail.width !== img.sizes.thumbnail.height ? 0 : 1;
-
       // check if current zoom img size index fits to new img (might be too large) or is unset
       let newZoomImgSizeIndex = zoomSizeIndex;
       if (zoomable && !zoomSizeIndex || parseInt(zoomSizeIndex) < parseInt(newImgSizeIndex) || parseInt(zoomSizeIndex) >= parseInt(sizes.length)) {
@@ -5491,7 +5508,7 @@ function Edit({
     }
   }
   ;
-  const onChangeMediaAlt = value => {
+  const onChangeAlt = value => {
     setAttributes({
       alt: value
     });
@@ -5727,7 +5744,7 @@ function Edit({
         children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.TextControl, {
           label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Alt', 'bsx-blocks'),
           value: alt,
-          onChange: onChangeMediaAlt
+          onChange: onChangeAlt
         }), imgId && sizeIndex ? /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_7__.jsx)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.MediaUpload, {
           onSelect: onSelectImage,
           allowedTypes: "image",

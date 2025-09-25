@@ -18,6 +18,10 @@ import {
     makeImgSizesFromImgData,
     // makeImgData,
 } from './../_functions/img.js';
+import { 
+    maximizeImgData,
+    makeSrcset,
+} from './../_functions/img.js';
 
 
 // utils
@@ -35,7 +39,7 @@ import templates from './templates.js';
 /**
  * @return {Element} Element to render.
  */
-export default function save( { attributes } ) {
+export default function save({ attributes }) {
 
     const {
         nodeName,
@@ -43,15 +47,13 @@ export default function save( { attributes } ) {
         belowNavbar,
         touchFooter,
         bgColor,
-        imgId,
-        imgSizes,
+        // imgId,
         imgData,
-        imgSizeIndex,
-        url,
-        portraitImgId,
-        portraitImgSizes,
+        sizeIndex,
+        alt,
+        priority,
         portraitImgData,
-        portraitImgSizeIndex,
+        portraitSizeIndex,
         bannerType,
         bannerSize,
         bgAttachment,
@@ -69,28 +71,18 @@ export default function save( { attributes } ) {
         href,
         target,
         rel,
-        dataFn,
         disableResponsiveDownsizing,
         multilayer,
     } = attributes;
 
-
-    // initial set, replaces old attr 'imgSizes'
-    const hasOldAttrImgSizes = typeof imgSizes !== 'undefined' && Array.isArray( imgSizes ) && imgSizes.length > 0;
-    const hasOldAttrPortraitImgSizes = typeof portraitImgSizes !== 'undefined' && Array.isArray( portraitImgSizes ) && portraitImgSizes.length > 0;
-
-    const calcImgSizes = hasOldAttrImgSizes ? imgSizes : makeImgSizesFromImgData( imgData );
-    const calcPortraitImgSizes = hasOldAttrPortraitImgSizes ? portraitImgSizes : makeImgSizesFromImgData( portraitImgData );
-
-    // TEST
-    // console.log( 'props.attributes: ' + JSON.stringify( props.attributes, null, 2 ) );
-    // console.log( 'calcImgSizes: ' + JSON.stringify( calcImgSizes, null, 2 ) );
-    // console.log( 'calcPortraitImgSizes: ' + JSON.stringify( calcPortraitImgSizes, null, 2 ) + '\n\n' );
-
+    // Extract full img data arrays.
+    const fullImgData = maximizeImgData(imgData);
+    const fullPortraitImgData = maximizeImgData(portraitImgData);
 
     // class names
 
-    let bannerClassName = makeBannerClassNames( {
+    // TODO: Refactore, replace background image styling by object fit styling.
+    let bannerClassName = makeBannerClassNames({
         bannerType, 
         bannerSize, 
         bgAttachment, 
@@ -103,8 +95,8 @@ export default function save( { attributes } ) {
         templateName,
         rounded,
         href,
-    } );
-    bannerClassName = addClassNames( {
+    }, 'position-relative');
+    bannerClassName = addClassNames({
         belowNavbar, 
         touchFooter,
         bgColor,
@@ -114,45 +106,98 @@ export default function save( { attributes } ) {
         paddingBefore, 
         paddingAfter,
         multilayer,
-    }, bannerClassName );
+    }, bannerClassName);
 
-    const bannerInnerClassName = makeBannerInnerClassNames( {
-        templateName,
-    } );
+    let bannerInnerClassName = addClassNames({
+        isBannerInner: true,
+    });
 
-    const srcsetJson = makeSrcsetJson( { 
-        calcImgSizes, 
-        imgSizeIndex, 
-        calcPortraitImgSizes, 
-        portraitImgSizeIndex, 
+    if (!!templateName && templateName == 'column-row-banner') {
+        bannerInnerClassName = addClassNames({
+            flexDirection: 'row',
+            w: '100',
+        }, bannerInnerClassName);
+    }
+
+    
+    // Image data.
+    const hasValidImg = (typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[sizeIndex] !== 'undefined' && sizeIndex < fullImgData.length);
+
+    const srcset = makeSrcset({
+        fullImgData,
+        sizeIndex,
         disableResponsiveDownsizing,
-    } );
+    });
+    const src = hasValidImg ? fullImgData[sizeIndex].url : '';
+    const width = hasValidImg ? fullImgData[sizeIndex].width : '';
+    const height = hasValidImg ? fullImgData[sizeIndex].height : '';
+    const sizes = (width && height) ? '(max-width: ' + width + 'px) 100vw, ' + width + 'px' : '';
 
-    // there might be no images at all, e.g. if background color banner
-    const saveAttributes = makeSaveAttributes( {
-        'data-fn': imgId ? 'lazyload' : dataFn,
-        'data-src': imgId ? calcImgSizes[ imgSizeIndex ].url : '',
-        'data-srcset': imgId ? srcsetJson : '',
+
+    // Portrait image data (if exists).
+    const hasValidPortraitImg = (typeof fullPortraitImgData !== 'undefined' && fullPortraitImgData.length > 0 && typeof fullPortraitImgData[portraitSizeIndex] !== 'undefined' && portraitSizeIndex < fullPortraitImgData.length);
+
+    const portraitSrcset = makeSrcset({
+        fullImgData: fullPortraitImgData,
+        sizeIndex: portraitSizeIndex,
+        disableResponsiveDownsizing,
+    });
+    const portraitWidth = hasValidPortraitImg ? fullPortraitImgData[portraitSizeIndex].width : '';
+    const portraitHeight = hasValidPortraitImg ? fullPortraitImgData[portraitSizeIndex].height : '';
+    const portraitSizes = (portraitWidth && portraitHeight) ? '(max-width: ' + portraitWidth + 'px) 100vw, ' + portraitWidth + 'px' : '';
+
+    // If portrait image is given, create `image` as a picture tag with portrait and landscape sources – if not, create as image tag only.
+    let image = <></>;
+
+    if (hasValidPortraitImg) {
+        // With portrait image
+        image = hasValidImg && (
+            <>
+                <picture className="position-absolute w-100 h-100 top-0 left-0">
+                    <source srcset={ portraitSrcset } sizes={ portraitSizes } media="(orientation: portrait)" />
+                    <img className="w-100 h-100 object-fit-cover" src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } {...(priority ? { loading: "eager", fetchpriority: "high" } : { loading: "lazy" })} decoding="async" />
+                </picture>
+            </>
+        );
+    }
+    else {
+        // Without portrait image
+        image = hasValidImg && (
+            <>
+                <img className="position-absolute w-100 h-100 top-0 left-0 object-fit-cover" src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } {...(priority ? { loading: "eager", fetchpriority: "high" } : { loading: "lazy" })} decoding="async" />
+            </>
+        );
+    }
+
+    // There might be no images at all, e.g. if background color banner
+    const saveAttributes = makeSaveAttributes({
+        style: 'min-height: 50vh;', // TODO: Replace by height classes if implemented
         href: href, 
         target: target, 
-        rel: href ? ( rel ? rel + ' noopener noreferrer' : 'noopener noreferrer' ) : '',
-    } );
+        rel: href ? (rel ? rel + ' noopener noreferrer' : 'noopener noreferrer') : '',
+    });
 
     const TagName = href ? 'a' : nodeName;
 
-    const template = getTemplate( templates, templateName ).template;
+    const template = getTemplate(templates, templateName).template;
 
 	return (
-        <TagName { ...useBlockProps.save( { className: bannerClassName, ...saveAttributes } ) }>
+        <TagName { ...useBlockProps.save({ className: bannerClassName, ...saveAttributes }) }>
             {
-                typeof template !== 'undefined' && template[ 0 ] !== 'undefined' && typeof template[ 0 ][ 1 ] !== 'undefined' && typeof template[ 0 ][ 1 ].isBannerInner !== 'undefined' && template[ 0 ][ 1 ].isBannerInner ? (
-                    <InnerBlocks.Content />
+                typeof template !== 'undefined' && template[0] !== 'undefined' && typeof template[0][1] !== 'undefined' && typeof template[0][1].isBannerInner !== 'undefined' && template[0][1].isBannerInner ? (
+                    <>
+                        { image }
+                        <InnerBlocks.Content />
+                    </>
                 )
                 :
                 (
-                    <div className={ bannerInnerClassName }>
-                        <InnerBlocks.Content />
-                    </div>
+                    <>
+                        { image }
+                        <div className={ bannerInnerClassName }>
+                            <InnerBlocks.Content />
+                        </div>
+                    </>
                 )
             }
         </TagName>

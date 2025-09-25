@@ -158,9 +158,6 @@ function Edit({ attributes, setAttributes, clientId }) {
                 // console.log('reduce initial sizeIndex to: ' + newImgSizeIndex);
             }
 
-            // do not use thumbnail for srcset if has square format, start with img sizes index 1 then
-            const newLowestSrcsetImgSizeIndex = img.sizes.thumbnail.width !== img.sizes.thumbnail.height ? 0 : 1;
-
             // check if current zoom img size index fits to new img (might be too large) or is unset
             let newZoomImgSizeIndex = zoomSizeIndex;
             if ((zoomable && ! zoomSizeIndex) || parseInt(zoomSizeIndex) < parseInt(newImgSizeIndex) || parseInt(zoomSizeIndex) >= parseInt(sizes.length)) {
@@ -206,7 +203,7 @@ function Edit({ attributes, setAttributes, clientId }) {
         }
     };
 
-    const onChangeMediaAlt = (value) => {
+    const onChangeAlt = (value) => {
         setAttributes({ alt: value });
     };
     const onChangeFigcaption = (value) => {
@@ -412,7 +409,7 @@ function Edit({ attributes, setAttributes, clientId }) {
                     <TextControl 
                         label={ __('Alt', 'bsx-blocks') }
                         value={ alt } 
-                        onChange={ onChangeMediaAlt }
+                        onChange={ onChangeAlt }
                     />
                     {
                         imgId && sizeIndex ? (

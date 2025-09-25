@@ -55,6 +55,7 @@ export function addClassNames( attributes, classNamesString ) {
         isLeft0,
         isRight0,
         position,
+        flexDirection,
     } = attributes;
 
     const classNames = ( typeof classNamesString != 'undefined' && classNamesString.trim().length > 0 ) ? classNamesString.split( ' ' ) : [];
@@ -152,7 +153,19 @@ export function addClassNames( attributes, classNamesString ) {
     }
 
     if ( !! bgColor ) {
-        classNames.push( 'bg-' + bgColor );
+        // Check if bgColor contains string `-transparent`, if so, add additional class `bg-opacity-50` and remove `-transparent` from bgColor.
+        // Check if contains `-opaque`, too, add `bg-opacity-75` and remove `-opaque`.
+        if (bgColor.indexOf('-transparent') !== -1) {
+            classNames.push('bg-opacity-50');
+            classNames.push('bg-' + bgColor.replace('-transparent', ''));
+        }
+        else if (bgColor.indexOf('-opaque') !== -1) {
+            classNames.push('bg-opacity-75');
+            classNames.push('bg-' + bgColor.replace('-opaque', ''));
+        }
+        else {
+            classNames.push('bg-' + bgColor);
+        }
     }
 
     if ( !! textColor ) {
@@ -295,7 +308,7 @@ export function addClassNames( attributes, classNamesString ) {
     }
 
     if ( !! isBannerInner ) {
-        classNames.push( 'banner-inner' );
+        classNames.push( 'banner-inner w-100 position-relative' );
     }
 
     if ( !! isTop0 ) {
@@ -315,6 +328,15 @@ export function addClassNames( attributes, classNamesString ) {
         classNames.push( 'position-' + position );
     }
 
+
+    // Do after handle display flex above.
+    if ( !! flexDirection ) {
+        // Check if `d-flex` is already in classNames, if not, add it.
+        if ( classNames.indexOf( 'd-flex' ) === -1 ) {
+            classNames.push( 'd-flex' );
+        }
+        classNames.push('flex-' + flexDirection );
+    }
 
 
     return classNames.join( ' ' );

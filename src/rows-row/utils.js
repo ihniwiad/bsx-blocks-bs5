@@ -10,11 +10,12 @@ const makeColumnRowClassNames = ( attributes ) => {
 
     if ( columnRowType != 'unset' ) {
         if ( !! columnRowType ) {
-            classNames.push( 'column-row-' + columnRowType );
+            // Auto: height according to content.
+            // classNames.push( 'column-row-' + columnRowType );
         }
         else {
-            // default class name
-            classNames.push( 'column-row' );
+            // Grow to max.
+            classNames.push( 'flex-grow-1' );
         }
     }
 

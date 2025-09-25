@@ -1,4 +1,4 @@
-export const makeBannerClassNames = ( attributes ) => {
+export const makeBannerClassNames = ( attributes, className ) => {
 
     const { 
         bannerType, 
@@ -15,7 +15,7 @@ export const makeBannerClassNames = ( attributes ) => {
         href,
     } = attributes;
 
-    const classNames = [];
+    const classNames = className ? [className] : [];
 
     if ( !! bannerType ) {
         // always set bannerType and bannerSize to keep debugging easy
@@ -81,21 +81,21 @@ export const makeBannerClassNames = ( attributes ) => {
     return classNames.join( ' ' );
 }
 
-export const makeBannerInnerClassNames = ( attributes ) => {
+export const makeBannerInnerClassNames = (attributes, className) => {
 
     const {
         templateName,
     } = attributes;
 
-    const classNames = [ 'banner-inner' ];
-    
-    if ( !! templateName && templateName == 'column-row-banner' ) {
-        classNames.push( 'w-100' );
-        classNames.push( 'd-flex' );
-        classNames.push( 'flex-column' );
+    const classNames = ['banner-inner', ...(className ? [className] : [])];
+
+    if (!!templateName && templateName == 'column-row-banner') {
+        classNames.push('w-100');
+        classNames.push('d-flex');
+        classNames.push('flex-column');
     }
 
-    return classNames.join( ' ' );
+    return classNames.join(' ');
 }
 
 // responsive sizes
@@ -126,7 +126,7 @@ export const makeSrcsetJson = ( attributes ) => {
         calcImgSizes, 
         imgSizeIndex, 
         calcPortraitImgSizes, 
-        portraitImgSizeIndex, 
+        portraitSizeIndex, 
         disableResponsiveDownsizing,
     } = attributes;
 
@@ -136,7 +136,7 @@ export const makeSrcsetJson = ( attributes ) => {
         // add item if img resulting indes > skipIndex (no square format)
         if ( ! disableResponsiveDownsizing || index == 0 ) {
             // always add 1st item, others only if downsizing is enabled
-            const currentPortraitImgSizeIndex = ( parseInt( portraitImgSizeIndex ) + parseInt( item.imgSizeIndexShift ) );
+            const currentPortraitImgSizeIndex = ( parseInt( portraitSizeIndex ) + parseInt( item.imgSizeIndexShift ) );
             if ( typeof calcPortraitImgSizes !== 'undefined' && currentPortraitImgSizeIndex > skipIndex && currentPortraitImgSizeIndex < calcPortraitImgSizes.length ) {
                 srcsetJson += '{ media: \'' + item.media + '\', src: \'' + calcPortraitImgSizes[ currentPortraitImgSizeIndex ].url + '\' }, ';
             }

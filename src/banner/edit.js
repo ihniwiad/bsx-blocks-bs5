@@ -37,6 +37,12 @@ import {
     makeImgData,
 } from './../_functions/img.js';
 import { 
+    getAllImageSizes,
+    maximizeImgData,
+    minimizeImgData,
+    makeSrcset,
+} from './../_functions/img.js';
+import { 
     alignItemsSelect,
     marginBeforeSelect,
     marginAfterSelect,
@@ -105,12 +111,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         imgId,
         imgSizes,
         imgData,
-        imgSizeIndex,
-        url,
+        sizeIndex,
+        alt,
+        priority,
         portraitImgId,
         portraitImgSizes,
         portraitImgData,
-        portraitImgSizeIndex,
+        portraitSizeIndex,
         bannerType,
         bannerSize,
         bgAttachment,
@@ -141,13 +148,19 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	let template = getTemplate( templates, templateName ).template;
 
+    // Extract full image data (all sizes) from imgData attribute.
+    const fullImgData = maximizeImgData(imgData);
+    const fullPortraitImgData = maximizeImgData(portraitImgData);
+
+    // console.log('fullImgData (init):', fullImgData);
+    // console.log('fullPortraitImgData (init):', fullPortraitImgData);
 
     // initial set, replaces old attr 'imgSizes'
-    const hasOldAttrImgSizes = typeof imgSizes !== 'undefined' && Array.isArray( imgSizes ) && imgSizes.length > 0;
-    const hasOldAttrPortraitImgSizes = typeof portraitImgSizes !== 'undefined' && Array.isArray( portraitImgSizes ) && portraitImgSizes.length > 0;
+    // const hasOldAttrImgSizes = typeof imgSizes !== 'undefined' && Array.isArray( imgSizes ) && imgSizes.length > 0;
+    // const hasOldAttrPortraitImgSizes = typeof portraitImgSizes !== 'undefined' && Array.isArray( portraitImgSizes ) && portraitImgSizes.length > 0;
 
-    const calcImgSizes = hasOldAttrImgSizes ? imgSizes : makeImgSizesFromImgData( imgData );
-    const calcPortraitImgSizes = hasOldAttrPortraitImgSizes ? portraitImgSizes : makeImgSizesFromImgData( portraitImgData );
+    // const calcImgSizes = hasOldAttrImgSizes ? imgSizes : makeImgSizesFromImgData( imgData );
+    // const calcPortraitImgSizes = hasOldAttrPortraitImgSizes ? portraitImgSizes : makeImgSizesFromImgData( portraitImgData );
 
     // TEST
     // console.log( 'props.attributes: ' + JSON.stringify( props.attributes, null, 2 ) );
@@ -187,84 +200,48 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         setAttributes( { bgColor: value } );
     };
 
-    async function onSelectImage( img ) {
+    async function onSelectImage(img, type = 'landscape') {
+        if (typeof img.url !== 'undefined') {
+            // Get all data of new image (detect even the unscaled original size and the non listed scaled sizes 1536px & 2048px).
+            const sizes = await getAllImageSizes(img);
+            // console.log('All image sizes:', sizes);
 
-        if ( typeof img.url !== 'undefined' ) {
+            const originalDims = sizes[sizes.length - 1];
 
-            const newImgAllData = await getImgSizesData( img );
+            const newImgData = minimizeImgData(sizes);
 
-            // check if current img size index fits to new img (might be too large)
-            let newImgSizeIndex = parseInt( imgSizeIndex );
-            if ( parseInt( imgSizeIndex ) >= newImgAllData.imgs.length ) {
-                newImgSizeIndex = newImgAllData.imgs.length - 1;
+            // console.log('newImgData:', newImgData);
+
+            // Check if current img size index fits to new img (might be too large).
+            let newImgSizeIndex = parseInt(sizeIndex);
+            if (parseInt(sizeIndex) >= sizes.length) {
+                newImgSizeIndex = sizes.length - 1;
+                // console.log('reduce initial sizeIndex to: ' + newImgSizeIndex);
             }
 
-            // prepare attr 'imgData' to save in block (replacing old attr 'imgSizes')
-            const newImgData = makeImgData( newImgAllData.imgs, newImgAllData.truncWithoutSizeSlug, newImgAllData.fileExt );
-
-            // avoid creating deprecated (empty) attr 'imgSizes'
-            if ( imgSizes && imgSizes.length > 0 ) {
-                // delete value of 'imgSizes'
-                setAttributes( {
+            if (type === 'portrait') {
+                // Portrait image.
+                setAttributes({
+                    portraitImgId: img.id,
+                    portraitImgData: newImgData,
+                    portraitSizeIndex: newImgSizeIndex.toString(),
+                });
+            } else {
+                // Default (landscape) image.
+                setAttributes({
                     imgId: img.id,
-                    imgSizes: '', // save empty, replaced by imgData
                     imgData: newImgData,
-                    imgSizeIndex: newImgSizeIndex.toString(),
-                    url: '', // save empty, replaced by imgData
-                } );
+                    sizeIndex: newImgSizeIndex.toString(),
+                    alt: img.alt,
+                });
             }
-            else {
-                // skip 'imgSizes'
-                setAttributes( {
-                    imgId: img.id,
-                    imgData: newImgData,
-                    imgSizeIndex: newImgSizeIndex.toString(),
-                } );
-            }
-
-
-            // console.log( 'url: ' + newImgAllData.imgs[ newImgSizeIndex ].url );
         }
     };
 
-    async function onSelectPortraitImage( portraitImg ) {
-
-        if ( typeof portraitImg.url !== 'undefined' ) {
-
-            const newPortraitImgAllData = await getImgSizesData( portraitImg );
-
-            // check if current img size index fits to new img (might be too large)
-            let newPortraitImgSizeIndex = parseInt( portraitImgSizeIndex );
-            if ( parseInt( portraitImgSizeIndex ) >= newPortraitImgAllData.imgs.length ) {
-                newPortraitImgSizeIndex = newPortraitImgAllData.imgs.length - 1;
-            }
-            // console.log( 'newPortraitImgSizeIndex: ' + newPortraitImgSizeIndex );
-
-            // prepare attr 'imgData' to save in block (replacing old attr 'portraitImgSizes')
-            const newPortraitImgData = makeImgData( newPortraitImgAllData.imgs, newPortraitImgAllData.truncWithoutSizeSlug, newPortraitImgAllData.fileExt );
-
-            // avoid creating deprecated (empty) attr 'portraitImgSizes'
-            if ( portraitImgSizes && portraitImgSizes.length > 0 ) {
-                // delete value of 'portraitImgSizes'
-                setAttributes( {
-                    portraitImgId: portraitImg.id,
-                    portraitImgSizes: '', // save empty, replaced by portraitImgData
-                    portraitImgData: newPortraitImgData,
-                    portraitImgSizeIndex: newPortraitImgSizeIndex.toString(),
-                } );
-            }
-            else {
-                // skip 'portraitImgSizes'
-                setAttributes( {
-                    portraitImgId: portraitImg.id,
-                    portraitImgData: newPortraitImgData,
-                    portraitImgSizeIndex: newPortraitImgSizeIndex.toString(),
-                } );
-            }
-
-            // console.log( 'portraitImgSizes[ portraitImgSizeIndex ].url: ' + newPortraitImgAllData.imgs[ newPortraitImgSizeIndex ].url );
-        }
-    };
+    async function onSelectPortraitImage(portraitImg) {
+        // Use `onSelectImage` with type 'portrait'.
+        await onSelectImage(portraitImg, 'portrait');
+    }
 
     const onDeleteImage = () => {
         // avoid creating deprecated attr 'imgSizes'
@@ -375,31 +352,45 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         setAttributes( { multilayer: value } );
     };
 
-    const onChangeImgSizeIndex = ( value ) => {
+    const onChangeAlt = (value) => {
+        setAttributes({ alt: value });
+    };
+    const onChangePriority = (value) => {
+        setAttributes({ priority: value });
+    };
+
+    const onChangeSizeIndex = ( value ) => {
         setAttributes( { 
-            imgSizeIndex: value.toString(),
+            sizeIndex: value.toString(),
         } );
     };
     const imgSizeRadioControlOptions = [];
-    calcImgSizes.forEach( ( imgSize, index ) => {
-        imgSizeRadioControlOptions.push( 
-            { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + ( imgSize.width === imgSize.height ? ' ' + __( '(Square format)', 'bsx-blocks' ) : '' ) } 
-        );
-    } );
+    if (typeof fullImgData !== 'undefined') {
+        fullImgData.forEach((imgSize, index) => {
+            const isSquareThumb = fullImgData[fullImgData.length - 1].width !== fullImgData[fullImgData.length - 1].height && imgSize.width === imgSize.height;
+            imgSizeRadioControlOptions.push(
+                { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + (isSquareThumb ? ' ' + __('(Square format)', 'bsx-blocks') : '') + ` (${imgSize.key})` } 
+           );
+        });
+    }
 
     const onChangePortraitImgSizeIndex = ( value ) => {
         setAttributes( { 
-            portraitImgSizeIndex: value.toString(),
+            portraitSizeIndex: value.toString(),
         } );
     };
     const portraitImgSizeRadioControlOptions = [];
-    calcPortraitImgSizes.forEach( ( portraitImgSize, index ) => {
-        portraitImgSizeRadioControlOptions.push( 
-            { value: index.toString(), label: portraitImgSize.width + 'x' + portraitImgSize.height + ( portraitImgSize.width === portraitImgSize.height ? ' ' + __( '(Square format)', 'bsx-blocks' ) : '' ) } 
-        );
-    } );
+    if (typeof fullPortraitImgData !== 'undefined') {
+        fullPortraitImgData.forEach((imgSize, index) => {
+            const isSquareThumb = fullPortraitImgData[fullPortraitImgData.length - 1].width !== fullPortraitImgData[fullPortraitImgData.length - 1].height && imgSize.width === imgSize.height;
+            portraitImgSizeRadioControlOptions.push(
+                { value: index.toString(), label: imgSize.width + 'x' + imgSize.height + (isSquareThumb ? ' ' + __('(Square format)', 'bsx-blocks') : '') + ` (${imgSize.key})` } 
+           );
+        });
+    }
 
-    let bannerClassName = makeBannerClassNames( { 
+    // TODO: Refactore, replace background image styling by object fit styling.
+    let bannerClassName = makeBannerClassNames({
         bannerType, 
         bannerSize, 
         bgAttachment, 
@@ -412,8 +403,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         templateName,
         rounded,
         href,
-    } );
-    bannerClassName = addClassNames( {
+    }, 'position-relative');
+    bannerClassName = addClassNames({
         belowNavbar,
         touchFooter,
         bgColor,
@@ -423,15 +414,85 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         paddingBefore, 
         paddingAfter,
         multilayer,
-    }, bannerClassName );
+    }, bannerClassName);
 
-    const bannerInnerClassName = makeBannerInnerClassNames( {
-        templateName,
-    } );
+    let bannerInnerClassName = addClassNames({
+        isBannerInner: true,
+    });
+
+    if (!!templateName && templateName == 'column-row-banner') {
+        bannerInnerClassName = addClassNames({
+            flexDirection: 'row',
+            w: '100',
+        }, bannerInnerClassName);
+    }
 
     const TagName = nodeName;
 
-    const bannerStyle = typeof calcImgSizes[ imgSizeIndex ] !== 'undefined' ? { backgroundImage: `url(${ calcImgSizes[ imgSizeIndex ].url })` } : {};
+    
+    // image
+    const hasValidImg = (typeof fullImgData !== 'undefined' && fullImgData.length > 0 && typeof fullImgData[sizeIndex] !== 'undefined' && sizeIndex < fullImgData.length);
+
+    const srcset = makeSrcset({
+        fullImgData,
+        sizeIndex,
+        disableResponsiveDownsizing,
+    });
+    const src = hasValidImg ? fullImgData[sizeIndex].url : '';
+    const width = hasValidImg ? fullImgData[sizeIndex].width : '';
+    const height = hasValidImg ? fullImgData[sizeIndex].height : '';
+    const sizes = (width && height) ? '(max-width: ' + width + 'px) 100vw, ' + width + 'px' : '';
+
+
+    // portraitImage (if exists)
+    const hasValidPortraitImg = (typeof fullPortraitImgData !== 'undefined' && fullPortraitImgData.length > 0 && typeof fullPortraitImgData[portraitSizeIndex] !== 'undefined' && portraitSizeIndex < fullPortraitImgData.length);
+
+    const portraitSrcset = makeSrcset({
+        fullImgData: fullPortraitImgData,
+        sizeIndex: portraitSizeIndex,
+        disableResponsiveDownsizing,
+    });
+    const portraitWidth = hasValidPortraitImg ? fullPortraitImgData[portraitSizeIndex].width : '';
+    const portraitHeight = hasValidPortraitImg ? fullPortraitImgData[portraitSizeIndex].height : '';
+    const portraitSizes = (portraitWidth && portraitHeight) ? '(max-width: ' + portraitWidth + 'px) 100vw, ' + portraitWidth + 'px' : '';
+
+    // If portrait image is given, create `image` as a picture tag with portrait and landscape sources – if not, create as image tag only.
+    let image = <></>;
+
+    if (hasValidPortraitImg) {
+        // with portrait image
+        image = hasValidImg && (
+            <>
+                <picture className="position-absolute w-100 h-100 top-0 left-0">
+                    <source srcset={ portraitSrcset } sizes={ portraitSizes } media="(orientation: portrait)" />
+                    <img className="w-100 h-100 object-fit-cover" src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } {...(priority ? { loading: "eager", fetchpriority: "high" } : { loading: "lazy" })} decoding="async" />
+                </picture>
+            </>
+        );
+    }
+    else {
+        // without portrait image
+        image = hasValidImg && (
+            <>
+                <img className="position-absolute w-100 h-100 top-0 left-0 object-fit-cover" src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } {...(priority ? { loading: "eager", fetchpriority: "high" } : { loading: "lazy" })} decoding="async" />
+            </>
+        );
+    }
+
+    // // without portrait image
+
+    // const image = hasValidImg ? (
+    //     <>
+    //         <img className={ imgClassName } src={ src } srcset={ srcset } sizes={ sizes } alt={ alt } width={ width } height={ height } {...(priority ? { loading: "eager", fetchpriority: "high" } : { loading: "lazy" })} decoding="async" />
+    //     </>
+    // )
+    // :
+    // (
+    //     <></>
+    // );
+    
+
+    // const bannerStyle = typeof calcImgSizes[ sizeIndex ] !== 'undefined' ? { backgroundImage: `url(${ calcImgSizes[ sizeIndex ].url })` } : {};
 
 
     const controls = (
@@ -448,7 +509,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
                         imgId ? (
                             <>
                                 {
-                                    imgUploadClickableImg( imgId, calcImgSizes[ imgSizeIndex ].url, onSelectImage )
+                                    imgUploadClickableImg( imgId, fullImgData[ sizeIndex ].url, onSelectImage )
                                 }
                             </>
                         )
@@ -478,16 +539,26 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
                             </div>
                         )
                     }
+                    <TextControl 
+                        label={ __('Alt', 'bsx-blocks') }
+                        value={ alt } 
+                        onChange={ onChangeAlt }
+                    />
+                    <ToggleControl
+                        label={ __('Enable priority loading', 'bsx-blocks') }
+                        checked={ priority }
+                        onChange={ onChangePriority }
+                    />
                     <RadioControl
                         label={ __( 'Image size and format', 'bsx-blocks' ) }
-                        selected={ imgSizeIndex.toString() }
+                        selected={ sizeIndex.toString() }
                         options={ imgSizeRadioControlOptions }
-                        onChange={ onChangeImgSizeIndex }
+                        onChange={ onChangeSizeIndex }
                     />
                     {
-                        calcImgSizes[ imgSizeIndex ] != undefined && calcImgSizes[ imgSizeIndex ].url != undefined && (
+                        fullImgData[ sizeIndex ] != undefined && fullImgData[ sizeIndex ].url != undefined && (
                             <div class="bsxui-config-panel-text">
-                                <a class="bsxui-link" href={ calcImgSizes[ imgSizeIndex ].url } target="_blank">{ __( 'Preview selected image', 'bsx-blocks' ) }</a>
+                                <a class="bsxui-link" href={ fullImgData[ sizeIndex ].url } target="_blank">{ __( 'Preview selected image', 'bsx-blocks' ) }</a>
                             </div>
                         )
                     }
@@ -495,10 +566,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
                 <PanelBody title={ __( 'Banner portrait image (optional)', 'bsx-blocks' ) }>
                     {
-                        portraitImgId && typeof calcPortraitImgSizes[ portraitImgSizeIndex ] != 'undefined' && typeof calcPortraitImgSizes[ portraitImgSizeIndex ].url != 'undefined' ? (
+                        portraitImgId && typeof fullPortraitImgData[ portraitSizeIndex ] != 'undefined' && typeof fullPortraitImgData[ portraitSizeIndex ].url != 'undefined' ? (
                             <>
                                 {
-                                    imgUploadClickableImg( portraitImgId, calcPortraitImgSizes[ portraitImgSizeIndex ].url, onSelectPortraitImage, 'p' )
+                                    imgUploadClickableImg( portraitImgId, fullPortraitImgData[ portraitSizeIndex ].url, onSelectPortraitImage, 'p' )
                                 }
                             </>
                         )
@@ -530,14 +601,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
                     }
                     <RadioControl
                         label={ __( 'Image size and format', 'bsx-blocks' ) }
-                        selected={ portraitImgSizeIndex.toString() }
+                        selected={ portraitSizeIndex.toString() }
                         options={ portraitImgSizeRadioControlOptions }
                         onChange={ onChangePortraitImgSizeIndex }
                     />
                     {
-                         typeof calcPortraitImgSizes[ portraitImgSizeIndex ] != 'undefined' && typeof calcPortraitImgSizes[ portraitImgSizeIndex ].url != 'undefined' && (
+                         typeof fullPortraitImgData[ portraitSizeIndex ] != 'undefined' && typeof fullPortraitImgData[ portraitSizeIndex ].url != 'undefined' && (
                             <div class="bsxui-config-panel-text">
-                                <a class="bsxui-link" href={ calcPortraitImgSizes[ portraitImgSizeIndex ].url } target="_blank">{ __( 'Preview selected portrait image', 'bsx-blocks' ) }</a>
+                                <a class="bsxui-link" href={ fullPortraitImgData[ portraitSizeIndex ].url } target="_blank">{ __( 'Preview selected portrait image', 'bsx-blocks' ) }</a>
                             </div>
                         )
                     }
@@ -642,8 +713,11 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// console.log( 'template: ' + JSON.stringify( template, null, 2 ) );
 	// console.log( 'template[ 0 ][ 1 ].isBannerInner: ' + JSON.stringify( template[ 0 ][ 1 ].isBannerInner, null, 2 ) );
 
+    const tmpBannerStyle = { minHeight: '50vh' };
+
     // add class names to blockProps
-    const blockProps = useBlockProps( { className: bannerClassName, style: bannerStyle } );
+    // const blockProps = useBlockProps( { className: bannerClassName, style: bannerStyle } );
+    const blockProps = useBlockProps( { className: bannerClassName, style: tmpBannerStyle } );
 	// console.log( 'blockProps: ' + JSON.stringify( blockProps, null, 2 ) );
 	const innerBlocksProps = useInnerBlocksProps( blockProps, {
 		// defaultBlock: { name: 'bsx-blocks/container' },
@@ -705,13 +779,20 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			                        {
 			                            typeof template[ 0 ] !== 'undefined' && typeof template[ 0 ][ 1 ] !== 'undefined' && typeof template[ 0 ][ 1 ].isBannerInner !== 'undefined' && template[ 0 ][ 1 ].isBannerInner ? (
 			                            	// is column row with class name .banner-inner, needs no additional inner element, inset template directly
-		                    				<TagName { ...innerBlocksProps }/>
+		                    				// <TagName { ...innerBlocksProps }/>
+                                            <TagName {...innerBlocksProps}>
+                                                { image }
+                                                { innerBlocksProps.children }
+                                            </TagName>
 			                            )
 			                            :
 			                            (
 			                            	// is not column row, needs additional inner element .banner-inner to inset template
 			                                <TagName { ...blockProps }>
-			                                	<div { ...bannerInnerInnerBlocksProps }/>
+                                                <>
+                                                    { image }
+                                                    <div { ...bannerInnerInnerBlocksProps }/>
+                                                </>
 			                                </TagName>
 			                            )
 			                        }
