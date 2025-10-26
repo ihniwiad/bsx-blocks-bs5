@@ -862,7 +862,7 @@ export const bannerTypeSelect = ( value, onChangeFunction, allowedValues ) => {
             value={ value }
             onChange={ onChangeFunction }
             options={ filterByAllowedValueKeys( defaultValues, allowedValues ) }
-            help={ __( 'Viewport dependant height will be e.g. all viewport height or viewport height - ? pixels. Static height instead depends only on the banners contents.', 'bsx-blocks' ) }
+            help={ __( 'Viewport dependant: all viewport height – Static height: no height, depends on contents', 'bsx-blocks' ) }
         />
     )
 }

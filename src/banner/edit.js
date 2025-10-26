@@ -621,7 +621,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
                     }
                     {
                         (
-                            bannerType === 'h' && (
+                            bannerType !== 'vh' && bannerType !== 'st' && (
                                 <>
                                     { bannerSizeSelect( bannerSize, onChangeBannerSize ) }
                                 </>
