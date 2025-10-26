@@ -48,15 +48,15 @@ import {
     marginAfterSelect,
     paddingBeforeSelect,
     paddingAfterSelect,
-    belowNavbarToggle,
-    touchFooterToggle,
+    // belowNavbarToggle,
+    // touchFooterToggle,
     nodeNameSelect,
     bgPositionSelect,
     bgSizeSelect,
     bannerTypeSelect,
     bannerSizeSelect,
-    bgAttachmentSelect,
-    bgAttachmentFixedLimitedToggle,
+    // bgAttachmentSelect,
+    // bgAttachmentFixedLimitedToggle,
     inlineTemplateSelect,
     uiTemplateSelect,
     imgUploadClickableImg,
@@ -76,8 +76,8 @@ import {
 // utils
 import {
 	makeBannerClassNames,
-	makeBannerInnerClassNames,
-	makeSrcsetJson,
+	// makeBannerInnerClassNames,
+	// makeSrcsetJson,
 } from './utils.js';
 
 
@@ -189,12 +189,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         setAttributes( { nodeName: value } );
     };
 
-    const onChangeBelowNavbar = ( value ) => {
-        setAttributes( { belowNavbar: value } );
-    };
-    const onChangeTouchFooter = ( value ) => {
-        setAttributes( { touchFooter: value } );
-    };
+    // const onChangeBelowNavbar = ( value ) => {
+    //     setAttributes( { belowNavbar: value } );
+    // };
+    // const onChangeTouchFooter = ( value ) => {
+    //     setAttributes( { touchFooter: value } );
+    // };
 
     const onChangeBgColor = ( value ) => {
         setAttributes( { bgColor: value } );
@@ -288,12 +288,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         setAttributes( { bannerSize: value } );
     };
 
-    const onChangeBgAttachment = ( value ) => {
-        setAttributes( { bgAttachment: value } );
-    };
-    const onChangeBgAttachmentFixedLimited = ( value ) => {
-        setAttributes( { bgAttachmentFixedLimited: value } );
-    };
+    // const onChangeBgAttachment = ( value ) => {
+    //     setAttributes( { bgAttachment: value } );
+    // };
+    // const onChangeBgAttachmentFixedLimited = ( value ) => {
+    //     setAttributes( { bgAttachmentFixedLimited: value } );
+    // };
     const onChangeBgSize = ( value ) => {
         setAttributes( { bgSize: value } );
     };
@@ -394,7 +394,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         bannerType, 
         bannerSize, 
         bgAttachment, 
-        bgAttachmentFixedLimited,
+        // bgAttachmentFixedLimited,
         bgSize, 
         bgPosition, 
         alignItems, 
@@ -403,10 +403,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         templateName,
         rounded,
         href,
-    }, 'position-relative');
+    }, 'banner position-relative');
     bannerClassName = addClassNames({
-        belowNavbar,
-        touchFooter,
+        // belowNavbar,
+        // touchFooter,
         bgColor,
         rounded,
         marginBefore, 
@@ -418,6 +418,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
     let bannerInnerClassName = addClassNames({
         isBannerInner: true,
+        alignItems,
     });
 
     if (!!templateName && templateName == 'column-row-banner') {
@@ -619,18 +620,24 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
                         bannerTypeSelect( bannerType, onChangeBannerType )
                     }
                     {
-                        bannerSizeSelect( bannerSize, onChangeBannerSize )
+                        (
+                            bannerType === 'h' && (
+                                <>
+                                    { bannerSizeSelect( bannerSize, onChangeBannerSize ) }
+                                </>
+                            )
+                        )
                     }
-                    {
+                    {/* {
                         bgAttachmentSelect( bgAttachment, onChangeBgAttachment )
-                    }
-                    { bgAttachment === 'fixed' && (
+                    } */}
+                    {/* { bgAttachment === 'fixed' && (
                         <>
                             {
                                 bgAttachmentFixedLimitedToggle( bgAttachmentFixedLimited, onChangeBgAttachmentFixedLimited )
                             }
                         </>
-                    ) }
+                    ) } */}
                     {
                         alignItemsSelect( alignItems, onChangeAlignItems, [ '', 'center', 'end' ], ( templateName == 'column-row-banner' ) )
                     }
@@ -678,12 +685,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
             </InspectorControls>
 
             <InspectorAdvancedControls>
-                {
+                {/* {
                     belowNavbarToggle( belowNavbar, onChangeBelowNavbar )
                 }
                 {
                     touchFooterToggle( touchFooter, onChangeTouchFooter )
-                }
+                } */}
                 {
                     nodeNameSelect( nodeName, onChangeNodeName, [ 'div', 'section' ] )
                 }
@@ -713,7 +720,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// console.log( 'template: ' + JSON.stringify( template, null, 2 ) );
 	// console.log( 'template[ 0 ][ 1 ].isBannerInner: ' + JSON.stringify( template[ 0 ][ 1 ].isBannerInner, null, 2 ) );
 
-    const tmpBannerStyle = { minHeight: '50vh' };
+    const tmpBannerStyle = { minHeight: '0' };
 
     // add class names to blockProps
     // const blockProps = useBlockProps( { className: bannerClassName, style: bannerStyle } );

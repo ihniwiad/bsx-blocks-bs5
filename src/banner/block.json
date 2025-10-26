@@ -15,14 +15,6 @@
 		"templateName": {
 			"type": "string"
 		},
-		"belowNavbar": {
-			"type": "boolean",
-			"default": false
-		},
-		"touchFooter": {
-			"type": "boolean",
-			"default": false
-		},
 		"bgColor": {
 			"type": "string"
 		},
@@ -71,7 +63,7 @@
 		},
 		"bannerType": {
 			"type": "string",
-			"default": "vh"
+			"default": "h"
 		},
 		"bannerSize": {
 			"type": "string",

@@ -852,7 +852,7 @@ export const bgSizeSelect = ( value, onChangeFunction, allowedValues ) => {
 
 export const bannerTypeSelect = ( value, onChangeFunction, allowedValues ) => {
     const defaultValues = [
-        { value: '', label: __( 'Fix height', 'bsx-blocks' ) },
+        { value: 'h', label: __( 'Fix height', 'bsx-blocks' ) },
         { value: 'vh', label: __( 'Viewport dependent height', 'bsx-blocks' ) },
         { value: 'st', label: __( 'Static height', 'bsx-blocks' ) },
     ];

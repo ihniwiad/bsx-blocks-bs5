@@ -27,8 +27,8 @@ import {
 // utils
 import {
     makeBannerClassNames,
-    makeBannerInnerClassNames,
-    makeSrcsetJson,
+    // makeBannerInnerClassNames,
+    // makeSrcsetJson,
 } from './utils.js';
 
 
@@ -44,8 +44,8 @@ export default function save({ attributes }) {
     const {
         nodeName,
         templateName,
-        belowNavbar,
-        touchFooter,
+        // belowNavbar,
+        // touchFooter,
         bgColor,
         // imgId,
         imgData,
@@ -57,7 +57,7 @@ export default function save({ attributes }) {
         bannerType,
         bannerSize,
         bgAttachment,
-        bgAttachmentFixedLimited,
+        // bgAttachmentFixedLimited,
         bgSize,
         bgPosition,
         alignItems,
@@ -86,7 +86,7 @@ export default function save({ attributes }) {
         bannerType, 
         bannerSize, 
         bgAttachment, 
-        bgAttachmentFixedLimited,
+        // bgAttachmentFixedLimited,
         bgSize, 
         bgPosition, 
         alignItems, 
@@ -95,10 +95,10 @@ export default function save({ attributes }) {
         templateName,
         rounded,
         href,
-    }, 'position-relative');
+    }, 'banner position-relative');
     bannerClassName = addClassNames({
-        belowNavbar, 
-        touchFooter,
+        // belowNavbar, 
+        // touchFooter,
         bgColor,
         rounded,
         marginBefore, 
@@ -110,6 +110,7 @@ export default function save({ attributes }) {
 
     let bannerInnerClassName = addClassNames({
         isBannerInner: true,
+        alignItems,
     });
 
     if (!!templateName && templateName == 'column-row-banner') {
@@ -171,7 +172,7 @@ export default function save({ attributes }) {
 
     // There might be no images at all, e.g. if background color banner
     const saveAttributes = makeSaveAttributes({
-        style: 'min-height: 50vh;', // TODO: Replace by height classes if implemented
+        // style: 'min-height: 50vh;', // TODO: Replace by height classes if implemented
         href: href, 
         target: target, 
         rel: href ? (rel ? rel + ' noopener noreferrer' : 'noopener noreferrer') : '',
