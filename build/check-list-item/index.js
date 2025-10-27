@@ -68,7 +68,11 @@ function addClassNames(attributes, classNamesString) {
     isLeft0,
     isRight0,
     position,
-    flexDirection
+    flexDirection,
+    alignItems,
+    gutter,
+    rowReverse,
+    justifyContent
   } = attributes;
   const classNames = typeof classNamesString != 'undefined' && classNamesString.trim().length > 0 ? classNamesString.split(' ') : [];
   if (!!belowNavbar) {
@@ -286,6 +290,19 @@ function addClassNames(attributes, classNamesString) {
   if (!!position) {
     classNames.push('position-' + position);
   }
+  if (typeof gutter !== '') {
+    classNames.push('g-' + gutter);
+  }
+  if (rowReverse) {
+    if (rowReverse == 'xs') {
+      classNames.push('flex-row-reverse');
+    } else {
+      classNames.push('flex-' + rowReverse + '-row-reverse');
+    }
+  }
+  if (justifyContent) {
+    classNames.push('justify-content-' + justifyContent);
+  }
 
   // Do after handle display flex above.
   if (!!flexDirection) {
@@ -294,6 +311,13 @@ function addClassNames(attributes, classNamesString) {
       classNames.push('d-flex');
     }
     classNames.push('flex-' + flexDirection);
+  }
+  if (!!alignItems) {
+    // Check if `d-flex` is already in classNames, if not, add it.
+    if (classNames.indexOf('d-flex') === -1) {
+      classNames.push('d-flex');
+    }
+    classNames.push('align-items-' + alignItems);
   }
   return classNames.join(' ');
 }

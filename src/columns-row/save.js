@@ -12,15 +12,15 @@ import makeRowClassNames from './utils.js';
 /**
  * @return {Element} Element to render.
  */
-export default function save( { attributes } ) {
+export default function save({ attributes }) {
 
     const {
         templateName,
         enableInheritanceToCols,
         alignItems,
         justifyContent,
-        noGutters,
-        formRow,
+        // noGutters,
+        // formRow,
         rowReverse,
         sizeXs,
         sizeSm,
@@ -33,24 +33,22 @@ export default function save( { attributes } ) {
         marginAfter,
         paddingBefore,
         paddingAfter,
+        gutter,
     } = attributes;
 
-    let rowClassName = makeRowClassNames( {
-        alignItems, 
-        justifyContent, 
-        noGutters, 
-        formRow,
-        rowReverse,
-    } );
-    rowClassName = addClassNames( {
+    const rowClassName = addClassNames({
+		alignItems, 
+		justifyContent, 
+		rowReverse,
         marginBefore, 
         marginAfter, 
         paddingBefore, 
         paddingAfter,
-    }, rowClassName );
+		gutter,
+    });
 
 	return (
-		<div { ...useBlockProps.save( { className: rowClassName } ) }>
+		<div { ...useBlockProps.save({ className: rowClassName }) }>
             <InnerBlocks.Content />
 		</div>
 	);

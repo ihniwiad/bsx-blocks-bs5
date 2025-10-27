@@ -57,6 +57,9 @@ export function addClassNames(attributes, classNamesString) {
         position,
         flexDirection,
         alignItems,
+        gutter,
+        rowReverse,
+        justifyContent,
     } = attributes;
 
     const classNames = (typeof classNamesString != 'undefined' && classNamesString.trim().length > 0) ? classNamesString.split(' ') : [];
@@ -329,6 +332,22 @@ export function addClassNames(attributes, classNamesString) {
         classNames.push('position-' + position);
     }
 
+    if (typeof gutter !== '') {
+        classNames.push('g-' + gutter);
+    }
+
+    if (rowReverse) {
+        if (rowReverse == 'xs') {
+            classNames.push('flex-row-reverse');
+        }
+        else {
+            classNames.push('flex-' + rowReverse + '-row-reverse');
+        }
+    }
+
+    if (justifyContent) {
+        classNames.push('justify-content-' + justifyContent);
+    }
 
     // Do after handle display flex above.
     if (!!flexDirection) {

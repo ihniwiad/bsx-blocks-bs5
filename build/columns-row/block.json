@@ -30,6 +30,10 @@
     "formRow": {
       "type": "boolean"
     },
+    "gutter": {
+      "type": "string",
+      "default": ""
+    },
     "rowReverse": {
       "type": "string"
     },

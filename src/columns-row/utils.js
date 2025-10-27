@@ -3,8 +3,8 @@ const makeRowClassNames = ( attributes ) => {
     const {
         alignItems, 
         justifyContent, 
-        noGutters, 
-        formRow,
+        // noGutters, 
+        // formRow,
         rowReverse,
     } = attributes;
 
@@ -18,12 +18,12 @@ const makeRowClassNames = ( attributes ) => {
     if ( justifyContent ) {
         classNames.push( 'justify-content-' + justifyContent );
     }
-    if ( noGutters ) {
-        classNames.push( 'no-gutters' );
-    }
-    if ( formRow ) {
-        classNames.push( 'form-row' );
-    }
+    // if ( noGutters ) {
+    //     classNames.push( 'no-gutters' );
+    // }
+    // if ( formRow ) {
+    //     classNames.push( 'form-row' );
+    // }
     if ( rowReverse ) {
         if ( rowReverse == 'xs' ) {
             classNames.push( 'flex-row-reverse' );
