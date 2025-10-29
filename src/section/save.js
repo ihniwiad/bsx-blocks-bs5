@@ -24,6 +24,7 @@ export default function save( { attributes } ) {
         paddingBefore,
         paddingAfter,
         isGalleryParent,
+        textColor,
     } = attributes;
 
     const sectionClassName = addClassNames( { 
@@ -34,6 +35,7 @@ export default function save( { attributes } ) {
         bgColor,
         paddingBefore,
         paddingAfter,
+        textColor,
     } );
 
     const saveAttributes = makeSaveAttributes( {

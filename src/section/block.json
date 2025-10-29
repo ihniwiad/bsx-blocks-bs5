@@ -43,6 +43,9 @@
 		"isGalleryParent": {
 			"type": "boolean",
 			"default": false
+		},
+		"textColor": {
+			"type": "string"
 		}
 	},
 	"supports": {

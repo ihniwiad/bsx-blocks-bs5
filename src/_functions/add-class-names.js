@@ -332,7 +332,7 @@ export function addClassNames(attributes, classNamesString) {
         classNames.push('position-' + position);
     }
 
-    if (typeof gutter !== '') {
+    if (typeof gutter !== '' && typeof gutter !== 'undefined') {
         classNames.push('g-' + gutter);
     }
 

@@ -33,6 +33,7 @@ import {
     paddingBeforeSelect,
     paddingAfterSelect,
     isGalleryParentToggle,
+    textColorSelect,
 } from './../_functions/controls.js';
 
 
@@ -64,6 +65,7 @@ export default function Edit( { attributes, setAttributes } ) {
         paddingBefore,
         paddingAfter,
         isGalleryParent,
+        textColor,
     } = attributes;
 
     // const hasInnerBlocks = () => {
@@ -121,6 +123,10 @@ export default function Edit( { attributes, setAttributes } ) {
         setAttributes( { isGalleryParent: value } );
     };
 
+    const onChangeTextColor = (value) => {
+        setAttributes({ textColor: value });
+    };
+
     // class name
     const sectionClassName = addClassNames( { 
         belowNavbar, 
@@ -130,6 +136,7 @@ export default function Edit( { attributes, setAttributes } ) {
         bgColor,
         paddingBefore,
         paddingAfter,
+        textColor,
     } );
 
 
@@ -179,6 +186,9 @@ export default function Edit( { attributes, setAttributes } ) {
                 }
                 {
                     bgColorSelect( bgColor, onChangeBgColor )
+                }
+                {
+                    textColorSelect(textColor, onChangeTextColor)
                 }
                 {
                     paddingBeforeSelect( paddingBefore, onChangePaddingBefore )

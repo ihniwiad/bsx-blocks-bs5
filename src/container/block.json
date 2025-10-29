@@ -28,6 +28,12 @@
 			"type": "string",
 			"default": ""
 		},
+		"marginLeft": {
+			"type": "string"
+		},
+		"marginRight": {
+			"type": "string"
+		},
 		"paddingBefore": {
 			"type": "string",
 			"default": ""
@@ -36,7 +42,7 @@
 			"type": "string",
 			"default": ""
 		},
-		"marginLeft": {
+		"paddingLeft": {
 			"type": "string"
 		},
 		"paddingRight": {
