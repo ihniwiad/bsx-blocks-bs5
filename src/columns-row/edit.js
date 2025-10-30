@@ -30,7 +30,7 @@ import {
 
 
 // utils
-import makeRowClassNames from './utils.js';
+// import makeRowClassNames from './utils.js';
 
 
 templates
@@ -434,7 +434,7 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 		paddingBefore, 
 		paddingAfter,
 		gutter,
-	});
+	}, 'row');
 	
 
 	const controls = (

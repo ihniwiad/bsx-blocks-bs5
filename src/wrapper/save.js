@@ -71,6 +71,7 @@ export default function save( { attributes } ) {
         // href,
         // target,
         // rel,
+        textColumns,
     } = attributes;
 
 
@@ -121,6 +122,7 @@ export default function save( { attributes } ) {
         isLeft0,
         isRight0,
         overflow,
+        textColumns,
     } );
 
     const saveAttributes = makeSaveAttributes( {

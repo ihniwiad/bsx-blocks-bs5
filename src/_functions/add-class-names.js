@@ -60,6 +60,7 @@ export function addClassNames(attributes, classNamesString) {
         gutter,
         rowReverse,
         justifyContent,
+        textColumns,
     } = attributes;
 
     const classNames = (typeof classNamesString != 'undefined' && classNamesString.trim().length > 0) ? classNamesString.split(' ') : [];
@@ -348,6 +349,11 @@ export function addClassNames(attributes, classNamesString) {
     if (justifyContent) {
         classNames.push('justify-content-' + justifyContent);
     }
+
+    if (textColumns) {
+        classNames.push('text-columns-' + textColumns);
+    }
+    
 
     // Do after handle display flex above.
     if (!!flexDirection) {

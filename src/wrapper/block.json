@@ -175,6 +175,9 @@
 		},
 		"overflow": {
 			"type": "string"
+		},
+		"textColumns": {
+			"type": "string"
 		}
 	},
 	"supports": {

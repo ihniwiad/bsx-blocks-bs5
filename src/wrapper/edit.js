@@ -74,6 +74,7 @@ import {
     tabindexInput,
     hiddenToggle,
     overflowSelect,
+    textColumnSelect,
 } from './../_functions/controls.js';
 
 
@@ -90,9 +91,9 @@ import {
  *
  * @return {Element} Element to render.
  */
-export default function Edit( { attributes, setAttributes } ) {
+export default function Edit({ attributes, setAttributes }) {
 
-	// const { getBlock } = useSelect( blockEditorStore );
+	// const { getBlock } = useSelect(blockEditorStore);
 
 	const {
         nodeName,
@@ -154,200 +155,205 @@ export default function Edit( { attributes, setAttributes } ) {
         // href,
         // target,
         // rel,
+        textColumns,
     } = attributes;
 
 	// const hasInnerBlocks = () => {
-	// 	const block = getBlock( clientId );
-	// 	if ( typeof block.innerBlocks === 'undefined' ) return false;
+	// 	const block = getBlock(clientId);
+	// 	if (typeof block.innerBlocks === 'undefined') return false;
 	// 	return block.innerBlocks.length > 0;
 	// }
 
-	// let template = getTemplate( templates, templateName ).template;
+	// let template = getTemplate(templates, templateName).template;
 
-    const onChangeId = ( value ) => {
-        setAttributes( { id: value } );
-    };
-
-    const onChangeNodeName = ( value ) => {
-        setAttributes( { nodeName: value } );
+    const onChangeId = (value) => {
+        setAttributes({ id: value });
     };
 
-    const onChangeBelowNavbar = ( value ) => {
-        setAttributes( { belowNavbar: value } );
+    const onChangeNodeName = (value) => {
+        setAttributes({ nodeName: value });
     };
 
-    const onChangeBgColor = ( value ) => {
-        setAttributes( { bgColor: value } );
-    };
-    const onChangeTextColor = ( value ) => {
-        setAttributes( { textColor: value } );
-    };
-    const onChangeState = ( value ) => {
-        setAttributes( { state: value } );
-    };
-    const onChangeTextSize = ( value ) => {
-        setAttributes( { textSize: value } );
-    };
-    const onChangeTextShadow = ( value ) => {
-        setAttributes( { textShadow: value } );
-    };
-    const onChangeTextAlign = ( value ) => {
-        setAttributes( { textAlign: value } );
-    };
-    const onChangeResTextAlignBreakpoint = ( value ) => {
-        setAttributes( { resTextAlignBreakpoint: value } );
-    };
-    const onChangeResTextAlign = ( value ) => {
-        setAttributes( { resTextAlign: value } );
-    };
-    const onChangeFontWeight = ( value ) => {
-        setAttributes( { fontWeight: value } );
-    };
-    const onChangeInverseTextColor = ( value ) => {
-        setAttributes( { inverseTextColor: value } );
+    const onChangeBelowNavbar = (value) => {
+        setAttributes({ belowNavbar: value });
     };
 
-    const onChangeHeadingInheritTextColor = ( value ) => {
-        setAttributes( { headingInheritTextColor: value } );
+    const onChangeBgColor = (value) => {
+        setAttributes({ bgColor: value });
     };
-    const onChangeHeadingInheritFontWeight = ( value ) => {
-        setAttributes( { headingInheritFontWeight: value } );
+    const onChangeTextColor = (value) => {
+        setAttributes({ textColor: value });
     };
-
-    const onChangeWidth = ( value ) => {
-        setAttributes( { width: value } );
+    const onChangeState = (value) => {
+        setAttributes({ state: value });
     };
-    const onChangeHeight = ( value ) => {
-        setAttributes( { height: value } );
+    const onChangeTextSize = (value) => {
+        setAttributes({ textSize: value });
     };
-
-    const onChangeRounded = ( value ) => {
-        setAttributes( { rounded: value } );
+    const onChangeTextShadow = (value) => {
+        setAttributes({ textShadow: value });
     };
-    const onChangeBorder = ( value ) => {
-        setAttributes( { border: value } );
+    const onChangeTextAlign = (value) => {
+        setAttributes({ textAlign: value });
     };
-    const onChangeBorderState = ( value ) => {
-        setAttributes( { borderState: value } );
+    const onChangeResTextAlignBreakpoint = (value) => {
+        setAttributes({ resTextAlignBreakpoint: value });
     };
-
-    const onChangeIsAlert = ( value ) => {
-        setAttributes( { isAlert: value } );
+    const onChangeResTextAlign = (value) => {
+        setAttributes({ resTextAlign: value });
     };
-
-    const onChangeMarginBefore = ( value ) => {
-        setAttributes( { marginBefore: value } );
+    const onChangeFontWeight = (value) => {
+        setAttributes({ fontWeight: value });
     };
-    const onChangeMarginAfter = ( value ) => {
-        setAttributes( { marginAfter: value } );
-    };
-    const onChangeMarginLeft = ( value ) => {
-        setAttributes( { marginLeft: value } );
-    };
-    const onChangeMarginRight = ( value ) => {
-        setAttributes( { marginRight: value } );
+    const onChangeInverseTextColor = (value) => {
+        setAttributes({ inverseTextColor: value });
     };
 
-    const onChangeResMargin1Breakpoint = ( value ) => {
-        setAttributes( { resMargin1Breakpoint: value } );
+    const onChangeHeadingInheritTextColor = (value) => {
+        setAttributes({ headingInheritTextColor: value });
     };
-    const onChangeResMargin1Position = ( value ) => {
-        setAttributes( { resMargin1Position: value } );
-    };
-    const onChangeResMargin1Size = ( value ) => {
-        setAttributes( { resMargin1Size: value } );
-    };
-    const onChangeResMargin2Breakpoint = ( value ) => {
-        setAttributes( { resMargin2Breakpoint: value } );
-    };
-    const onChangeResMargin2Position = ( value ) => {
-        setAttributes( { resMargin2Position: value } );
-    };
-    const onChangeResMargin2Size = ( value ) => {
-        setAttributes( { resMargin2Size: value } );
+    const onChangeHeadingInheritFontWeight = (value) => {
+        setAttributes({ headingInheritFontWeight: value });
     };
 
-    const onChangePaddingBefore = ( value ) => {
-        setAttributes( { paddingBefore: value } );
+    const onChangeWidth = (value) => {
+        setAttributes({ width: value });
     };
-    const onChangePaddingAfter = ( value ) => {
-        setAttributes( { paddingAfter: value } );
-    };
-    const onChangePaddingLeft = ( value ) => {
-        setAttributes( { paddingLeft: value } );
-    };
-    const onChangePaddingRight = ( value ) => {
-        setAttributes( { paddingRight: value } );
-    };
-    const onChangeTouchFooter = ( value ) => {
-        setAttributes( { touchFooter: value } );
-    };
-    const onChangeDisplay = ( value ) => {
-        setAttributes( { display: value } );
-    };
-    const onChangeVerticalAlign = ( value ) => {
-        setAttributes( { verticalAlign: value } );
-    };
-    const onChangeSpeechBubble = ( value ) => {
-        setAttributes( { speechBubble: value } );
-    };
-    const onChangeDataFn = ( value ) => {
-        setAttributes( { dataFn: value } );
-    };
-    const onChangeDataFnOptions = ( value ) => {
-        setAttributes( { dataFnOptions: value } );
-    };
-    const onChangeDataFnTarget = ( value ) => {
-        setAttributes( { dataFnTarget: value } );
-    };
-    const onChangeDataTg = ( value ) => {
-        setAttributes( { dataTg: value } );
-    };
-    const onChangeIsGalleryParent = ( value ) => {
-        setAttributes( { isGalleryParent: value } );
-    };
-    const onChangeMultilayer = ( value ) => {
-        setAttributes( { multilayer: value } );
-    };
-    const onChangeZIndex = ( value ) => {
-        setAttributes( { zIndex: value } );
+    const onChangeHeight = (value) => {
+        setAttributes({ height: value });
     };
 
-    const onChangeIsBannerInner = ( value ) => {
-        setAttributes( { isBannerInner: value } );
+    const onChangeRounded = (value) => {
+        setAttributes({ rounded: value });
+    };
+    const onChangeBorder = (value) => {
+        setAttributes({ border: value });
+    };
+    const onChangeBorderState = (value) => {
+        setAttributes({ borderState: value });
     };
 
-    const onChangePosition = ( value ) => {
-        setAttributes( { position: value } );
-    };
-    const onChangeIsTop0 = ( value ) => {
-        setAttributes( { isTop0: value } );
-    };
-    const onChangeIsBottom0 = ( value ) => {
-        setAttributes( { isBottom0: value } );
-    };
-    const onChangeIsLeft0 = ( value ) => {
-        setAttributes( { isLeft0: value } );
-    };
-    const onChangeIsRight0 = ( value ) => {
-        setAttributes( { isRight0: value } );
+    const onChangeIsAlert = (value) => {
+        setAttributes({ isAlert: value });
     };
 
-    const onChangeRole = ( value ) => {
-        setAttributes( { role: value } );
+    const onChangeMarginBefore = (value) => {
+        setAttributes({ marginBefore: value });
     };
-    const onChangeTabindex = ( value ) => {
-        setAttributes( { tabindex: value } );
+    const onChangeMarginAfter = (value) => {
+        setAttributes({ marginAfter: value });
     };
-    const onChangeHidden = ( value ) => {
-        setAttributes( { hidden: value } );
+    const onChangeMarginLeft = (value) => {
+        setAttributes({ marginLeft: value });
+    };
+    const onChangeMarginRight = (value) => {
+        setAttributes({ marginRight: value });
     };
 
-    const onChangeOverflow = ( value ) => {
-        setAttributes( { overflow: value } );
+    const onChangeResMargin1Breakpoint = (value) => {
+        setAttributes({ resMargin1Breakpoint: value });
+    };
+    const onChangeResMargin1Position = (value) => {
+        setAttributes({ resMargin1Position: value });
+    };
+    const onChangeResMargin1Size = (value) => {
+        setAttributes({ resMargin1Size: value });
+    };
+    const onChangeResMargin2Breakpoint = (value) => {
+        setAttributes({ resMargin2Breakpoint: value });
+    };
+    const onChangeResMargin2Position = (value) => {
+        setAttributes({ resMargin2Position: value });
+    };
+    const onChangeResMargin2Size = (value) => {
+        setAttributes({ resMargin2Size: value });
     };
 
-    const wrapperClassName = addClassNames( { 
+    const onChangePaddingBefore = (value) => {
+        setAttributes({ paddingBefore: value });
+    };
+    const onChangePaddingAfter = (value) => {
+        setAttributes({ paddingAfter: value });
+    };
+    const onChangePaddingLeft = (value) => {
+        setAttributes({ paddingLeft: value });
+    };
+    const onChangePaddingRight = (value) => {
+        setAttributes({ paddingRight: value });
+    };
+    const onChangeTouchFooter = (value) => {
+        setAttributes({ touchFooter: value });
+    };
+    const onChangeDisplay = (value) => {
+        setAttributes({ display: value });
+    };
+    const onChangeVerticalAlign = (value) => {
+        setAttributes({ verticalAlign: value });
+    };
+    const onChangeSpeechBubble = (value) => {
+        setAttributes({ speechBubble: value });
+    };
+    const onChangeDataFn = (value) => {
+        setAttributes({ dataFn: value });
+    };
+    const onChangeDataFnOptions = (value) => {
+        setAttributes({ dataFnOptions: value });
+    };
+    const onChangeDataFnTarget = (value) => {
+        setAttributes({ dataFnTarget: value });
+    };
+    const onChangeDataTg = (value) => {
+        setAttributes({ dataTg: value });
+    };
+    const onChangeIsGalleryParent = (value) => {
+        setAttributes({ isGalleryParent: value });
+    };
+    const onChangeMultilayer = (value) => {
+        setAttributes({ multilayer: value });
+    };
+    const onChangeZIndex = (value) => {
+        setAttributes({ zIndex: value });
+    };
+
+    const onChangeIsBannerInner = (value) => {
+        setAttributes({ isBannerInner: value });
+    };
+
+    const onChangePosition = (value) => {
+        setAttributes({ position: value });
+    };
+    const onChangeIsTop0 = (value) => {
+        setAttributes({ isTop0: value });
+    };
+    const onChangeIsBottom0 = (value) => {
+        setAttributes({ isBottom0: value });
+    };
+    const onChangeIsLeft0 = (value) => {
+        setAttributes({ isLeft0: value });
+    };
+    const onChangeIsRight0 = (value) => {
+        setAttributes({ isRight0: value });
+    };
+
+    const onChangeRole = (value) => {
+        setAttributes({ role: value });
+    };
+    const onChangeTabindex = (value) => {
+        setAttributes({ tabindex: value });
+    };
+    const onChangeHidden = (value) => {
+        setAttributes({ hidden: value });
+    };
+
+    const onChangeOverflow = (value) => {
+        setAttributes({ overflow: value });
+    };
+
+    const onChangeTextColumns = (value) => {
+        setAttributes({ textColumns: value });
+    };
+
+    const wrapperClassName = addClassNames({ 
         belowNavbar,
         bgColor, 
         textColor, 
@@ -394,7 +400,8 @@ export default function Edit( { attributes, setAttributes } ) {
         isLeft0,
         isRight0,
         overflow,
-    } );
+        textColumns,
+    });
 
     const TagName = !! nodeName ? nodeName : 'div';
 
@@ -402,229 +409,232 @@ export default function Edit( { attributes, setAttributes } ) {
     	<>
             <BlockControls>
                 {
-                    textAlignToolbar( textAlign, onChangeTextAlign )
+                    textAlignToolbar(textAlign, onChangeTextAlign)
                 }
             </BlockControls>
             <InspectorControls>
-                <PanelBody title={ __( 'Texte', 'bsx-blocks' ) }>
+                <PanelBody title={ __('Texte', 'bsx-blocks') }>
                     {
-                        textColorSelect( textColor, onChangeTextColor )
+                        textColorSelect(textColor, onChangeTextColor)
                     }
                     {
-                        textSizeSelect( textSize, onChangeTextSize )
+                        textSizeSelect(textSize, onChangeTextSize)
                     }
                     {
-                        textShadowSelect( textShadow, onChangeTextShadow )
+                        textShadowSelect(textShadow, onChangeTextShadow)
                     }
                     {
-                        fontWeightSelect( fontWeight, onChangeFontWeight )
+                        fontWeightSelect(fontWeight, onChangeFontWeight)
                     }
                     {
-                        inverseTextColorToggle( inverseTextColor, onChangeInverseTextColor )
+                        inverseTextColorToggle(inverseTextColor, onChangeInverseTextColor)
                     }
                     {
-                        headingInheritTextColorToggle( headingInheritTextColor, onChangeHeadingInheritTextColor )
+                        headingInheritTextColorToggle(headingInheritTextColor, onChangeHeadingInheritTextColor)
                     }
                     {
-                        headingInheritFontWeightToggle( headingInheritFontWeight, onChangeHeadingInheritFontWeight )
-                    }
-                </PanelBody>
-                <PanelBody title={ __( 'Appearance', 'bsx-blocks' ) }>
-                    {
-                        bgColorSelect( bgColor, onChangeBgColor )
-                    }
-                    {
-                        roundedToggle( rounded, onChangeRounded )
-                    }
-                    {
-                        borderSelect( border, onChangeBorder )
-                    }
-                    {
-                        borderStateSelect( borderState, onChangeBorderState )
-                    }
-                    {
-                        alertToggle( isAlert, onChangeIsAlert )
-                    }
-                    {
-                        stateSelect( state, onChangeState )
+                        headingInheritFontWeightToggle(headingInheritFontWeight, onChangeHeadingInheritFontWeight)
                     }
                 </PanelBody>
-
-                <PanelBody title={ __( 'Margin', 'bsx-blocks' ) }>
+                <PanelBody title={ __('Appearance', 'bsx-blocks') }>
                     {
-                        marginLeftSelect( marginLeft, onChangeMarginLeft )
+                        bgColorSelect(bgColor, onChangeBgColor)
                     }
                     {
-                        marginRightSelect( marginRight, onChangeMarginRight )
+                        roundedToggle(rounded, onChangeRounded)
                     }
                     {
-                        marginBeforeSelect( marginBefore, onChangeMarginBefore )
+                        borderSelect(border, onChangeBorder)
                     }
                     {
-                        marginAfterSelect( marginAfter, onChangeMarginAfter )
+                        borderStateSelect(borderState, onChangeBorderState)
+                    }
+                    {
+                        alertToggle(isAlert, onChangeIsAlert)
+                    }
+                    {
+                        stateSelect(state, onChangeState)
+                    }
+                    {
+                        textColumnSelect(textColumns, onChangeTextColumns)
                     }
                 </PanelBody>
 
-                <PanelBody title={ __( 'Padding', 'bsx-blocks' ) }>
+                <PanelBody title={ __('Margin', 'bsx-blocks') }>
                     {
-                        paddingLeftSelect( paddingLeft, onChangePaddingLeft )
+                        marginLeftSelect(marginLeft, onChangeMarginLeft)
                     }
                     {
-                        paddingRightSelect( paddingRight, onChangePaddingRight )
+                        marginRightSelect(marginRight, onChangeMarginRight)
                     }
                     {
-                        paddingBeforeSelect( paddingBefore, onChangePaddingBefore )
+                        marginBeforeSelect(marginBefore, onChangeMarginBefore)
                     }
                     {
-                        paddingAfterSelect( paddingAfter, onChangePaddingAfter )
+                        marginAfterSelect(marginAfter, onChangeMarginAfter)
                     }
                 </PanelBody>
 
-                <PanelBody title={ __( 'Responsive text align', 'bsx-blocks' ) }>
+                <PanelBody title={ __('Padding', 'bsx-blocks') }>
+                    {
+                        paddingLeftSelect(paddingLeft, onChangePaddingLeft)
+                    }
+                    {
+                        paddingRightSelect(paddingRight, onChangePaddingRight)
+                    }
+                    {
+                        paddingBeforeSelect(paddingBefore, onChangePaddingBefore)
+                    }
+                    {
+                        paddingAfterSelect(paddingAfter, onChangePaddingAfter)
+                    }
+                </PanelBody>
+
+                <PanelBody title={ __('Responsive text align', 'bsx-blocks') }>
                     <div class="bsxui-config-panel-row">
-                        <div class="bsxui-config-panel-text">{ __( 'Use in addition to Alignment toolbar.', 'bsx-blocks' ) }</div>
+                        <div class="bsxui-config-panel-text">{ __('Use in addition to Alignment toolbar.', 'bsx-blocks') }</div>
                     </div>
                     {
-                        breakpointsSelect( resTextAlignBreakpoint, onChangeResTextAlignBreakpoint )
+                        breakpointsSelect(resTextAlignBreakpoint, onChangeResTextAlignBreakpoint)
                     }
                     {
-                        textAlignSelect( resTextAlign, onChangeResTextAlign )
+                        textAlignSelect(resTextAlign, onChangeResTextAlign)
                     }
                 </PanelBody>
             </InspectorControls>
             <InspectorAdvancedControls>
                 {
-                    idInput( id, onChangeId )
+                    idInput(id, onChangeId)
                 }
                 {
-                    nodeNameSelect( nodeName, onChangeNodeName, [ 'div', 'section', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ] )
+                    nodeNameSelect(nodeName, onChangeNodeName, [ 'div', 'section', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ])
                 }
                 {
-                    displaySelect( display, onChangeDisplay )
+                    displaySelect(display, onChangeDisplay)
                 }
                 {
-                    verticalAlignSelect( verticalAlign, onChangeVerticalAlign )
+                    verticalAlignSelect(verticalAlign, onChangeVerticalAlign)
                 }
                 {
-                    widthSelect( width, onChangeWidth )
+                    widthSelect(width, onChangeWidth)
                 }
                 {
-                    heightSelect( height, onChangeHeight )
+                    heightSelect(height, onChangeHeight)
                 }
                 {
-                    positionSelect( position, onChangePosition )
+                    positionSelect(position, onChangePosition)
                 }
                 {
-                    top0Toggle( isTop0, onChangeIsTop0 )
+                    top0Toggle(isTop0, onChangeIsTop0)
                 }
                 {
-                    bottom0Toggle( isBottom0, onChangeIsBottom0 )
+                    bottom0Toggle(isBottom0, onChangeIsBottom0)
                 }
                 {
-                    left0Toggle( isLeft0, onChangeIsLeft0 )
+                    left0Toggle(isLeft0, onChangeIsLeft0)
                 }
                 {
-                    right0Toggle( isRight0, onChangeIsRight0 )
+                    right0Toggle(isRight0, onChangeIsRight0)
                 }
                 <SelectControl 
-                    label={ __( 'Speech bubble', 'bsx-blocks' ) }
+                    label={ __('Speech bubble', 'bsx-blocks') }
                     value={ speechBubble }
                     onChange={ onChangeSpeechBubble }
                     options={ [
-                        { value: '', label: __( '– unset –', 'bsx-blocks' ) },
-                        { value: 'sm', label: __( 'Small', 'bsx-blocks' ) },
-                        { value: 'md', label: __( 'Medium', 'bsx-blocks' ) },
-                        { value: 'lg', label: __( 'Large', 'bsx-blocks' ) },
+                        { value: '', label: __('– unset –', 'bsx-blocks') },
+                        { value: 'sm', label: __('Small', 'bsx-blocks') },
+                        { value: 'md', label: __('Medium', 'bsx-blocks') },
+                        { value: 'lg', label: __('Large', 'bsx-blocks') },
                     ] }
                 />
                 {
-                    belowNavbarToggle( belowNavbar, onChangeBelowNavbar )
+                    belowNavbarToggle(belowNavbar, onChangeBelowNavbar)
                 }
                 {
-                    touchFooterToggle( touchFooter, onChangeTouchFooter )
+                    touchFooterToggle(touchFooter, onChangeTouchFooter)
                 }
                 {
-                    resMarginBreakpointsSelect( resMargin1Breakpoint, onChangeResMargin1Breakpoint, [], '1' )
+                    resMarginBreakpointsSelect(resMargin1Breakpoint, onChangeResMargin1Breakpoint, [], '1')
                 }
                 {
-                    resMarginPositionSelect( resMargin1Position, onChangeResMargin1Position, [], '1' )
+                    resMarginPositionSelect(resMargin1Position, onChangeResMargin1Position, [], '1')
                 }
                 {
-                    resMarginSizeSelect( resMargin1Size, onChangeResMargin1Size, [], '1' )
+                    resMarginSizeSelect(resMargin1Size, onChangeResMargin1Size, [], '1')
                 }
                 {
-                    resMarginBreakpointsSelect( resMargin2Breakpoint, onChangeResMargin2Breakpoint, [], '2' )
+                    resMarginBreakpointsSelect(resMargin2Breakpoint, onChangeResMargin2Breakpoint, [], '2')
                 }
                 {
-                    resMarginPositionSelect( resMargin2Position, onChangeResMargin2Position, [], '2' )
+                    resMarginPositionSelect(resMargin2Position, onChangeResMargin2Position, [], '2')
                 }
                 {
-                    resMarginSizeSelect( resMargin2Size, onChangeResMargin2Size, [], '2' )
+                    resMarginSizeSelect(resMargin2Size, onChangeResMargin2Size, [], '2')
                 }
                 {
-                    isGalleryParentToggle( isGalleryParent, onChangeIsGalleryParent )
+                    isGalleryParentToggle(isGalleryParent, onChangeIsGalleryParent)
                 }
                 {
                     ! isGalleryParent ? 
                     (
                         <>
                             {
-                                dataFnInput( dataFn, onChangeDataFn )
+                                dataFnInput(dataFn, onChangeDataFn)
                             }
                         </>
-                    )
+                   )
                     :
                     (
                         <div class="bsxui-config-panel-row">
                             <div class="bsxui-alert">
                                 {
-                                    __( 'dataFn is deactivated since element is image gallery parent.', 'bsx-blocks' ) 
+                                    __('dataFn is deactivated since element is image gallery parent.', 'bsx-blocks') 
                                 }
                             </div>
                         </div>
-                    )
+                   )
                 }
                 {
-                    multilayerSelect( multilayer, onChangeMultilayer )
+                    multilayerSelect(multilayer, onChangeMultilayer)
                 }
                 {
-                    zIndexSelect( zIndex, onChangeZIndex )
+                    zIndexSelect(zIndex, onChangeZIndex)
                 }
                 {
-                    bannerInnerToggle( isBannerInner, onChangeIsBannerInner )
+                    bannerInnerToggle(isBannerInner, onChangeIsBannerInner)
                 }
                 {
-                    dataFnOptionsInput( dataFnOptions, onChangeDataFnOptions )
+                    dataFnOptionsInput(dataFnOptions, onChangeDataFnOptions)
                 }
                 {
-                    dataFnTargetInput( dataFnTarget, onChangeDataFnTarget )
+                    dataFnTargetInput(dataFnTarget, onChangeDataFnTarget)
                 }
                 {
-                    dataTgInput( dataTg, onChangeDataTg )
+                    dataTgInput(dataTg, onChangeDataTg)
                 }
 
                 {
-                    roleInput( role, onChangeRole )
+                    roleInput(role, onChangeRole)
                 }
                 {
-                    tabindexInput( tabindex, onChangeTabindex )
+                    tabindexInput(tabindex, onChangeTabindex)
                 }
                 {
-                    hiddenToggle( hidden, onChangeHidden )
+                    hiddenToggle(hidden, onChangeHidden)
                 }
                 {
-                    overflowSelect( overflow, onChangeOverflow )
+                    overflowSelect(overflow, onChangeOverflow)
                 }
             </InspectorAdvancedControls>
     	</>
 	);
 
     // add class names to blockProps
-    const blockProps = useBlockProps( { className: wrapperClassName, id: id } );
+    const blockProps = useBlockProps({ className: wrapperClassName, id: id });
 
     // use if appending inner blocks directly into outer elem
-    const innerBlocksProps = useInnerBlocksProps( blockProps, {
-    } );
+    const innerBlocksProps = useInnerBlocksProps(blockProps, {
+    });
 
 	return (
 		<>

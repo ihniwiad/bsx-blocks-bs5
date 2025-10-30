@@ -7,7 +7,7 @@ import { addClassNames } from './../_functions/add-class-names.js';
 import { makeSaveAttributes } from './../_functions/attributes.js';
 
 // utils
-import makeRowClassNames from './utils.js';
+// import makeRowClassNames from './utils.js';
 
 /**
  * @return {Element} Element to render.
@@ -45,7 +45,7 @@ export default function save({ attributes }) {
         paddingBefore, 
         paddingAfter,
 		gutter,
-    });
+    }, 'row');
 
 	return (
 		<div { ...useBlockProps.save({ className: rowClassName }) }>
