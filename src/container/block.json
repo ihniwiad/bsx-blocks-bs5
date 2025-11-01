@@ -26,9 +26,9 @@
 			"items": {
 				"type": "object",
 				"properties": {
-					"size": { "type": "string" },
-					"positions": { "type": "array", "items": { "type": "string" } },
-					"value": { "type": "string" }
+					"s": { "type": "string" },
+					"p": { "type": "array", "items": { "type": "string" } },
+					"v": { "type": "string" }
 				}
 			}
 		},

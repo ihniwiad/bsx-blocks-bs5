@@ -532,8 +532,8 @@ export const idInput = (value, onChangeFunction) => {
 
 // selects
 
-export const breakpointsWithoutUnsetSelect = (value, onChangeFunction, allowedValues, sizeString) => {
-    const defaultValues = breakpoints;
+export const numericBreakpointsWithoutUnsetSelect = (value, onChangeFunction, allowedValues, sizeString) => {
+    const defaultValues = numericBreakpoints;
     return (
         <SelectControl 
             label={ __('Size', 'bsx-blocks') + (!! sizeString ? ' ' + sizeString : '') }
@@ -569,33 +569,36 @@ export const marginSizesSelect = (value, onChangeFunction, allowedValues, sizeSt
 // Responsive Margin Control: Bearbeitet ein Array von Margin-Objekten
 import { Fragment } from 'react';
 
-export const respMarginControl = (marginArray, onChangeFunction) => {
-    // marginArray: [{ size, positions, value }]
+export const responsivePositionPropertyControl = (propertyArray, onChangeFunction) => {
+    // propertyArray: [{ s, p, v }] -> size, position, value
     const handleChange = (index, key, newValue) => {
-        const newArray = marginArray.map((item, i) =>
+        const newArray = propertyArray.map((item, i) =>
             i === index ? { ...item, [key]: newValue } : item
         );
         onChangeFunction(newArray);
     };
     const handleAdd = () => {
-        onChangeFunction([...marginArray, { size: '', positions: [], value: '' }]);
+        onChangeFunction([...propertyArray, { s: '', p: [], v: '' }]);
     };
     const handleRemove = (index) => {
-        onChangeFunction(marginArray.filter((_, i) => i !== index));
+        onChangeFunction(propertyArray.filter((_, i) => i !== index));
     };
     return (
         <PanelBody title={__('Responsive Margin', 'bsx-blocks')}>
-            {marginArray.map((item, index) => (
+            {propertyArray.map((item, index) => (
                 // <div key={index} className="bsxui-flex-sols-4 bsxui-gap-xs">
                 <div key={index} style={{ display: 'flex', gap: '2px' }}>
                     <div style={{ flex: '1 1 30%', maxWidth: '30%' }}>
-                        {breakpointsWithoutUnsetSelect(item.size, (val) => handleChange(index, 'size', val))}
+                        {/* Size */}
+                        {numericBreakpointsWithoutUnsetSelect(item.s, (val) => handleChange(index, 's', val))}
                     </div>
                     <div style={{ flex: '1 1 30%', maxWidth: '30%' }}>
-                        {marginPaddingPositionsSelect(item.positions, (val) => handleChange(index, 'positions', val))}
+                        {/* Positions */}
+                        {marginPaddingPositionsSelect(item.p, (val) => handleChange(index, 'p', val))}
                     </div>
                     <div style={{ flex: '1 1 30%', maxWidth: '30%' }}>
-                        {marginSizesSelect(item.value, (val) => handleChange(index, 'value', val))}
+                        {/* Value */}
+                        {marginSizesSelect(item.v, (val) => handleChange(index, 'v', val))}
                     </div>
                     <div style={{ flex: '1 1 10%', maxWidth: '10%', display: 'flex', flexFlow: 'column', justifyContent: 'start', alignItems: 'end' }}>
                         <Button isDestructive onClick={() => handleRemove(index)} title={__('Remove', 'bsx-blocks')} className="components-button is-secondary is-destructive bsxui-icon-btn delete-btn" style={{ padding: '.5em', lineHeight: '.75em', height: 'auto' }}>

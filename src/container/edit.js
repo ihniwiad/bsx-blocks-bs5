@@ -22,11 +22,7 @@ import { addClassNames } from './../_functions/add-class-names.js';
 import { getTemplate } from './../_functions/utilities.js';
 import { 
 	belowNavbarToggle,
-	respMarginControl,
-	marginLeftSelect,
-	marginRightSelect,
-	marginBeforeSelect,
-	marginAfterSelect,
+	responsivePositionPropertyControl,
 	paddingBeforeSelect,
 	paddingAfterSelect,
 	paddingLeftSelect,
@@ -56,8 +52,6 @@ export default function Edit({ attributes, setAttributes }) {
 		isFluid,
 		containerBreakpoint,
 		belowNavbar,
-		marginBefore,
-		marginAfter,
 		paddingBefore,
 		paddingAfter,
 		paddingLeft,
@@ -121,8 +115,6 @@ export default function Edit({ attributes, setAttributes }) {
     
     containerClassName = addClassNames({
         belowNavbar, 
-        marginBefore, 
-        marginAfter, 
         paddingBefore, 
         paddingAfter,
         paddingLeft,
@@ -169,7 +161,7 @@ export default function Edit({ attributes, setAttributes }) {
 	                    help={ __('Has (non fluid) Container width from this breakpoint up', 'bsx-blocks') }
 	                />
 	            </PanelBody>
-				{ respMarginControl(margin, onChangeMargin) }
+				{ responsivePositionPropertyControl(margin, onChangeMargin) }
 	        </InspectorControls>
 	        <InspectorAdvancedControls>
 	            {

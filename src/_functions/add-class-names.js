@@ -39,13 +39,13 @@ function getResponsivePositionPropertyClasses(property, propertyArray) {
     }
     // TODO: Make position optional for responsive non-positioned properties, e.g. `text-md-center`
     const propertyClasses = propertyArray
-        .filter(item => item && item.value && item.positions && (Array.isArray(item.positions) ? item.positions.length : !!item.positions))
+        .filter(item => item && item.v && item.p && (Array.isArray(item.p) ? item.p.length : !!item.p))
         .map(item => {
-            // Positions: Array oder String
-            const positionsArr = Array.isArray(item.positions) ? item.positions : [item.positions];
-            const size = item.size ? sizesMap[item.size] : '';
+            // Positions: Array or String
+            const positionsArr = Array.isArray(item.p) ? item.p : [item.p];
+            const size = item.s ? sizesMap[item.s] : '';
             const bsSize = size && size !== 'xs' ? size + '-' : ''; // 'xs' is default, no breakpoint prefix
-            const val = item.value;
+            const val = item.v;
             return positionsArr
                 .map(pos => {
                     let p = positionsMap[pos] || pos;
