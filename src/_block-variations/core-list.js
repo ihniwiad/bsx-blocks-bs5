@@ -57,7 +57,7 @@ addFilter(
             scope: [ 'block' ],
 		});
 
-		console.log('[variation] custom-list registered for core/list');
+		// console.log('[variation] custom-list registered for core/list');
 
 		return settings;
 	}

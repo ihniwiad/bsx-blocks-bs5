@@ -26,6 +26,7 @@ export default function save( { attributes } ) {
         paddingLeft,
         paddingRight,
         sized,
+        margin,
     } = attributes;
 
     let containerClassName = makeContainerClassNames( {
@@ -42,6 +43,7 @@ export default function save( { attributes } ) {
         paddingAfter,
         paddingLeft,
         paddingRight,
+        margin,
     }, containerClassName );
 
 	return (

@@ -1,5 +1,65 @@
 // add class names
 
+const sizesMap = {
+    0: '', // XS: default, no size letter
+    1: 'sm',
+    2: 'md',
+    3: 'lg',
+    4: 'xl',
+    5: 'xxl',
+};
+// Map position keys (top, bottom, left, right, all) to Bootstrap class name letters
+const positionsMap = {
+    'all': '', // all: default, no position letter
+    't': 't',
+    'b': 'b',
+    'y': 'y',
+    'l': 's', // Left: 's' for 'start'
+    'r': 'e', // Right: 'e' for 'end'
+    'x': 'x',
+};
+// Map property keys to Bootstrap class name prefixes
+const propertyMap = {
+    'margin': 'm',
+    'padding': 'p',
+};
+
+// TODO: Reduce property data keys from size, positions, value to s, p, v.
+/**
+ * Get responsive Bootstrap classes for a given property.
+ *
+ * @param {string} property         E.g. 'margin', 'padding'
+ * @param {array} propertyArray     Array of property values with size, positions, and value
+ * @returns {string}
+ */
+function getResponsivePositionPropertyClasses(property, propertyArray) {
+    if (!Array.isArray(propertyArray)) {
+        // console.log('propertyArray is not an array:', propertyArray);
+        return '';
+    }
+    // TODO: Make position optional for responsive non-positioned properties, e.g. `text-md-center`
+    const propertyClasses = propertyArray
+        .filter(item => item && item.value && item.positions && (Array.isArray(item.positions) ? item.positions.length : !!item.positions))
+        .map(item => {
+            // Positions: Array oder String
+            const positionsArr = Array.isArray(item.positions) ? item.positions : [item.positions];
+            const size = item.size ? sizesMap[item.size] : '';
+            const bsSize = size && size !== 'xs' ? size + '-' : ''; // 'xs' is default, no breakpoint prefix
+            const val = item.value;
+            return positionsArr
+                .map(pos => {
+                    let p = positionsMap[pos] || pos;
+                    p = p === 'all' ? '' : p; // 'all' is default, no position letter
+                    return `${propertyMap[property]}${p}-${bsSize}${val}`;
+                })
+                .join(' ');
+        })
+        .join(' ');
+
+    // console.log('Generated margin classes:', propertyClasses);
+    return propertyClasses;
+}
+
 export function addClassNames(attributes, classNamesString) {
 
     const {
@@ -61,6 +121,7 @@ export function addClassNames(attributes, classNamesString) {
         rowReverse,
         justifyContent,
         textColumns,
+        margin,
     } = attributes;
 
     const classNames = (typeof classNamesString != 'undefined' && classNamesString.trim().length > 0) ? classNamesString.split(' ') : [];
@@ -118,6 +179,18 @@ export function addClassNames(attributes, classNamesString) {
         // examples: `my-sm-3`, `my-0
         classNames.push('m' + ((resMargin2Position === 'all') ? '' : resMargin2Position) + '-' + ((resMargin2Breakpoint === 'xs') ? '' : resMargin2Breakpoint + '-') + resMargin2Size);
     }
+
+    // Responsive margin – will replace all old margin... attributes.
+
+    // Responsive Margin Array auswerten
+    if (margin && Array.isArray(margin)) {
+        const responsiveMarginClasses = getResponsivePositionPropertyClasses('margin', margin);
+        if (responsiveMarginClasses) {
+            classNames.push(responsiveMarginClasses);
+        }
+    }
+
+
 
     if (!!paddingBefore && paddingBefore === paddingAfter && paddingBefore === paddingLeft && paddingBefore === paddingRight) {
         // all

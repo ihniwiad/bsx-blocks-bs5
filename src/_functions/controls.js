@@ -25,7 +25,7 @@ import {
 
 // internal vars
 
-const marginPaddingSizes = [
+const paddingSizes = [
     { value: '', label: __('– unset –', 'bsx-blocks') },
     { value: '0', label: __('none (0)', 'bsx-blocks') },
     { value: '1', label: __('extra small', 'bsx-blocks') },
@@ -34,23 +34,45 @@ const marginPaddingSizes = [
     { value: '4', label: __('large', 'bsx-blocks') },
     { value: '5', label: __('extra large', 'bsx-blocks') },
 ];
+const marginSizes = [
+    ...paddingSizes,
+    { value: 'auto', label: __('auto', 'bsx-blocks') },
+];
+
+
+// DEPRECATED – will be preplace by marginSizes (includes 'auto') and paddingSizes.
+const marginPaddingSizes = paddingSizes;
+
+
+const breakpoints = [
+    { value: 'xs', label: __('XS (default)', 'bsx-blocks') },
+    { value: 'sm', label: __('SM', 'bsx-blocks') },
+    { value: 'md', label: __('MD', 'bsx-blocks') },
+    { value: 'lg', label: __('LG', 'bsx-blocks') },
+    { value: 'xl', label: __('XL', 'bsx-blocks') },
+    { value: 'xxl', label: __('XXL', 'bsx-blocks') },
+];
 const breakpointsWithUnset = [
     { value: '', label: __('– unset –', 'bsx-blocks') },
-    { value: 'xs', label: __('Default (XS up)', 'bsx-blocks') },
-    { value: 'sm', label: __('SM up', 'bsx-blocks') },
-    { value: 'md', label: __('MD up', 'bsx-blocks') },
-    { value: 'lg', label: __('LG up', 'bsx-blocks') },
-    { value: 'xl', label: __('XL up', 'bsx-blocks') },
+    ...breakpoints,
+];
+const numericBreakpoints = [
+    { value: 0, label: __('XS (default)', 'bsx-blocks') },
+    { value: 1, label: __('SM', 'bsx-blocks') },
+    { value: 2, label: __('MD', 'bsx-blocks') },
+    { value: 3, label: __('LG', 'bsx-blocks') },
+    { value: 4, label: __('XL', 'bsx-blocks') },
+    { value: 5, label: __('XXL', 'bsx-blocks') },
 ];
 const marginPaddingPositions = [
-    { value: '', label: __('– unset –', 'bsx-blocks') },
+    // { value: '', label: __('– unset –', 'bsx-blocks') },
     { value: 'all', label: __('All', 'bsx-blocks') },
-    { value: 't', label: __('Before', 'bsx-blocks') },
-    { value: 'b', label: __('After', 'bsx-blocks') },
-    { value: '2', label: __('Y (before & after)', 'bsx-blocks') },
-    { value: '3', label: __('Left', 'bsx-blocks') },
-    { value: '4', label: __('Right', 'bsx-blocks') },
-    { value: '5', label: __('X (left & right)', 'bsx-blocks') },
+    { value: 't', label: __('↑ before', 'bsx-blocks') },
+    { value: 'b', label: __('↓ after', 'bsx-blocks') },
+    { value: 'y', label: __('↕ Y (before & after)', 'bsx-blocks') },
+    { value: 'l', label: __('← left', 'bsx-blocks') },
+    { value: 'r', label: __('→ right', 'bsx-blocks') },
+    { value: 'x', label: __('↔ X (left & right)', 'bsx-blocks') },
 ];
 
 const states = [
@@ -509,6 +531,85 @@ export const idInput = (value, onChangeFunction) => {
 
 
 // selects
+
+export const breakpointsWithoutUnsetSelect = (value, onChangeFunction, allowedValues, sizeString) => {
+    const defaultValues = breakpoints;
+    return (
+        <SelectControl 
+            label={ __('Size', 'bsx-blocks') + (!! sizeString ? ' ' + sizeString : '') }
+            value={ value }
+            onChange={ onChangeFunction }
+            options={ filterByAllowedValueKeys(defaultValues, allowedValues) }
+        />
+   )
+}
+export const marginPaddingPositionsSelect = (value, onChangeFunction, allowedValues, sizeString) => {
+    const defaultValues = marginPaddingPositions;
+    return (
+        <SelectControl 
+            label={ __('Position', 'bsx-blocks') + (!! sizeString ? ' ' + sizeString : '') }
+            value={ value }
+            onChange={ onChangeFunction }
+            options={ filterByAllowedValueKeys(defaultValues, allowedValues) }
+        />
+   )
+}
+export const marginSizesSelect = (value, onChangeFunction, allowedValues, sizeString) => {
+    const defaultValues = marginSizes;
+    return (
+        <SelectControl 
+            label={ __('Size', 'bsx-blocks') + (!! sizeString ? ' ' + sizeString : '') }
+            value={ value }
+            onChange={ onChangeFunction }
+            options={ filterByAllowedValueKeys(defaultValues, allowedValues) }
+        />
+   )
+}
+
+// Responsive Margin Control: Bearbeitet ein Array von Margin-Objekten
+import { Fragment } from 'react';
+
+export const respMarginControl = (marginArray, onChangeFunction) => {
+    // marginArray: [{ size, positions, value }]
+    const handleChange = (index, key, newValue) => {
+        const newArray = marginArray.map((item, i) =>
+            i === index ? { ...item, [key]: newValue } : item
+        );
+        onChangeFunction(newArray);
+    };
+    const handleAdd = () => {
+        onChangeFunction([...marginArray, { size: '', positions: [], value: '' }]);
+    };
+    const handleRemove = (index) => {
+        onChangeFunction(marginArray.filter((_, i) => i !== index));
+    };
+    return (
+        <PanelBody title={__('Responsive Margin', 'bsx-blocks')}>
+            {marginArray.map((item, index) => (
+                // <div key={index} className="bsxui-flex-sols-4 bsxui-gap-xs">
+                <div key={index} style={{ display: 'flex', gap: '2px' }}>
+                    <div style={{ flex: '1 1 30%', maxWidth: '30%' }}>
+                        {breakpointsWithoutUnsetSelect(item.size, (val) => handleChange(index, 'size', val))}
+                    </div>
+                    <div style={{ flex: '1 1 30%', maxWidth: '30%' }}>
+                        {marginPaddingPositionsSelect(item.positions, (val) => handleChange(index, 'positions', val))}
+                    </div>
+                    <div style={{ flex: '1 1 30%', maxWidth: '30%' }}>
+                        {marginSizesSelect(item.value, (val) => handleChange(index, 'value', val))}
+                    </div>
+                    <div style={{ flex: '1 1 10%', maxWidth: '10%', display: 'flex', flexFlow: 'column', justifyContent: 'start', alignItems: 'end' }}>
+                        <Button isDestructive onClick={() => handleRemove(index)} title={__('Remove', 'bsx-blocks')} className="components-button is-secondary is-destructive bsxui-icon-btn delete-btn" style={{ padding: '.5em', lineHeight: '.75em', height: 'auto' }}>
+                            <span aria-hidden="true">&times;</span>
+                        </Button>
+                    </div>
+                </div>
+            ))}
+            <Button isPrimary onClick={handleAdd}>
+                {__('Add Margin', 'bsx-blocks')}
+            </Button>
+        </PanelBody>
+    );
+};
 
 export const stateSelect = (value, onChangeFunction, allowedValues) => {
     const defaultValues = states;

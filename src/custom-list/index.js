@@ -84,7 +84,7 @@ addFilter(
 		// Register as new block
 		registerBlockType(metadata.name, newBlockSettings);
 
-        console.log(`Hello from BSX Custom List`);
+        // console.log(`Hello from BSX Custom List`);
 
 		// Return unmodified original
 		return settings;

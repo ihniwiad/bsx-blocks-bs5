@@ -20,19 +20,17 @@
 			"type": "boolean",
 			"default": false
 		},
-		"marginBefore": {
-			"type": "string",
-			"default": ""
-		},
-		"marginAfter": {
-			"type": "string",
-			"default": ""
-		},
-		"marginLeft": {
-			"type": "string"
-		},
-		"marginRight": {
-			"type": "string"
+		"margin": {
+			"type": "array",
+			"default": [],
+			"items": {
+				"type": "object",
+				"properties": {
+					"size": { "type": "string" },
+					"positions": { "type": "array", "items": { "type": "string" } },
+					"value": { "type": "string" }
+				}
+			}
 		},
 		"paddingBefore": {
 			"type": "string",
