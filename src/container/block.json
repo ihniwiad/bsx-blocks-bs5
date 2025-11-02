@@ -21,27 +21,23 @@
 			"default": false
 		},
 		"margin": {
-			"type": "array",
-			"default": [],
-			"items": {
-				"type": "object",
-				"properties": {
-					"s": { "type": "string" },
-					"p": { "type": "array", "items": { "type": "string" } },
-					"v": { "type": "string" }
-				}
+			"type": "object",
+			"default": {},
+			"additionalProperties": {
+				"type": "array",
+				"items": { "type": "string" },
+				"minItems": 4,
+				"maxItems": 4
 			}
 		},
 		"padding": {
-			"type": "array",
-			"default": [],
-			"items": {
-				"type": "object",
-				"properties": {
-					"s": { "type": "string" },
-					"p": { "type": "array", "items": { "type": "string" } },
-					"v": { "type": "string" }
-				}
+			"type": "object",
+			"default": {},
+			"additionalProperties": {
+				"type": "array",
+				"items": { "type": "string" },
+				"minItems": 4,
+				"maxItems": 4
 			}
 		},
 		"sized": {

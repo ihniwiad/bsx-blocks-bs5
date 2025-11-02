@@ -22,7 +22,7 @@ import { addClassNames } from './../_functions/add-class-names.js';
 import { getTemplate } from './../_functions/utilities.js';
 import { 
 	belowNavbarToggle,
-	responsivePositionPropertyControl,
+	respSpacingControl,
 } from './../_functions/controls.js';
 
 
@@ -141,8 +141,8 @@ export default function Edit({ attributes, setAttributes }) {
 	                    help={ __('Has (non fluid) Container width from this breakpoint up', 'bsx-blocks') }
 	                />
 	            </PanelBody>
-				{ responsivePositionPropertyControl(margin, onChangeMargin, __('Margin', 'bsx-blocks')) }
-				{ responsivePositionPropertyControl(padding, onChangePadding, __('Padding', 'bsx-blocks')) }
+				{ respSpacingControl(margin, onChangeMargin, __('Margin', 'bsx-blocks')) }
+				{ respSpacingControl(padding, onChangePadding, __('Padding', 'bsx-blocks')) }
 	        </InspectorControls>
 	        <InspectorAdvancedControls>
 	            {

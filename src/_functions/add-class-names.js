@@ -32,32 +32,50 @@ const propertyMap = {
  * @param {array} propertyArray     Array of property values with size, positions, and value
  * @returns {string}
  */
-function getResponsivePositionPropertyClasses(property, propertyArray) {
-    if (!Array.isArray(propertyArray)) {
-        // console.log('propertyArray is not an array:', propertyArray);
-        return '';
-    }
-    // TODO: Make position optional for responsive non-positioned properties, e.g. `text-md-center`
-    const propertyClasses = propertyArray
-        .filter(item => item && item.v && item.p && (Array.isArray(item.p) ? item.p.length : !!item.p))
-        .map(item => {
-            // Positions: Array or String
-            const positionsArr = Array.isArray(item.p) ? item.p : [item.p];
-            const size = item.s ? sizesMap[item.s] : '';
-            const bsSize = size && size !== 'xs' ? size + '-' : ''; // 'xs' is default, no breakpoint prefix
-            const val = item.v;
-            return positionsArr
-                .map(pos => {
-                    let p = positionsMap[pos] || pos;
-                    p = p === 'all' ? '' : p; // 'all' is default, no position letter
-                    return `${propertyMap[property]}${p}-${bsSize}${val}`;
-                })
-                .join(' ');
-        })
-        .join(' ');
 
-    // console.log('Generated margin classes:', propertyClasses);
-    return propertyClasses;
+/**
+ * Generates Bootstrap classes for the responsive margin/padding object schema.
+ * @param {string} property     'margin' or 'padding'
+ * @param {object} spacingObj   { sm: [top, right, bottom, left], ... }
+ * @returns {string}            class names string
+ */
+
+function getResponsiveSpacingClasses(property, spacingObj) {
+    if (!spacingObj || typeof spacingObj !== 'object') return '';
+    const bpOrder = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+    const posMap = ['t', 's', 'b', 'e']; // 's' for start (left), 'e' for end (right)
+    const propPrefix = propertyMap[property];
+    let classes = [];
+    bpOrder.forEach((bp) => {
+        const arr = spacingObj[bp];
+        if (!Array.isArray(arr)) return;
+        let vals = arr.map(v => v || '');
+        const bpPart = bp !== 'xs' ? bp + '-' : '';
+        // 1. All 4 equal?
+        if (vals.every(v => v !== '' && v === vals[0])) {
+            classes.push(`${propPrefix}-${bpPart}${vals[0]}`);
+            return;
+        }
+        // Helper array for processing
+        let used = [false, false, false, false];
+        // 2. top & bottom equal?
+        if (vals[0] !== '' && vals[0] === vals[2]) {
+            classes.push(`${propPrefix}y-${bpPart}${vals[0]}`);
+            used[0] = used[2] = true;
+        }
+        // 3. left & right equal?
+        if (vals[1] !== '' && vals[1] === vals[3]) {
+            classes.push(`${propPrefix}x-${bpPart}${vals[1]}`);
+            used[1] = used[3] = true;
+        }
+        // 4. Single values
+        posMap.forEach((pos, idx) => {
+            if (!used[idx] && vals[idx] !== '') {
+                classes.push(`${propPrefix}${pos}-${bpPart}${vals[idx]}`);
+            }
+        });
+    });
+    return classes.join(' ');
 }
 
 export function addClassNames(attributes, classNamesString) {
@@ -183,17 +201,18 @@ export function addClassNames(attributes, classNamesString) {
 
     // Responsive margin – will replace all old margin... attributes.
 
-    // Responsive margin Array
-    if (margin && Array.isArray(margin)) {
-        const responsiveMarginClasses = getResponsivePositionPropertyClasses('margin', margin);
+
+    // Responsive margin Objekt
+    if (margin && typeof margin === 'object') {
+        const responsiveMarginClasses = getResponsiveSpacingClasses('margin', margin);
         if (responsiveMarginClasses) {
             classNames.push(responsiveMarginClasses);
         }
     }
 
-    // Responsive padding Array
-    if (padding && Array.isArray(padding)) {
-        const responsivePaddingClasses = getResponsivePositionPropertyClasses('padding', padding);
+    // Responsive padding Objekt
+    if (padding && typeof padding === 'object') {
+        const responsivePaddingClasses = getResponsiveSpacingClasses('padding', padding);
         if (responsivePaddingClasses) {
             classNames.push(responsivePaddingClasses);
         }

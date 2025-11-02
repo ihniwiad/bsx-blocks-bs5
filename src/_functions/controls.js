@@ -566,50 +566,126 @@ export const marginSizesSelect = (value, onChangeFunction, allowedValues, sizeSt
    )
 }
 
-// Responsive Margin Control: Bearbeitet ein Array von Margin-Objekten
+
 import { Fragment } from 'react';
 
-export const responsivePositionPropertyControl = (propertyArray, onChangeFunction, propertyLabel) => {
-    // propertyArray: [{ s, p, v }] -> size, position, value
-    const handleChange = (index, key, newValue) => {
-        const newArray = propertyArray.map((item, i) =>
-            i === index ? { ...item, [key]: newValue } : item
-        );
-        onChangeFunction(newArray);
+// Neue Responsive Margin/Padding Control für das neue Schema
+// obj: { sm: [top, right, bottom, left], md: [...], ... }
+
+
+export const respSpacingControl = (spacingObj, onChangeFunction, label = 'Spacing') => {
+    // Reihenfolge der Breakpoints
+    const allBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+    // Positions-Labels
+    const positionLabels = [
+        __('↑ Top', 'bsx-blocks'),
+        __('→ Right', 'bsx-blocks'),
+        __('↓ Bottom', 'bsx-blocks'),
+        __('← Left', 'bsx-blocks'),
+    ];
+
+    // Aktive Breakpoints: XS immer, weitere nur wenn vorhanden
+    const activeBreakpoints = ['xs', ...allBreakpoints.filter(bp => bp !== 'xs' && spacingObj[bp])];
+    // Für Add-Select: Breakpoints, die noch nicht vorhanden sind
+    const availableBreakpoints = allBreakpoints.filter(bp => bp !== 'xs' && !spacingObj[bp]);
+
+    // Handler für Wertänderung
+    const handleChange = (bp, posIdx, newValue) => {
+        const newObj = { ...spacingObj };
+        const arr = Array.isArray(newObj[bp]) ? [...newObj[bp]] : ['', '', '', ''];
+        arr[posIdx] = newValue;
+        newObj[bp] = arr;
+        onChangeFunction(newObj);
     };
-    const handleAdd = () => {
-        onChangeFunction([...propertyArray, { s: '', p: [], v: '' }]);
+
+    // Handler für Hinzufügen eines neuen Intervalls
+    const handleAddBreakpoint = (bp) => {
+        const newObj = { ...spacingObj };
+        newObj[bp] = ['', '', '', ''];
+        onChangeFunction(newObj);
     };
-    const handleRemove = (index) => {
-        onChangeFunction(propertyArray.filter((_, i) => i !== index));
+
+    // Handler für Löschen eines Intervalls
+    const handleRemoveBreakpoint = (bp) => {
+        const newObj = { ...spacingObj };
+        if (bp === 'xs') {
+            newObj['xs'] = ['', '', '', ''];
+        } else {
+            delete newObj[bp];
+        }
+        onChangeFunction(newObj);
     };
+
+    // Matrix-Layout für die 4 Positionen
+    //  Top
+    // Left  Right
+    //  Bottom
+    const selectWidth = 'calc(50% - 8px)';
+    const emptySelectOpacity = 0.5;
+
     return (
-        <PanelBody title={propertyLabel ? propertyLabel : __('Property', 'bsx-blocks')}>
-            {propertyArray.map((item, index) => (
-                // <div key={index} className="bsxui-flex-sols-4 bsxui-gap-xs">
-                <div key={index} style={{ display: 'flex', gap: '2px' }}>
-                    <div style={{ flex: '1 1 30%', maxWidth: '30%' }}>
-                        {/* Size */}
-                        {numericBreakpointsWithoutUnsetSelect(item.s, (val) => handleChange(index, 's', val))}
-                    </div>
-                    <div style={{ flex: '1 1 30%', maxWidth: '30%' }}>
-                        {/* Positions */}
-                        {marginPaddingPositionsSelect(item.p, (val) => handleChange(index, 'p', val))}
-                    </div>
-                    <div style={{ flex: '1 1 30%', maxWidth: '30%' }}>
-                        {/* Value */}
-                        {marginSizesSelect(item.v, (val) => handleChange(index, 'v', val))}
-                    </div>
-                    <div style={{ flex: '1 1 10%', maxWidth: '10%', display: 'flex', flexFlow: 'column', justifyContent: 'start', alignItems: 'end' }}>
-                        <Button isDestructive onClick={() => handleRemove(index)} title={__('Remove', 'bsx-blocks')} className="components-button is-secondary is-destructive bsxui-icon-btn delete-btn" style={{ padding: '.5em', lineHeight: '.75em', height: 'auto' }}>
-                            <span aria-hidden="true">&times;</span>
+        <PanelBody title={__(label, 'bsx-blocks')}>
+            {activeBreakpoints.map((bp) => (
+                <div key={bp} style={{ marginBottom: '1em', borderBottom: '1px solid #eee', paddingBottom: '0.5em', position: 'relative' }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span>{bp.toUpperCase()}</span>
+                        <Button
+                            isDestructive
+                            onClick={() => handleRemoveBreakpoint(bp)}
+                            title={bp === 'xs' ? __('Clear values', 'bsx-blocks') : __('Remove interval', 'bsx-blocks')}
+                            className="components-button is-secondary is-destructive bsxui-icon-btn delete-btn"
+                            style={{ padding: '.5em', lineHeight: '.75em', height: 'auto', fontSize: '1em' }}
+                        >
+                            <span aria-hidden="true">{bp === 'xs' ? '⟲' : '×'}</span>
                         </Button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                        {/* Top */}
+                        <div style={{ width: selectWidth, margin: '0 auto', opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][0] === '' ? emptySelectOpacity : 1 }} title={positionLabels[0]}>
+                            <SelectControl
+                                value={Array.isArray(spacingObj[bp]) ? spacingObj[bp][0] || '' : ''}
+                                onChange={(val) => handleChange(bp, 0, val)}
+                                options={label === 'Margin' ? marginSizes : paddingSizes}
+                            />
+                        </div>
+                        {/* Left & Right */}
+                        <div style={{ display: 'flex', gap: '8px', width: '100%', justifyContent: 'space-between' }}>
+                            <div style={{ width: selectWidth, opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][3] === '' ? emptySelectOpacity : 1 }} title={positionLabels[3]}>
+                                <SelectControl
+                                    value={Array.isArray(spacingObj[bp]) ? spacingObj[bp][3] || '' : ''}
+                                    onChange={(val) => handleChange(bp, 3, val)}
+                                    options={label === 'Margin' ? marginSizes : paddingSizes}
+                                />
+                            </div>
+                            <div style={{ width: selectWidth, opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][1] === '' ? emptySelectOpacity : 1 }} title={positionLabels[1]}>
+                                <SelectControl
+                                    value={Array.isArray(spacingObj[bp]) ? spacingObj[bp][1] || '' : ''}
+                                    onChange={(val) => handleChange(bp, 1, val)}
+                                    options={label === 'Margin' ? marginSizes : paddingSizes}
+                                />
+                            </div>
+                        </div>
+                        {/* Bottom */}
+                        <div style={{ width: selectWidth, margin: '0 auto', opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][2] === '' ? emptySelectOpacity : 1 }} title={positionLabels[2]}>
+                            <SelectControl
+                                value={Array.isArray(spacingObj[bp]) ? spacingObj[bp][2] || '' : ''}
+                                onChange={(val) => handleChange(bp, 2, val)}
+                                options={label === 'Margin' ? marginSizes : paddingSizes}
+                            />
+                        </div>
                     </div>
                 </div>
             ))}
-            <Button className="is-secondary" onClick={handleAdd}>
-                {__('Add', 'bsx-blocks')} { propertyLabel ? propertyLabel : __('property', 'bsx-blocks') }
-            </Button>
+            {availableBreakpoints.length > 0 && (
+                <div style={{ marginTop: '1em' }}>
+                    <SelectControl
+                        label={__('Add interval', 'bsx-blocks')}
+                        value=""
+                        options={[{ value: '', label: __('– select –', 'bsx-blocks') }, ...availableBreakpoints.map(bp => ({ value: bp, label: bp.toUpperCase() }))]}
+                        onChange={val => val && handleAddBreakpoint(val)}
+                    />
+                </div>
+            )}
         </PanelBody>
     );
 };
