@@ -574,9 +574,9 @@ import { Fragment } from 'react';
 
 
 export const respSpacingControl = (spacingObj, onChangeFunction, label = 'Spacing') => {
-    // Reihenfolge der Breakpoints
+    // Order of all breakpoints
     const allBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
-    // Positions-Labels
+    // Position labels
     const positionLabels = [
         __('↑ Top', 'bsx-blocks'),
         __('→ Right', 'bsx-blocks'),
@@ -584,12 +584,12 @@ export const respSpacingControl = (spacingObj, onChangeFunction, label = 'Spacin
         __('← Left', 'bsx-blocks'),
     ];
 
-    // Aktive Breakpoints: XS immer, weitere nur wenn vorhanden
+    // Active breakpoints: XS always, others only if present
     const activeBreakpoints = ['xs', ...allBreakpoints.filter(bp => bp !== 'xs' && spacingObj[bp])];
-    // Für Add-Select: Breakpoints, die noch nicht vorhanden sind
+    // FFor Add-Select: Breakpoints that are not yet present
     const availableBreakpoints = allBreakpoints.filter(bp => bp !== 'xs' && !spacingObj[bp]);
 
-    // Handler für Wertänderung
+    // Handler for changing a value
     const handleChange = (bp, posIdx, newValue) => {
         const newObj = { ...spacingObj };
         const arr = Array.isArray(newObj[bp]) ? [...newObj[bp]] : ['', '', '', ''];
@@ -598,14 +598,14 @@ export const respSpacingControl = (spacingObj, onChangeFunction, label = 'Spacin
         onChangeFunction(newObj);
     };
 
-    // Handler für Hinzufügen eines neuen Intervalls
+    // Handler for adding a new breakpoint
     const handleAddBreakpoint = (bp) => {
         const newObj = { ...spacingObj };
         newObj[bp] = ['', '', '', ''];
         onChangeFunction(newObj);
     };
 
-    // Handler für Löschen eines Intervalls
+    // Handler for removing a breakpoint
     const handleRemoveBreakpoint = (bp) => {
         const newObj = { ...spacingObj };
         if (bp === 'xs') {
@@ -616,68 +616,73 @@ export const respSpacingControl = (spacingObj, onChangeFunction, label = 'Spacin
         onChangeFunction(newObj);
     };
 
-    // Matrix-Layout für die 4 Positionen
-    //  Top
-    // Left  Right
-    //  Bottom
-    const selectWidth = 'calc(50% - 8px)';
+    // Matrix layout for 4 directions:
+    //      Top
+    // Left     Right
+    //      Bottom
+
+    // TODO: Style with CSS classes – remove inline styles then
+    const selectWidth = 'calc(50% - 2px)';
     const emptySelectOpacity = 0.5;
+
+    // Check if label contains lowercase 'margin' to decide which sizes to use
+    const propertySizes = label.toLowerCase().indexOf('margin') !== -1 ? marginSizes : paddingSizes;
 
     return (
         <PanelBody title={__(label, 'bsx-blocks')}>
             {activeBreakpoints.map((bp) => (
-                <div key={bp} style={{ marginBottom: '1em', borderBottom: '1px solid #eee', paddingBottom: '0.5em', position: 'relative' }}>
-                    <div style={{ fontWeight: 'bold', marginBottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span>{bp.toUpperCase()}</span>
+                <div key={bp} className="bsxui-resp-property-control" style={{ marginBottom: '1em', borderBottom: '1px solid #eee', paddingBottom: '0.5em', position: 'relative' }}>
+                    <div className="bsxui-resp-property-control-header" style={{ position: 'absolute', top: '0', left: '0', right: '0', fontWeight: 'bold', marginBottom: '0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span className="bsxui-resp-property-control-label">{bp.toUpperCase()}</span>
                         <Button
                             isDestructive
                             onClick={() => handleRemoveBreakpoint(bp)}
                             title={bp === 'xs' ? __('Clear values', 'bsx-blocks') : __('Remove interval', 'bsx-blocks')}
-                            className="components-button is-secondary is-destructive bsxui-icon-btn delete-btn"
+                            className="bsxui-header-delete-btn components-button is-secondary is-destructive bsxui-icon-btn delete-btn"
                             style={{ padding: '.5em', lineHeight: '.75em', height: 'auto', fontSize: '1em' }}
                         >
                             <span aria-hidden="true">{bp === 'xs' ? '⟲' : '×'}</span>
                         </Button>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', alignItems: 'center' }}>
+                    <div className="bsxui-resp-property-control-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         {/* Top */}
-                        <div style={{ width: selectWidth, margin: '0 auto', opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][0] === '' ? emptySelectOpacity : 1 }} title={positionLabels[0]}>
+                        <div className="bsxui-resp-spacing-control-item" style={{ width: selectWidth, margin: '0 auto', opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][0] === '' ? emptySelectOpacity : 1 }} title={positionLabels[0]}>
                             <SelectControl
                                 value={Array.isArray(spacingObj[bp]) ? spacingObj[bp][0] || '' : ''}
                                 onChange={(val) => handleChange(bp, 0, val)}
-                                options={label === 'Margin' ? marginSizes : paddingSizes}
+                                options={propertySizes}
                             />
                         </div>
                         {/* Left & Right */}
-                        <div style={{ display: 'flex', gap: '8px', width: '100%', justifyContent: 'space-between' }}>
-                            <div style={{ width: selectWidth, opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][3] === '' ? emptySelectOpacity : 1 }} title={positionLabels[3]}>
+                        <div className="bsxui-resp-spacing-control-row" style={{ display: 'flex', gap: '8px', width: '100%', justifyContent: 'space-between' }}>
+                            <div className="bsxui-resp-spacing-control-item" style={{ width: selectWidth, opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][3] === '' ? emptySelectOpacity : 1 }} title={positionLabels[3]}>
                                 <SelectControl
                                     value={Array.isArray(spacingObj[bp]) ? spacingObj[bp][3] || '' : ''}
                                     onChange={(val) => handleChange(bp, 3, val)}
-                                    options={label === 'Margin' ? marginSizes : paddingSizes}
+                                    options={propertySizes}
                                 />
                             </div>
-                            <div style={{ width: selectWidth, opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][1] === '' ? emptySelectOpacity : 1 }} title={positionLabels[1]}>
+                            <div className="bsxui-resp-spacing-control-item" style={{ width: selectWidth, opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][1] === '' ? emptySelectOpacity : 1 }} title={positionLabels[1]}>
                                 <SelectControl
                                     value={Array.isArray(spacingObj[bp]) ? spacingObj[bp][1] || '' : ''}
                                     onChange={(val) => handleChange(bp, 1, val)}
-                                    options={label === 'Margin' ? marginSizes : paddingSizes}
+                                    options={propertySizes}
                                 />
                             </div>
                         </div>
                         {/* Bottom */}
-                        <div style={{ width: selectWidth, margin: '0 auto', opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][2] === '' ? emptySelectOpacity : 1 }} title={positionLabels[2]}>
+                        <div className="bsxui-resp-spacing-control-item" style={{ width: selectWidth, margin: '0 auto', opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][2] === '' ? emptySelectOpacity : 1 }} title={positionLabels[2]}>
                             <SelectControl
                                 value={Array.isArray(spacingObj[bp]) ? spacingObj[bp][2] || '' : ''}
                                 onChange={(val) => handleChange(bp, 2, val)}
-                                options={label === 'Margin' ? marginSizes : paddingSizes}
+                                options={propertySizes}
                             />
                         </div>
                     </div>
                 </div>
             ))}
             {availableBreakpoints.length > 0 && (
-                <div style={{ marginTop: '1em' }}>
+                <div className="bsxui-resp-property-control-add-interval" style={{ marginTop: '1em' }}>
                     <SelectControl
                         label={__('Add interval', 'bsx-blocks')}
                         value=""
