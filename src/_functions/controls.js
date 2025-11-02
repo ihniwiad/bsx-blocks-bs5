@@ -22,6 +22,8 @@ import {
     filterByAllowedValueKeys,
 } from './utilities.js';
 
+// import { Fragment } from 'react';
+
 
 // internal vars
 
@@ -567,7 +569,6 @@ export const marginSizesSelect = (value, onChangeFunction, allowedValues, sizeSt
 }
 
 
-import { Fragment } from 'react';
 
 // Neue Responsive Margin/Padding Control für das neue Schema
 // obj: { sm: [top, right, bottom, left], md: [...], ... }
@@ -575,7 +576,6 @@ import { Fragment } from 'react';
 
 export const respSpacingControl = (spacingObj, onChangeFunction, label = 'Spacing') => {
     // Order of all breakpoints
-    const allBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
     // Position labels
     const positionLabels = [
         __('↑ Top', 'bsx-blocks'),
@@ -644,7 +644,7 @@ export const respSpacingControl = (spacingObj, onChangeFunction, label = 'Spacin
                             <span aria-hidden="true">{bp === 'xs' ? '⟲' : '×'}</span>
                         </Button>
                     </div>
-                    <div className="bsxui-resp-property-control-body" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <div className="bsxui-resp-property-control-body has-border-bottom" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                         {/* Top */}
                         <div className="bsxui-resp-spacing-control-item" style={{ width: selectWidth, margin: '0 auto', opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][0] === '' ? emptySelectOpacity : 1 }} title={positionLabels[0]}>
                             <SelectControl
@@ -694,6 +694,106 @@ export const respSpacingControl = (spacingObj, onChangeFunction, label = 'Spacin
         </PanelBody>
     );
 };
+
+const allBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+
+const textAlignOptions = [
+    { value: '', label: __('– unset –', 'bsx-blocks') },
+    { value: 'left', label: __('Left', 'bsx-blocks') },
+    { value: 'center', label: __('Center', 'bsx-blocks') },
+    { value: 'right', label: __('Right', 'bsx-blocks') },
+    { value: 'justify', label: __('Justify', 'bsx-blocks') },
+];
+
+const displayOptions = [
+    { value: '', label: __('– unset –', 'bsx-blocks') },
+    { value: 'block', label: __('Block', 'bsx-blocks') },
+    { value: 'inline', label: __('Inline', 'bsx-blocks') },
+    { value: 'flex', label: __('Flex', 'bsx-blocks') },
+    { value: 'grid', label: __('Grid', 'bsx-blocks') },
+];
+
+// Generic responsive property control
+export const respPropertyControl = (propertyObj, onChangeFunction, label = 'Property', options) => {
+    // Select options by label if not provided
+    let usedOptions = options;
+    if (!usedOptions) {
+        const optLabel = label ? label.toLowerCase() : '';
+        if (optLabel.includes('text')) usedOptions = textAlignOptions;
+        else if (optLabel.includes('display')) usedOptions = displayOptions;
+        // ...add more mappings as needed
+    }
+
+    // Aktive Breakpoints: XS immer, weitere nur wenn vorhanden
+    const activeBreakpoints = ['xs', ...allBreakpoints.filter(bp => bp !== 'xs' && propertyObj[bp] !== undefined)];
+    // Für Add-Select: Breakpoints, die noch nicht vorhanden sind
+    const availableBreakpoints = allBreakpoints.filter(bp => bp !== 'xs' && propertyObj[bp] === undefined);
+
+    // Handler für Wertänderung
+    const handleChange = (bp, newValue) => {
+        const newObj = { ...propertyObj };
+        newObj[bp] = newValue;
+        onChangeFunction(newObj);
+    };
+
+    // Handler für Hinzufügen eines neuen Intervalls
+    const handleAddBreakpoint = (bp) => {
+        const newObj = { ...propertyObj };
+        newObj[bp] = '';
+        onChangeFunction(newObj);
+    };
+
+    // Handler für Löschen eines Intervalls
+    const handleRemoveBreakpoint = (bp) => {
+        const newObj = { ...propertyObj };
+        if (bp === 'xs') {
+            newObj['xs'] = '';
+        } else {
+            delete newObj[bp];
+        }
+        onChangeFunction(newObj);
+    };
+
+    return (
+        <PanelBody title={__(label, 'bsx-blocks')}>
+            {activeBreakpoints.map((bp) => (
+                <div key={bp} className="bsxui-resp-property-control" style={{ marginBottom: '1em', position: 'relative' }}>
+                    <div className="bsxui-resp-property-control-header" style={{ fontWeight: 'bold', marginBottom: '0.5em', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span className="bsxui-resp-property-control-label">{bp.toUpperCase()}</span>
+                        <Button
+                            isDestructive
+                            onClick={() => handleRemoveBreakpoint(bp)}
+                            title={bp === 'xs' ? __('Clear value', 'bsx-blocks') : __('Remove interval', 'bsx-blocks')}
+                            className="bsxui-header-delete-btn components-button is-secondary is-destructive bsxui-icon-btn delete-btn"
+                            style={{ padding: '.5em', lineHeight: '.75em', height: 'auto', fontSize: '1em' }}
+                        >
+                            <span aria-hidden="true">{bp === 'xs' ? '⟲' : '×'}</span>
+                        </Button>
+                    </div>
+                    <div className="bsxui-resp-property-control-body" style={{ width: '100%' }} title={ label + ' ' + bp.toUpperCase() }>
+                        <SelectControl
+                            value={propertyObj[bp] || ''}
+                            onChange={(val) => handleChange(bp, val)}
+                            options={usedOptions}
+                        />
+                    </div>
+                </div>
+            ))}
+            {availableBreakpoints.length > 0 && (
+                <div className="bsxui-resp-property-control-add-interval has-border-top" style={{ paddingTop: '.5em', borderTop: '1px solid #eee' }}>
+                    <SelectControl
+                        label={__('Add interval', 'bsx-blocks')}
+                        value=""
+                        options={[{ value: '', label: __('– select –', 'bsx-blocks') }, ...availableBreakpoints.map(bp => ({ value: bp, label: bp.toUpperCase() }))]}
+                        onChange={val => val && handleAddBreakpoint(val)}
+                    />
+                </div>
+            )}
+        </PanelBody>
+    );
+};
+
+
 
 export const stateSelect = (value, onChangeFunction, allowedValues) => {
     const defaultValues = states;

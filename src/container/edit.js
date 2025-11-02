@@ -24,6 +24,9 @@ import {
 	belowNavbarToggle,
 	respSpacingControl,
 } from './../_functions/controls.js';
+import {
+	makeOnChange,
+} from './../_functions/block-handlers.js';
 
 
 // utils
@@ -76,18 +79,14 @@ export default function Edit({ attributes, setAttributes }) {
         setAttributes({ belowNavbar: value });
     };
 
-
-	// Responsive handlers
-	const onChangeMargin = (value) => {
-		setAttributes({ margin: value });
-	};
-	const onChangePadding = (value) => {
-		setAttributes({ padding: value });
-	};
-
     const onChangeSized = (value) => {
         setAttributes({ sized: value });
     };
+
+
+	// Responsive handlers
+	const onChangeMargin = makeOnChange(setAttributes, 'margin');
+	const onChangePadding = makeOnChange(setAttributes, 'padding');
 
 
     let containerClassName = makeContainerClassNames({

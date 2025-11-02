@@ -1,37 +1,25 @@
 // add class names
 
-const sizesMap = {
-    0: '', // XS: default, no size letter
-    1: 'sm',
-    2: 'md',
-    3: 'lg',
-    4: 'xl',
-    5: 'xxl',
-};
-// Map position keys (top, bottom, left, right, all) to Bootstrap class name letters
-const positionsMap = {
-    'all': '', // all: default, no position letter
-    't': 't',
-    'b': 'b',
-    'y': 'y',
-    'l': 's', // Left: 's' for 'start'
-    'r': 'e', // Right: 'e' for 'end'
-    'x': 'x',
-};
+// Order of responsive property keys – used to add class names in correct order
+const respPropOrder = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+
 // Map property keys to Bootstrap class name prefixes
 const propertyMap = {
     'margin': 'm',
     'padding': 'p',
+    'textAlign': 'text',
+    'display': 'd',
+    // Add more properties as needed
 };
 
-// TODO: Reduce property data keys from size, positions, value to s, p, v.
-/**
- * Get responsive Bootstrap classes for a given property.
- *
- * @param {string} property         E.g. 'margin', 'padding'
- * @param {array} propertyArray     Array of property values with size, positions, and value
- * @returns {string}
- */
+// Transforms saved array positions (top, start, bottom, end) to Bootstrap class positions
+const spacingPosMap = ['t', 's', 'b', 'e']; // 's' for start (left), 'e' for end (right)
+const spacingCombinedPosMap = {
+    'all': '',
+    'y': 'y',
+    'x': 'x',
+};
+
 
 /**
  * Generates Bootstrap classes for the responsive margin/padding object schema.
@@ -41,35 +29,35 @@ const propertyMap = {
  */
 
 function getResponsiveSpacingClasses(property, spacingObj) {
-    if (!spacingObj || typeof spacingObj !== 'object') return '';
-    const bpOrder = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
-    const posMap = ['t', 's', 'b', 'e']; // 's' for start (left), 'e' for end (right)
+    if (!spacingObj || typeof spacingObj !== 'object') {
+        return '';
+    }
     const propPrefix = propertyMap[property];
     let classes = [];
-    bpOrder.forEach((bp) => {
+    respPropOrder.forEach((bp) => {
         const arr = spacingObj[bp];
         if (!Array.isArray(arr)) return;
         let vals = arr.map(v => v || '');
         const bpPart = bp !== 'xs' ? bp + '-' : '';
         // 1. All 4 equal?
         if (vals.every(v => v !== '' && v === vals[0])) {
-            classes.push(`${propPrefix}-${bpPart}${vals[0]}`);
+            classes.push(`${propPrefix}${spacingCombinedPosMap['all']}-${bpPart}${vals[0]}`);
             return;
         }
         // Helper array for processing
         let used = [false, false, false, false];
         // 2. top & bottom equal?
         if (vals[0] !== '' && vals[0] === vals[2]) {
-            classes.push(`${propPrefix}y-${bpPart}${vals[0]}`);
+            classes.push(`${propPrefix}${spacingCombinedPosMap['y']}-${bpPart}${vals[0]}`);
             used[0] = used[2] = true;
         }
         // 3. left & right equal?
         if (vals[1] !== '' && vals[1] === vals[3]) {
-            classes.push(`${propPrefix}x-${bpPart}${vals[1]}`);
+            classes.push(`${propPrefix}${spacingCombinedPosMap['x']}-${bpPart}${vals[1]}`);
             used[1] = used[3] = true;
         }
         // 4. Single values
-        posMap.forEach((pos, idx) => {
+        spacingPosMap.forEach((pos, idx) => {
             if (!used[idx] && vals[idx] !== '') {
                 classes.push(`${propPrefix}${pos}-${bpPart}${vals[idx]}`);
             }
@@ -77,6 +65,28 @@ function getResponsiveSpacingClasses(property, spacingObj) {
     });
     return classes.join(' ');
 }
+
+/**
+ * Generates responsive Bootstrap classes for a generic property object schema.
+ * @param {string} property     e.g. 'textAlign', 'display'
+ * @param {object} propertyObj  { xs: 'center', md: 'left', ... }
+ * @returns {string}            class names string
+ */
+function getResponsivePropertyClasses(property, propertyObj) {
+    if (!propertyObj || typeof propertyObj !== 'object') {
+        return '';
+    }
+    const propPrefix = propertyMap[property];
+    let classes = [];
+    respPropOrder.forEach((bp) => {
+        const val = propertyObj[bp];
+        if (!val) return;
+        let bpPart = bp !== 'xs' ? bp + '-' : '';
+        classes.push(`${propPrefix}-${bpPart}${val}`);
+    });
+    return classes.join(' ');
+}
+
 
 export function addClassNames(attributes, classNamesString) {
 
@@ -152,10 +162,11 @@ export function addClassNames(attributes, classNamesString) {
         classNames.push('mb-n-footer-space');
     }
 
-    if (!!display) {
-        classNames.push('d-' + display);
-    }
+    // if (!!display) {
+    //     classNames.push('d-' + display);
+    // }
 
+    // DEPRECATED - use margin object instead
     if (!!marginBefore && marginBefore === marginAfter && marginBefore === marginLeft && marginBefore === marginRight) {
         // all
         classNames.push('m-' + marginBefore);
@@ -199,10 +210,8 @@ export function addClassNames(attributes, classNamesString) {
         classNames.push('m' + ((resMargin2Position === 'all') ? '' : resMargin2Position) + '-' + ((resMargin2Breakpoint === 'xs') ? '' : resMargin2Breakpoint + '-') + resMargin2Size);
     }
 
-    // Responsive margin – will replace all old margin... attributes.
 
-
-    // Responsive margin Objekt
+    // Responsive margin object
     if (margin && typeof margin === 'object') {
         const responsiveMarginClasses = getResponsiveSpacingClasses('margin', margin);
         if (responsiveMarginClasses) {
@@ -210,7 +219,7 @@ export function addClassNames(attributes, classNamesString) {
         }
     }
 
-    // Responsive padding Objekt
+    // Responsive padding object
     if (padding && typeof padding === 'object') {
         const responsivePaddingClasses = getResponsiveSpacingClasses('padding', padding);
         if (responsivePaddingClasses) {
@@ -218,8 +227,24 @@ export function addClassNames(attributes, classNamesString) {
         }
     }
 
+    // Responsive textAlign object
+    if (textAlign && typeof textAlign === 'object') {
+        const responsiveTextAlignClasses = getResponsivePropertyClasses('textAlign', textAlign);
+        if (responsiveTextAlignClasses) {
+            classNames.push(responsiveTextAlignClasses);
+        }
+    }
+
+    // Responsive display object
+    if (display && typeof display === 'object') {
+        const responsiveDisplayClasses = getResponsivePropertyClasses('display', display);
+        if (responsiveDisplayClasses) {
+            classNames.push(responsiveDisplayClasses);
+        }
+    }
 
 
+    // DEPRECATED - use padding object instead
     if (!!paddingBefore && paddingBefore === paddingAfter && paddingBefore === paddingLeft && paddingBefore === paddingRight) {
         // all
         classNames.push('p-' + paddingBefore);
@@ -257,6 +282,7 @@ export function addClassNames(attributes, classNamesString) {
         }
 
     }
+    
 
     if (!!bgColor) {
         // Check if bgColor contains string `-transparent`, if so, add additional class `bg-opacity-50` and remove `-transparent` from bgColor.
@@ -316,9 +342,9 @@ export function addClassNames(attributes, classNamesString) {
         }
     }
 
-    if (!!textAlign) {
-        classNames.push('text-' + textAlign);
-    }
+    // if (!!textAlign) {
+    //     classNames.push('text-' + textAlign);
+    // }
     if (!!resTextAlignBreakpoint && !!resTextAlign) {
         classNames.push('text-' + resTextAlignBreakpoint + '-' + resTextAlign);
     }

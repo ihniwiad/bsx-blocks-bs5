@@ -31,17 +31,6 @@ import {
     inverseTextColorToggle,
     headingInheritTextColorToggle,
     headingInheritFontWeightToggle,
-    marginLeftSelect,
-    marginRightSelect,
-    marginBeforeSelect,
-    marginAfterSelect,
-    resMarginBreakpointsSelect,
-    resMarginPositionSelect,
-    resMarginSizeSelect,
-    paddingBeforeSelect,
-    paddingAfterSelect,
-    paddingLeftSelect,
-    paddingRightSelect,
     stateSelect,
     textColorSelect,
     bgColorSelect,
@@ -75,7 +64,12 @@ import {
     hiddenToggle,
     overflowSelect,
     textColumnSelect,
+	respSpacingControl,
+    respPropertyControl,
 } from './../_functions/controls.js';
+import {
+	makeOnChange,
+} from './../_functions/block-handlers.js';
 
 
 // templates
@@ -107,8 +101,6 @@ export default function Edit({ attributes, setAttributes }) {
         textColor,
         textSize,
         textAlign,
-        resTextAlignBreakpoint,
-        resTextAlign,
         textShadow,
         fontWeight,
         inverseTextColor,
@@ -119,20 +111,6 @@ export default function Edit({ attributes, setAttributes }) {
         rounded,
         border,
         borderState,
-        marginBefore,
-        marginAfter,
-        marginLeft,
-        marginRight,
-        resMargin1Breakpoint,
-        resMargin1Position,
-        resMargin1Size,
-        resMargin2Breakpoint,
-        resMargin2Position,
-        resMargin2Size,
-        paddingBefore,
-        paddingAfter,
-        paddingLeft,
-        paddingRight,
         touchFooter,
         display,
         verticalAlign,
@@ -156,6 +134,8 @@ export default function Edit({ attributes, setAttributes }) {
         // target,
         // rel,
         textColumns,
+        margin,
+        padding,
     } = attributes;
 
 	// const hasInnerBlocks = () => {
@@ -193,15 +173,6 @@ export default function Edit({ attributes, setAttributes }) {
     const onChangeTextShadow = (value) => {
         setAttributes({ textShadow: value });
     };
-    const onChangeTextAlign = (value) => {
-        setAttributes({ textAlign: value });
-    };
-    const onChangeResTextAlignBreakpoint = (value) => {
-        setAttributes({ resTextAlignBreakpoint: value });
-    };
-    const onChangeResTextAlign = (value) => {
-        setAttributes({ resTextAlign: value });
-    };
     const onChangeFontWeight = (value) => {
         setAttributes({ fontWeight: value });
     };
@@ -237,55 +208,8 @@ export default function Edit({ attributes, setAttributes }) {
         setAttributes({ isAlert: value });
     };
 
-    const onChangeMarginBefore = (value) => {
-        setAttributes({ marginBefore: value });
-    };
-    const onChangeMarginAfter = (value) => {
-        setAttributes({ marginAfter: value });
-    };
-    const onChangeMarginLeft = (value) => {
-        setAttributes({ marginLeft: value });
-    };
-    const onChangeMarginRight = (value) => {
-        setAttributes({ marginRight: value });
-    };
-
-    const onChangeResMargin1Breakpoint = (value) => {
-        setAttributes({ resMargin1Breakpoint: value });
-    };
-    const onChangeResMargin1Position = (value) => {
-        setAttributes({ resMargin1Position: value });
-    };
-    const onChangeResMargin1Size = (value) => {
-        setAttributes({ resMargin1Size: value });
-    };
-    const onChangeResMargin2Breakpoint = (value) => {
-        setAttributes({ resMargin2Breakpoint: value });
-    };
-    const onChangeResMargin2Position = (value) => {
-        setAttributes({ resMargin2Position: value });
-    };
-    const onChangeResMargin2Size = (value) => {
-        setAttributes({ resMargin2Size: value });
-    };
-
-    const onChangePaddingBefore = (value) => {
-        setAttributes({ paddingBefore: value });
-    };
-    const onChangePaddingAfter = (value) => {
-        setAttributes({ paddingAfter: value });
-    };
-    const onChangePaddingLeft = (value) => {
-        setAttributes({ paddingLeft: value });
-    };
-    const onChangePaddingRight = (value) => {
-        setAttributes({ paddingRight: value });
-    };
     const onChangeTouchFooter = (value) => {
         setAttributes({ touchFooter: value });
-    };
-    const onChangeDisplay = (value) => {
-        setAttributes({ display: value });
     };
     const onChangeVerticalAlign = (value) => {
         setAttributes({ verticalAlign: value });
@@ -353,6 +277,12 @@ export default function Edit({ attributes, setAttributes }) {
         setAttributes({ textColumns: value });
     };
 
+	// Responsive handlers
+	const onChangeDisplay = makeOnChange(setAttributes, 'display');
+	const onChangeTextAlign = makeOnChange(setAttributes, 'textAlign');
+	const onChangeMargin = makeOnChange(setAttributes, 'margin');
+	const onChangePadding = makeOnChange(setAttributes, 'padding');
+
     const wrapperClassName = addClassNames({ 
         belowNavbar,
         bgColor, 
@@ -362,8 +292,6 @@ export default function Edit({ attributes, setAttributes }) {
         border,
         borderState,
         textAlign,
-        resTextAlignBreakpoint,
-        resTextAlign,
         textShadow,
         fontWeight,
         inverseTextColor,
@@ -371,20 +299,6 @@ export default function Edit({ attributes, setAttributes }) {
         headingInheritFontWeight,
         width,
         height,
-        marginBefore,
-        marginAfter,
-        marginLeft,
-        marginRight,
-        resMargin1Breakpoint,
-        resMargin1Position,
-        resMargin1Size,
-        resMargin2Breakpoint,
-        resMargin2Position,
-        resMargin2Size,
-        paddingBefore, 
-        paddingAfter, 
-        paddingLeft, 
-        paddingRight,
         touchFooter,
         display,
         verticalAlign,
@@ -401,17 +315,19 @@ export default function Edit({ attributes, setAttributes }) {
         isRight0,
         overflow,
         textColumns,
+        margin,
+        padding,
     });
 
     const TagName = !! nodeName ? nodeName : 'div';
 
     const controls = (
     	<>
-            <BlockControls>
+            {/* <BlockControls>
                 {
                     textAlignToolbar(textAlign, onChangeTextAlign)
                 }
-            </BlockControls>
+            </BlockControls> */}
             <InspectorControls>
                 <PanelBody title={ __('Texte', 'bsx-blocks') }>
                     {
@@ -459,48 +375,22 @@ export default function Edit({ attributes, setAttributes }) {
                         textColumnSelect(textColumns, onChangeTextColumns)
                     }
                 </PanelBody>
-
-                <PanelBody title={ __('Margin', 'bsx-blocks') }>
-                    {
-                        marginLeftSelect(marginLeft, onChangeMarginLeft)
-                    }
-                    {
-                        marginRightSelect(marginRight, onChangeMarginRight)
-                    }
-                    {
-                        marginBeforeSelect(marginBefore, onChangeMarginBefore)
-                    }
-                    {
-                        marginAfterSelect(marginAfter, onChangeMarginAfter)
-                    }
-                </PanelBody>
-
-                <PanelBody title={ __('Padding', 'bsx-blocks') }>
-                    {
-                        paddingLeftSelect(paddingLeft, onChangePaddingLeft)
-                    }
-                    {
-                        paddingRightSelect(paddingRight, onChangePaddingRight)
-                    }
-                    {
-                        paddingBeforeSelect(paddingBefore, onChangePaddingBefore)
-                    }
-                    {
-                        paddingAfterSelect(paddingAfter, onChangePaddingAfter)
-                    }
-                </PanelBody>
-
-                <PanelBody title={ __('Responsive text align', 'bsx-blocks') }>
-                    <div class="bsxui-config-panel-row">
-                        <div class="bsxui-config-panel-text">{ __('Use in addition to Alignment toolbar.', 'bsx-blocks') }</div>
-                    </div>
-                    {
-                        breakpointsSelect(resTextAlignBreakpoint, onChangeResTextAlignBreakpoint)
-                    }
-                    {
-                        textAlignSelect(resTextAlign, onChangeResTextAlign)
-                    }
-                </PanelBody>
+                {
+                    respPropertyControl(
+                        textAlign,
+                        onChangeTextAlign,
+                        __('Text Align', 'bsx-blocks'),
+                    )
+                }
+				{ respSpacingControl(margin, onChangeMargin, __('Margin', 'bsx-blocks')) }
+				{ respSpacingControl(padding, onChangePadding, __('Padding', 'bsx-blocks')) }
+                {
+                    respPropertyControl(
+                        display,
+                        onChangeDisplay,
+                        __('Display', 'bsx-blocks'),
+                    )
+                }
             </InspectorControls>
             <InspectorAdvancedControls>
                 {
@@ -508,9 +398,6 @@ export default function Edit({ attributes, setAttributes }) {
                 }
                 {
                     nodeNameSelect(nodeName, onChangeNodeName, [ 'div', 'section', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ])
-                }
-                {
-                    displaySelect(display, onChangeDisplay)
                 }
                 {
                     verticalAlignSelect(verticalAlign, onChangeVerticalAlign)
@@ -552,24 +439,6 @@ export default function Edit({ attributes, setAttributes }) {
                 }
                 {
                     touchFooterToggle(touchFooter, onChangeTouchFooter)
-                }
-                {
-                    resMarginBreakpointsSelect(resMargin1Breakpoint, onChangeResMargin1Breakpoint, [], '1')
-                }
-                {
-                    resMarginPositionSelect(resMargin1Position, onChangeResMargin1Position, [], '1')
-                }
-                {
-                    resMarginSizeSelect(resMargin1Size, onChangeResMargin1Size, [], '1')
-                }
-                {
-                    resMarginBreakpointsSelect(resMargin2Breakpoint, onChangeResMargin2Breakpoint, [], '2')
-                }
-                {
-                    resMarginPositionSelect(resMargin2Position, onChangeResMargin2Position, [], '2')
-                }
-                {
-                    resMarginSizeSelect(resMargin2Size, onChangeResMargin2Size, [], '2')
                 }
                 {
                     isGalleryParentToggle(isGalleryParent, onChangeIsGalleryParent)
