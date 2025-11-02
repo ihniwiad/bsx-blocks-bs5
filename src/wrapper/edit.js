@@ -278,10 +278,10 @@ export default function Edit({ attributes, setAttributes }) {
     };
 
 	// Responsive handlers
-	const onChangeDisplay = makeOnChange(setAttributes, 'display');
-	const onChangeTextAlign = makeOnChange(setAttributes, 'textAlign');
 	const onChangeMargin = makeOnChange(setAttributes, 'margin');
 	const onChangePadding = makeOnChange(setAttributes, 'padding');
+	const onChangeDisplay = makeOnChange(setAttributes, 'display');
+	const onChangeTextAlign = makeOnChange(setAttributes, 'textAlign');
 
     const wrapperClassName = addClassNames({ 
         belowNavbar,
