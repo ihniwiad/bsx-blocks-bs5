@@ -18,7 +18,7 @@ const templates = [
         title: __( 'Empty', 'bsx-blocks' ),
         icon: bannerEmpty,
         attributes: {
-            marginAfter: '5',
+            margin: {xs:["","","","5"]},
         },
         template: [
             [
@@ -35,7 +35,7 @@ const templates = [
         title: __( 'Container with Heading', 'bsx-blocks' ),
         icon: bannerContainerWithHeading,
         attributes: {
-            marginAfter: '5',
+            margin: {xs:["","","","5"]},
         },
         template: [ 
             [ 
@@ -50,7 +50,7 @@ const templates = [
                             textSize: 'display-1',
                             textColor: 'white',
                             textShadow: 'darker',
-                            marginAfter: '0',
+                            margin: {xs:["","","","0"]},
                         }
                     ]
                 ],
@@ -65,7 +65,7 @@ const templates = [
         attributes: {
             bannerType: 'st',
             bannerSize: '3',
-            marginAfter: '5',
+            margin: {xs:["","","","5"]},
         },
         template: [ 
             [ 
@@ -80,7 +80,7 @@ const templates = [
                             textSize: 'display-1',
                             textColor: 'white',
                             textShadow: 'darker',
-                            marginAfter: '0',
+                            margin: {xs:["","","","0"]},
                         }
                     ]
                 ],
@@ -93,7 +93,7 @@ const templates = [
         title: __( 'Bottom bar Banner', 'bsx-blocks' ),
         icon: bannerBottomBarContainerHeading,
         attributes: {
-            marginAfter: '5',
+            margin: {xs:["","","","5"]},
         },
         template: [  
             [ 
@@ -130,7 +130,7 @@ const templates = [
                                                     textSize: 'display-1',
                                                     textColor: 'white',
                                                     textShadow: 'darker', 
-                                                    marginAfter: '0',
+                                                    margin: {xs:["","","","0"]},
                                                 }
                                             ]
                                         ],
@@ -163,7 +163,7 @@ const templates = [
                                                     placeholder: __( 'Add text...', 'bsx-blocks' ),
                                                     textSize: 'lead',
                                                     textColor: 'white',
-                                                    marginAfter: '0',
+                                                    margin: {xs:["","","","0"]},
                                                 }
                                             ]
                                         ],
@@ -182,7 +182,7 @@ const templates = [
         title: __( 'Heading Text Banner', 'bsx-blocks' ),
         icon: bannerContainerHeadingText,
         attributes: {
-            marginAfter: '5',
+            margin: {xs:["","","","5"]},
             bannerSize: '1',
             belowNavbar: true,
         },
@@ -200,7 +200,7 @@ const templates = [
                             headingInheritFontWeight: true,
                             textColor: 'white',
                             textAlign: 'center',
-                            marginAfter: '4',
+                            margin: {xs:["","","","4"]},
                         },
                         [
                             [
@@ -242,7 +242,7 @@ const templates = [
         title: __( 'Heading Text Button Color Banner', 'bsx-blocks' ),
         icon: bannerHeadingTextButtonColor,
         attributes: {
-            marginAfter: '5',
+            margin: {xs:["","","","5"]},
             bannerType: 'st',
             bgColor: 'primary',
             bannerSize: '2',
@@ -264,7 +264,7 @@ const templates = [
                             [
                                 'core/heading',
                                 { 
-                                    marginAfter: '0',
+                                    margin: {xs:["","","","0"]},
                                     level: 1,
                                 }
                             ],
@@ -277,7 +277,7 @@ const templates = [
                             inverseTextColor: true,
                             headingInheritTextColor: true,
                             textAlign: 'center',
-                            marginBefore: 4,
+                            margin: {xs:["","","","4"]},
                             paddingAfter: 3
                         },
                         [

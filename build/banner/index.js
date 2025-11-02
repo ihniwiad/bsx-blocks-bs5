@@ -14,6 +14,91 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 // add class names
 
+// Order of responsive property keys – used to add class names in correct order
+const respPropOrder = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+
+// Map property keys to Bootstrap class name prefixes
+const propertyMap = {
+  'margin': 'm',
+  'padding': 'p',
+  'textAlign': 'text',
+  'display': 'd'
+  // Add more properties as needed
+};
+
+// Transforms saved array positions (top, start, bottom, end) to Bootstrap class positions
+const spacingPosMap = ['t', 's', 'b', 'e']; // 's' for start (left), 'e' for end (right)
+const spacingCombinedPosMap = {
+  'all': '',
+  'y': 'y',
+  'x': 'x'
+};
+
+/**
+ * Generates Bootstrap classes for the responsive margin/padding object schema.
+ * @param {string} property     'margin' or 'padding'
+ * @param {object} spacingObj   { sm: [top, right, bottom, left], ... }
+ * @returns {string}            class names string
+ */
+
+function getResponsiveSpacingClasses(property, spacingObj) {
+  if (!spacingObj || typeof spacingObj !== 'object') {
+    return '';
+  }
+  const propPrefix = propertyMap[property];
+  let classes = [];
+  respPropOrder.forEach(bp => {
+    const arr = spacingObj[bp];
+    if (!Array.isArray(arr)) return;
+    let vals = arr.map(v => v || '');
+    const bpPart = bp !== 'xs' ? bp + '-' : '';
+    // 1. All 4 equal?
+    if (vals.every(v => v !== '' && v === vals[0])) {
+      classes.push(`${propPrefix}${spacingCombinedPosMap['all']}-${bpPart}${vals[0]}`);
+      return;
+    }
+    // Helper array for processing
+    let used = [false, false, false, false];
+    // 2. top & bottom equal?
+    if (vals[0] !== '' && vals[0] === vals[2]) {
+      classes.push(`${propPrefix}${spacingCombinedPosMap['y']}-${bpPart}${vals[0]}`);
+      used[0] = used[2] = true;
+    }
+    // 3. left & right equal?
+    if (vals[1] !== '' && vals[1] === vals[3]) {
+      classes.push(`${propPrefix}${spacingCombinedPosMap['x']}-${bpPart}${vals[1]}`);
+      used[1] = used[3] = true;
+    }
+    // 4. Single values
+    spacingPosMap.forEach((pos, idx) => {
+      if (!used[idx] && vals[idx] !== '') {
+        classes.push(`${propPrefix}${pos}-${bpPart}${vals[idx]}`);
+      }
+    });
+  });
+  return classes.join(' ');
+}
+
+/**
+ * Generates responsive Bootstrap classes for a generic property object schema.
+ * @param {string} property     e.g. 'textAlign', 'display'
+ * @param {object} propertyObj  { xs: 'center', md: 'left', ... }
+ * @returns {string}            class names string
+ */
+function getResponsivePropertyClasses(property, propertyObj) {
+  if (!propertyObj || typeof propertyObj !== 'object') {
+    return '';
+  }
+  const propPrefix = propertyMap[property];
+  let classes = [];
+  respPropOrder.forEach(bp => {
+    const val = propertyObj[bp];
+    if (!val) return;
+    let bpPart = bp !== 'xs' ? bp + '-' : '';
+    classes.push(`${propPrefix}-${bpPart}${val}`);
+  });
+  return classes.join(' ');
+}
 function addClassNames(attributes, classNamesString) {
   const {
     belowNavbar,
@@ -68,7 +153,14 @@ function addClassNames(attributes, classNamesString) {
     isLeft0,
     isRight0,
     position,
-    flexDirection
+    flexDirection,
+    alignItems,
+    gutter,
+    rowReverse,
+    justifyContent,
+    textColumns,
+    margin,
+    padding
   } = attributes;
   const classNames = typeof classNamesString != 'undefined' && classNamesString.trim().length > 0 ? classNamesString.split(' ') : [];
   if (!!belowNavbar) {
@@ -77,9 +169,12 @@ function addClassNames(attributes, classNamesString) {
   if (!!touchFooter) {
     classNames.push('mb-n-footer-space');
   }
-  if (!!display) {
-    classNames.push('d-' + display);
-  }
+
+  // if (!!display) {
+  //     classNames.push('d-' + display);
+  // }
+
+  // DEPRECATED - use margin object instead
   if (!!marginBefore && marginBefore === marginAfter && marginBefore === marginLeft && marginBefore === marginRight) {
     // all
     classNames.push('m-' + marginBefore);
@@ -116,6 +211,40 @@ function addClassNames(attributes, classNamesString) {
     // examples: `my-sm-3`, `my-0
     classNames.push('m' + (resMargin2Position === 'all' ? '' : resMargin2Position) + '-' + (resMargin2Breakpoint === 'xs' ? '' : resMargin2Breakpoint + '-') + resMargin2Size);
   }
+
+  // Responsive margin object
+  if (margin && typeof margin === 'object') {
+    const responsiveMarginClasses = getResponsiveSpacingClasses('margin', margin);
+    if (responsiveMarginClasses) {
+      classNames.push(responsiveMarginClasses);
+    }
+  }
+
+  // Responsive padding object
+  if (padding && typeof padding === 'object') {
+    const responsivePaddingClasses = getResponsiveSpacingClasses('padding', padding);
+    if (responsivePaddingClasses) {
+      classNames.push(responsivePaddingClasses);
+    }
+  }
+
+  // Responsive textAlign object
+  if (textAlign && typeof textAlign === 'object') {
+    const responsiveTextAlignClasses = getResponsivePropertyClasses('textAlign', textAlign);
+    if (responsiveTextAlignClasses) {
+      classNames.push(responsiveTextAlignClasses);
+    }
+  }
+
+  // Responsive display object
+  if (display && typeof display === 'object') {
+    const responsiveDisplayClasses = getResponsivePropertyClasses('display', display);
+    if (responsiveDisplayClasses) {
+      classNames.push(responsiveDisplayClasses);
+    }
+  }
+
+  // DEPRECATED - use padding object instead
   if (!!paddingBefore && paddingBefore === paddingAfter && paddingBefore === paddingLeft && paddingBefore === paddingRight) {
     // all
     classNames.push('p-' + paddingBefore);
@@ -192,9 +321,10 @@ function addClassNames(attributes, classNamesString) {
       classNames.push('rounded-' + rounded);
     }
   }
-  if (!!textAlign) {
-    classNames.push('text-' + textAlign);
-  }
+
+  // if (!!textAlign) {
+  //     classNames.push('text-' + textAlign);
+  // }
   if (!!resTextAlignBreakpoint && !!resTextAlign) {
     classNames.push('text-' + resTextAlignBreakpoint + '-' + resTextAlign);
   }
@@ -286,6 +416,22 @@ function addClassNames(attributes, classNamesString) {
   if (!!position) {
     classNames.push('position-' + position);
   }
+  if (typeof gutter !== '' && typeof gutter !== 'undefined') {
+    classNames.push('g-' + gutter);
+  }
+  if (rowReverse) {
+    if (rowReverse == 'xs') {
+      classNames.push('flex-row-reverse');
+    } else {
+      classNames.push('flex-' + rowReverse + '-row-reverse');
+    }
+  }
+  if (justifyContent) {
+    classNames.push('justify-content-' + justifyContent);
+  }
+  if (textColumns) {
+    classNames.push('text-columns-' + textColumns);
+  }
 
   // Do after handle display flex above.
   if (!!flexDirection) {
@@ -294,6 +440,13 @@ function addClassNames(attributes, classNamesString) {
       classNames.push('d-flex');
     }
     classNames.push('flex-' + flexDirection);
+  }
+  if (!!alignItems) {
+    // Check if `d-flex` is already in classNames, if not, add it.
+    if (classNames.indexOf('d-flex') === -1) {
+      classNames.push('d-flex');
+    }
+    classNames.push('align-items-' + alignItems);
   }
   return classNames.join(' ');
 }
@@ -380,9 +533,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   marginAfterSelect: () => (/* binding */ marginAfterSelect),
 /* harmony export */   marginBeforeSelect: () => (/* binding */ marginBeforeSelect),
 /* harmony export */   marginLeftSelect: () => (/* binding */ marginLeftSelect),
+/* harmony export */   marginPaddingPositionsSelect: () => (/* binding */ marginPaddingPositionsSelect),
 /* harmony export */   marginRightSelect: () => (/* binding */ marginRightSelect),
+/* harmony export */   marginSizesSelect: () => (/* binding */ marginSizesSelect),
 /* harmony export */   multilayerSelect: () => (/* binding */ multilayerSelect),
 /* harmony export */   nodeNameSelect: () => (/* binding */ nodeNameSelect),
+/* harmony export */   numericBreakpointsWithoutUnsetSelect: () => (/* binding */ numericBreakpointsWithoutUnsetSelect),
 /* harmony export */   objectFitSelect: () => (/* binding */ objectFitSelect),
 /* harmony export */   onclickInput: () => (/* binding */ onclickInput),
 /* harmony export */   overflowSelect: () => (/* binding */ overflowSelect),
@@ -396,6 +552,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   resMarginBreakpointsSelect: () => (/* binding */ resMarginBreakpointsSelect),
 /* harmony export */   resMarginPositionSelect: () => (/* binding */ resMarginPositionSelect),
 /* harmony export */   resMarginSizeSelect: () => (/* binding */ resMarginSizeSelect),
+/* harmony export */   respPropertyControl: () => (/* binding */ respPropertyControl),
+/* harmony export */   respSpacingControl: () => (/* binding */ respSpacingControl),
 /* harmony export */   right0Toggle: () => (/* binding */ right0Toggle),
 /* harmony export */   roleInput: () => (/* binding */ roleInput),
 /* harmony export */   roundedToggle: () => (/* binding */ roundedToggle),
@@ -408,6 +566,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   textAlignSelect: () => (/* binding */ textAlignSelect),
 /* harmony export */   textAlignToolbar: () => (/* binding */ textAlignToolbar),
 /* harmony export */   textColorSelect: () => (/* binding */ textColorSelect),
+/* harmony export */   textColumnSelect: () => (/* binding */ textColumnSelect),
 /* harmony export */   textShadowSelect: () => (/* binding */ textShadowSelect),
 /* harmony export */   textSizeSelect: () => (/* binding */ textSizeSelect),
 /* harmony export */   top0Toggle: () => (/* binding */ top0Toggle),
@@ -431,9 +590,11 @@ __webpack_require__.r(__webpack_exports__);
 // functions
 
 
+// import { Fragment } from 'react';
+
 // internal vars
 
-const marginPaddingSizes = [{
+const paddingSizes = [{
   value: '',
   label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('– unset –', 'bsx-blocks')
 }, {
@@ -455,49 +616,78 @@ const marginPaddingSizes = [{
   value: '5',
   label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('extra large', 'bsx-blocks')
 }];
+const marginSizes = [...paddingSizes, {
+  value: 'auto',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('auto', 'bsx-blocks')
+}];
+
+// DEPRECATED – will be preplace by marginSizes (includes 'auto') and paddingSizes.
+const marginPaddingSizes = paddingSizes;
+const breakpoints = [{
+  value: 'xs',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('XS (default)', 'bsx-blocks')
+}, {
+  value: 'sm',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('SM', 'bsx-blocks')
+}, {
+  value: 'md',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('MD', 'bsx-blocks')
+}, {
+  value: 'lg',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('LG', 'bsx-blocks')
+}, {
+  value: 'xl',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('XL', 'bsx-blocks')
+}, {
+  value: 'xxl',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('XXL', 'bsx-blocks')
+}];
 const breakpointsWithUnset = [{
   value: '',
   label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('– unset –', 'bsx-blocks')
+}, ...breakpoints];
+const numericBreakpoints = [{
+  value: 0,
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('XS (default)', 'bsx-blocks')
 }, {
-  value: 'xs',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Default (XS up)', 'bsx-blocks')
+  value: 1,
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('SM', 'bsx-blocks')
 }, {
-  value: 'sm',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('SM up', 'bsx-blocks')
+  value: 2,
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('MD', 'bsx-blocks')
 }, {
-  value: 'md',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('MD up', 'bsx-blocks')
+  value: 3,
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('LG', 'bsx-blocks')
 }, {
-  value: 'lg',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('LG up', 'bsx-blocks')
+  value: 4,
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('XL', 'bsx-blocks')
 }, {
-  value: 'xl',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('XL up', 'bsx-blocks')
+  value: 5,
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('XXL', 'bsx-blocks')
 }];
-const marginPaddingPositions = [{
-  value: '',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('– unset –', 'bsx-blocks')
-}, {
+const marginPaddingPositions = [
+// { value: '', label: __('– unset –', 'bsx-blocks') },
+{
   value: 'all',
   label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('All', 'bsx-blocks')
 }, {
   value: 't',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Before', 'bsx-blocks')
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('↑ before', 'bsx-blocks')
 }, {
   value: 'b',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('After', 'bsx-blocks')
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('↓ after', 'bsx-blocks')
 }, {
-  value: '2',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Y (before & after)', 'bsx-blocks')
+  value: 'y',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('↕ Y (before & after)', 'bsx-blocks')
 }, {
-  value: '3',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Left', 'bsx-blocks')
+  value: 'l',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('← left', 'bsx-blocks')
 }, {
-  value: '4',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Right', 'bsx-blocks')
+  value: 'r',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('→ right', 'bsx-blocks')
 }, {
-  value: '5',
-  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('X (left & right)', 'bsx-blocks')
+  value: 'x',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('↔ X (left & right)', 'bsx-blocks')
 }];
 const states = [{
   value: '',
@@ -986,6 +1176,369 @@ const idInput = (value, onChangeFunction) => {
 
 // selects
 
+const numericBreakpointsWithoutUnsetSelect = (value, onChangeFunction, allowedValues, sizeString) => {
+  const defaultValues = numericBreakpoints;
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Size', 'bsx-blocks') + (!!sizeString ? ' ' + sizeString : ''),
+    value: value,
+    onChange: onChangeFunction,
+    options: (0,_utilities_js__WEBPACK_IMPORTED_MODULE_3__.filterByAllowedValueKeys)(defaultValues, allowedValues)
+  });
+};
+const marginPaddingPositionsSelect = (value, onChangeFunction, allowedValues, sizeString) => {
+  const defaultValues = marginPaddingPositions;
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Position', 'bsx-blocks') + (!!sizeString ? ' ' + sizeString : ''),
+    value: value,
+    onChange: onChangeFunction,
+    options: (0,_utilities_js__WEBPACK_IMPORTED_MODULE_3__.filterByAllowedValueKeys)(defaultValues, allowedValues)
+  });
+};
+const marginSizesSelect = (value, onChangeFunction, allowedValues, sizeString) => {
+  const defaultValues = marginSizes;
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Size', 'bsx-blocks') + (!!sizeString ? ' ' + sizeString : ''),
+    value: value,
+    onChange: onChangeFunction,
+    options: (0,_utilities_js__WEBPACK_IMPORTED_MODULE_3__.filterByAllowedValueKeys)(defaultValues, allowedValues)
+  });
+};
+
+// Neue Responsive Margin/Padding Control für das neue Schema
+// obj: { sm: [top, right, bottom, left], md: [...], ... }
+
+const respSpacingControl = (spacingObj, onChangeFunction, label = 'Spacing') => {
+  // Order of all breakpoints
+  // Position labels
+  const positionLabels = [(0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('↑ Top', 'bsx-blocks'), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('→ Right', 'bsx-blocks'), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('↓ Bottom', 'bsx-blocks'), (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('← Left', 'bsx-blocks')];
+
+  // Active breakpoints: XS always, others only if present
+  const activeBreakpoints = ['xs', ...allBreakpoints.filter(bp => bp !== 'xs' && spacingObj[bp])];
+  // FFor Add-Select: Breakpoints that are not yet present
+  const availableBreakpoints = allBreakpoints.filter(bp => bp !== 'xs' && !spacingObj[bp]);
+
+  // Handler for changing a value
+  const handleChange = (bp, posIdx, newValue) => {
+    const newObj = {
+      ...spacingObj
+    };
+    const arr = Array.isArray(newObj[bp]) ? [...newObj[bp]] : ['', '', '', ''];
+    arr[posIdx] = newValue;
+    newObj[bp] = arr;
+    onChangeFunction(newObj);
+  };
+
+  // Handler for adding a new breakpoint
+  const handleAddBreakpoint = bp => {
+    const newObj = {
+      ...spacingObj
+    };
+    newObj[bp] = ['', '', '', ''];
+    onChangeFunction(newObj);
+  };
+
+  // Handler for removing a breakpoint
+  const handleRemoveBreakpoint = bp => {
+    const newObj = {
+      ...spacingObj
+    };
+    if (bp === 'xs') {
+      newObj['xs'] = ['', '', '', ''];
+    } else {
+      delete newObj[bp];
+    }
+    onChangeFunction(newObj);
+  };
+
+  // Matrix layout for 4 directions:
+  //      Top
+  // Left     Right
+  //      Bottom
+
+  // TODO: Style with CSS classes – remove inline styles then
+  const selectWidth = 'calc(50% - 2px)';
+  const emptySelectOpacity = 0.5;
+
+  // Check if label contains lowercase 'margin' to decide which sizes to use
+  const propertySizes = label.toLowerCase().indexOf('margin') !== -1 ? marginSizes : paddingSizes;
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.PanelBody, {
+    title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)(label, 'bsx-blocks'),
+    children: [activeBreakpoints.map(bp => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      className: "bsxui-resp-property-control",
+      style: {
+        marginBottom: '1em',
+        borderBottom: '1px solid #eee',
+        paddingBottom: '0.5em',
+        position: 'relative'
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        className: "bsxui-resp-property-control-header",
+        style: {
+          position: 'absolute',
+          top: '0',
+          left: '0',
+          right: '0',
+          fontWeight: 'bold',
+          marginBottom: '0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+          className: "bsxui-resp-property-control-label",
+          children: bp.toUpperCase()
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
+          isDestructive: true,
+          onClick: () => handleRemoveBreakpoint(bp),
+          title: bp === 'xs' ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Clear values', 'bsx-blocks') : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Remove interval', 'bsx-blocks'),
+          className: "bsxui-header-delete-btn components-button is-secondary is-destructive bsxui-icon-btn delete-btn",
+          style: {
+            padding: '.5em',
+            lineHeight: '.75em',
+            height: 'auto',
+            fontSize: '1em'
+          },
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+            "aria-hidden": "true",
+            children: bp === 'xs' ? '⟲' : '×'
+          })
+        })]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        className: "bsxui-resp-property-control-body has-border-bottom",
+        style: {
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+          className: "bsxui-resp-spacing-control-item",
+          style: {
+            width: selectWidth,
+            margin: '0 auto',
+            opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][0] === '' ? emptySelectOpacity : 1
+          },
+          title: positionLabels[0],
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+            value: Array.isArray(spacingObj[bp]) ? spacingObj[bp][0] || '' : '',
+            onChange: val => handleChange(bp, 0, val),
+            options: propertySizes
+          })
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+          className: "bsxui-resp-spacing-control-row",
+          style: {
+            display: 'flex',
+            gap: '8px',
+            width: '100%',
+            justifyContent: 'space-between'
+          },
+          children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+            className: "bsxui-resp-spacing-control-item",
+            style: {
+              width: selectWidth,
+              opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][3] === '' ? emptySelectOpacity : 1
+            },
+            title: positionLabels[3],
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+              value: Array.isArray(spacingObj[bp]) ? spacingObj[bp][3] || '' : '',
+              onChange: val => handleChange(bp, 3, val),
+              options: propertySizes
+            })
+          }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+            className: "bsxui-resp-spacing-control-item",
+            style: {
+              width: selectWidth,
+              opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][1] === '' ? emptySelectOpacity : 1
+            },
+            title: positionLabels[1],
+            children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+              value: Array.isArray(spacingObj[bp]) ? spacingObj[bp][1] || '' : '',
+              onChange: val => handleChange(bp, 1, val),
+              options: propertySizes
+            })
+          })]
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+          className: "bsxui-resp-spacing-control-item",
+          style: {
+            width: selectWidth,
+            margin: '0 auto',
+            opacity: Array.isArray(spacingObj[bp]) && spacingObj[bp][2] === '' ? emptySelectOpacity : 1
+          },
+          title: positionLabels[2],
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+            value: Array.isArray(spacingObj[bp]) ? spacingObj[bp][2] || '' : '',
+            onChange: val => handleChange(bp, 2, val),
+            options: propertySizes
+          })
+        })]
+      })]
+    }, bp)), availableBreakpoints.length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+      className: "bsxui-resp-property-control-add-interval",
+      style: {
+        marginTop: '1em'
+      },
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Add interval', 'bsx-blocks'),
+        value: "",
+        options: [{
+          value: '',
+          label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('– select –', 'bsx-blocks')
+        }, ...availableBreakpoints.map(bp => ({
+          value: bp,
+          label: bp.toUpperCase()
+        }))],
+        onChange: val => val && handleAddBreakpoint(val)
+      })
+    })]
+  });
+};
+const allBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
+const textAlignOptions = [{
+  value: '',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('– unset –', 'bsx-blocks')
+}, {
+  value: 'left',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Left', 'bsx-blocks')
+}, {
+  value: 'center',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Center', 'bsx-blocks')
+}, {
+  value: 'right',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Right', 'bsx-blocks')
+}, {
+  value: 'justify',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Justify', 'bsx-blocks')
+}];
+const displayOptions = [{
+  value: '',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('– unset –', 'bsx-blocks')
+}, {
+  value: 'block',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Block', 'bsx-blocks')
+}, {
+  value: 'inline',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Inline', 'bsx-blocks')
+}, {
+  value: 'flex',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Flex', 'bsx-blocks')
+}, {
+  value: 'grid',
+  label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Grid', 'bsx-blocks')
+}];
+
+// Generic responsive property control
+const respPropertyControl = (propertyObj, onChangeFunction, label = 'Property', options) => {
+  // Select options by label if not provided
+  let usedOptions = options;
+  if (!usedOptions) {
+    const optLabel = label ? label.toLowerCase() : '';
+    if (optLabel.includes('text')) usedOptions = textAlignOptions;else if (optLabel.includes('display')) usedOptions = displayOptions;
+    // ...add more mappings as needed
+  }
+
+  // Aktive Breakpoints: XS immer, weitere nur wenn vorhanden
+  const activeBreakpoints = ['xs', ...allBreakpoints.filter(bp => bp !== 'xs' && propertyObj[bp] !== undefined)];
+  // Für Add-Select: Breakpoints, die noch nicht vorhanden sind
+  const availableBreakpoints = allBreakpoints.filter(bp => bp !== 'xs' && propertyObj[bp] === undefined);
+
+  // Handler für Wertänderung
+  const handleChange = (bp, newValue) => {
+    const newObj = {
+      ...propertyObj
+    };
+    newObj[bp] = newValue;
+    onChangeFunction(newObj);
+  };
+
+  // Handler für Hinzufügen eines neuen Intervalls
+  const handleAddBreakpoint = bp => {
+    const newObj = {
+      ...propertyObj
+    };
+    newObj[bp] = '';
+    onChangeFunction(newObj);
+  };
+
+  // Handler für Löschen eines Intervalls
+  const handleRemoveBreakpoint = bp => {
+    const newObj = {
+      ...propertyObj
+    };
+    if (bp === 'xs') {
+      newObj['xs'] = '';
+    } else {
+      delete newObj[bp];
+    }
+    onChangeFunction(newObj);
+  };
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.PanelBody, {
+    title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)(label, 'bsx-blocks'),
+    children: [activeBreakpoints.map(bp => /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+      className: "bsxui-resp-property-control",
+      style: {
+        marginBottom: '1em',
+        position: 'relative'
+      },
+      children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsxs)("div", {
+        className: "bsxui-resp-property-control-header",
+        style: {
+          fontWeight: 'bold',
+          marginBottom: '0.5em',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        },
+        children: [/*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+          className: "bsxui-resp-property-control-label",
+          children: bp.toUpperCase()
+        }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.Button, {
+          isDestructive: true,
+          onClick: () => handleRemoveBreakpoint(bp),
+          title: bp === 'xs' ? (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Clear value', 'bsx-blocks') : (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Remove interval', 'bsx-blocks'),
+          className: "bsxui-header-delete-btn components-button is-secondary is-destructive bsxui-icon-btn delete-btn",
+          style: {
+            padding: '.5em',
+            lineHeight: '.75em',
+            height: 'auto',
+            fontSize: '1em'
+          },
+          children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("span", {
+            "aria-hidden": "true",
+            children: bp === 'xs' ? '⟲' : '×'
+          })
+        })]
+      }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+        className: "bsxui-resp-property-control-body",
+        style: {
+          width: '100%'
+        },
+        title: label + ' ' + bp.toUpperCase(),
+        children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+          value: propertyObj[bp] || '',
+          onChange: val => handleChange(bp, val),
+          options: usedOptions
+        })
+      })]
+    }, bp)), availableBreakpoints.length > 0 && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)("div", {
+      className: "bsxui-resp-property-control-add-interval has-border-top",
+      style: {
+        paddingTop: '.5em',
+        borderTop: '1px solid #eee'
+      },
+      children: /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+        label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Add interval', 'bsx-blocks'),
+        value: "",
+        options: [{
+          value: '',
+          label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('– select –', 'bsx-blocks')
+        }, ...availableBreakpoints.map(bp => ({
+          value: bp,
+          label: bp.toUpperCase()
+        }))],
+        onChange: val => val && handleAddBreakpoint(val)
+      })
+    })]
+  });
+};
 const stateSelect = (value, onChangeFunction, allowedValues) => {
   const defaultValues = states;
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
@@ -1360,7 +1913,7 @@ const bgSizeSelect = (value, onChangeFunction, allowedValues) => {
 };
 const bannerTypeSelect = (value, onChangeFunction, allowedValues) => {
   const defaultValues = [{
-    value: '',
+    value: 'h',
     label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Fix height', 'bsx-blocks')
   }, {
     value: 'vh',
@@ -1374,7 +1927,7 @@ const bannerTypeSelect = (value, onChangeFunction, allowedValues) => {
     value: value,
     onChange: onChangeFunction,
     options: (0,_utilities_js__WEBPACK_IMPORTED_MODULE_3__.filterByAllowedValueKeys)(defaultValues, allowedValues),
-    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Viewport dependant height will be e.g. all viewport height or viewport height - ? pixels. Static height instead depends only on the banners contents.', 'bsx-blocks')
+    help: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Viewport dependant: all viewport height – Static height: no height, depends on contents', 'bsx-blocks')
   });
 };
 const bannerSizeSelect = (value, onChangeFunction, allowedValues) => {
@@ -1808,6 +2361,24 @@ const zIndexSelect = (value, onChangeFunction, allowedValues) => {
   }];
   return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
     label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Z-Index', 'bsx-blocks'),
+    value: value,
+    onChange: onChangeFunction,
+    options: (0,_utilities_js__WEBPACK_IMPORTED_MODULE_3__.filterByAllowedValueKeys)(defaultValues, allowedValues)
+  });
+};
+const textColumnSelect = (value, onChangeFunction, allowedValues) => {
+  const defaultValues = [{
+    value: '',
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('– unset –', 'bsx-blocks')
+  }, {
+    value: '2',
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('2', 'bsx-blocks')
+  }, {
+    value: '3',
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('3', 'bsx-blocks')
+  }];
+  return /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_4__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.SelectControl, {
+    label: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Text columns', 'bsx-blocks'),
     value: value,
     onChange: onChangeFunction,
     options: (0,_utilities_js__WEBPACK_IMPORTED_MODULE_3__.filterByAllowedValueKeys)(defaultValues, allowedValues)
@@ -4018,7 +4589,7 @@ const getFileName = filePath => {
   \*******************************/
 /***/ ((module) => {
 
-module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"bsx-blocks/banner","version":"0.1.0","title":"BSX Banner","category":"layout","description":"Image or color background banner e.g. for header of Page.","example":{},"attributes":{"nodeName":{"type":"string","default":"div"},"templateName":{"type":"string"},"belowNavbar":{"type":"boolean","default":false},"touchFooter":{"type":"boolean","default":false},"bgColor":{"type":"string"},"imgId":{"type":"number"},"imgSizes":{"type":"array","default":[]},"imgData":{"type":"array","default":[]},"sizeIndex":{"type":"string","default":"6"},"alt":{"type":"string","selector":"img","source":"attribute","attribute":"alt"},"priority":{"type":"boolean","default":false},"url":{"type":"string"},"portraitImgId":{"type":"number"},"portraitImgSizes":{"type":"array","default":[]},"portraitImgData":{"type":"array","default":[]},"portraitSizeIndex":{"type":"string","default":"3"},"bannerType":{"type":"string","default":"vh"},"bannerSize":{"type":"string","default":"2"},"bgAttachment":{"type":"string","default":"fixed"},"bgAttachmentFixedLimited":{"type":"boolean"},"bgSize":{"type":"string","default":"cover"},"bgPosition":{"type":"string","default":"c"},"alignItems":{"type":"string","default":"center"},"rounded":{"type":"boolean"},"marginBefore":{"type":"string","default":""},"marginAfter":{"type":"string","default":""},"paddingBefore":{"type":"string","default":""},"paddingAfter":{"type":"string","default":""},"href":{"type":"string"},"target":{"type":"string"},"rel":{"type":"string"},"dataFn":{"type":"string"},"disableResponsiveDownsizing":{"type":"boolean"},"multilayer":{"type":"string"}},"supports":{"html":false,"className":false},"textdomain":"bsx-blocks","editorScript":"file:./index.js","editorStyle":"file:./index.css"}');
+module.exports = /*#__PURE__*/JSON.parse('{"$schema":"https://schemas.wp.org/trunk/block.json","apiVersion":3,"name":"bsx-blocks/banner","version":"0.1.0","title":"BSX Banner","category":"layout","description":"Image or color background banner e.g. for header of Page.","example":{},"attributes":{"nodeName":{"type":"string","default":"div"},"templateName":{"type":"string"},"bgColor":{"type":"string"},"imgId":{"type":"number"},"imgSizes":{"type":"array","default":[]},"imgData":{"type":"array","default":[]},"sizeIndex":{"type":"string","default":"6"},"alt":{"type":"string","selector":"img","source":"attribute","attribute":"alt"},"priority":{"type":"boolean","default":false},"url":{"type":"string"},"portraitImgId":{"type":"number"},"portraitImgSizes":{"type":"array","default":[]},"portraitImgData":{"type":"array","default":[]},"portraitSizeIndex":{"type":"string","default":"3"},"bannerType":{"type":"string","default":"h"},"bannerSize":{"type":"string","default":"2"},"bgAttachment":{"type":"string","default":"fixed"},"bgAttachmentFixedLimited":{"type":"boolean"},"bgSize":{"type":"string","default":"cover"},"bgPosition":{"type":"string","default":"c"},"alignItems":{"type":"string","default":"center"},"rounded":{"type":"boolean"},"marginBefore":{"type":"string","default":""},"marginAfter":{"type":"string","default":""},"paddingBefore":{"type":"string","default":""},"paddingAfter":{"type":"string","default":""},"href":{"type":"string"},"target":{"type":"string"},"rel":{"type":"string"},"dataFn":{"type":"string"},"disableResponsiveDownsizing":{"type":"boolean"},"multilayer":{"type":"string"}},"supports":{"html":false,"className":false},"textdomain":"bsx-blocks","editorScript":"file:./index.js","editorStyle":"file:./index.css"}');
 
 /***/ }),
 
@@ -4166,16 +4737,14 @@ function Edit({
       nodeName: value
     });
   };
-  const onChangeBelowNavbar = value => {
-    setAttributes({
-      belowNavbar: value
-    });
-  };
-  const onChangeTouchFooter = value => {
-    setAttributes({
-      touchFooter: value
-    });
-  };
+
+  // const onChangeBelowNavbar = ( value ) => {
+  //     setAttributes( { belowNavbar: value } );
+  // };
+  // const onChangeTouchFooter = ( value ) => {
+  //     setAttributes( { touchFooter: value } );
+  // };
+
   const onChangeBgColor = value => {
     setAttributes({
       bgColor: value
@@ -4265,16 +4834,13 @@ function Edit({
       bannerSize: value
     });
   };
-  const onChangeBgAttachment = value => {
-    setAttributes({
-      bgAttachment: value
-    });
-  };
-  const onChangeBgAttachmentFixedLimited = value => {
-    setAttributes({
-      bgAttachmentFixedLimited: value
-    });
-  };
+
+  // const onChangeBgAttachment = ( value ) => {
+  //     setAttributes( { bgAttachment: value } );
+  // };
+  // const onChangeBgAttachmentFixedLimited = ( value ) => {
+  //     setAttributes( { bgAttachmentFixedLimited: value } );
+  // };
   const onChangeBgSize = value => {
     setAttributes({
       bgSize: value
@@ -4401,7 +4967,7 @@ function Edit({
     bannerType,
     bannerSize,
     bgAttachment,
-    bgAttachmentFixedLimited,
+    // bgAttachmentFixedLimited,
     bgSize,
     bgPosition,
     alignItems,
@@ -4410,10 +4976,10 @@ function Edit({
     templateName,
     rounded,
     href
-  }, 'position-relative');
+  }, 'banner position-relative');
   bannerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_4__.addClassNames)({
-    belowNavbar,
-    touchFooter,
+    // belowNavbar,
+    // touchFooter,
     bgColor,
     rounded,
     marginBefore,
@@ -4423,7 +4989,8 @@ function Edit({
     multilayer
   }, bannerClassName);
   let bannerInnerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_4__.addClassNames)({
-    isBannerInner: true
+    isBannerInner: true,
+    alignItems
   });
   if (!!templateName && templateName == 'column-row-banner') {
     bannerInnerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_4__.addClassNames)({
@@ -4608,8 +5175,8 @@ function Edit({
         })]
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.PanelBody, {
         title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Banner dimensions', 'bsx-blocks'),
-        children: [(0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.bannerTypeSelect)(bannerType, onChangeBannerType), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.bannerSizeSelect)(bannerSize, onChangeBannerSize), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.bgAttachmentSelect)(bgAttachment, onChangeBgAttachment), bgAttachment === 'fixed' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.Fragment, {
-          children: (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.bgAttachmentFixedLimitedToggle)(bgAttachmentFixedLimited, onChangeBgAttachmentFixedLimited)
+        children: [(0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.bannerTypeSelect)(bannerType, onChangeBannerType), bannerType !== 'vh' && bannerType !== 'st' && /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.Fragment, {
+          children: (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.bannerSizeSelect)(bannerSize, onChangeBannerSize)
         }), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.alignItemsSelect)(alignItems, onChangeAlignItems, ['', 'center', 'end'], templateName == 'column-row-banner'), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.alignItemsSelect)(smAlignItems, onChangeSmAlignItems, ['', 'center', 'end'], templateName == 'column-row-banner', 'SM'), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.alignItemsSelect)(mdAlignItems, onChangeMdAlignItems, ['', 'center', 'end'], templateName == 'column-row-banner', 'MD'), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.roundedToggle)(rounded, onChangeRounded)]
       }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsx)(_wordpress_components__WEBPACK_IMPORTED_MODULE_2__.PanelBody, {
         title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Background', 'bsx-blocks'),
@@ -4622,7 +5189,7 @@ function Edit({
         children: [(0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.linkUrlInput)(href, onChangeHref), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.targetToggle)(target, onChangeTarget), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.relInput)(rel, onChangeRel), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.dataFnInput)(dataFn, onChangeDataFn)]
       })]
     }), /*#__PURE__*/(0,react_jsx_runtime__WEBPACK_IMPORTED_MODULE_12__.jsxs)(_wordpress_block_editor__WEBPACK_IMPORTED_MODULE_1__.InspectorAdvancedControls, {
-      children: [(0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.belowNavbarToggle)(belowNavbar, onChangeBelowNavbar), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.touchFooterToggle)(touchFooter, onChangeTouchFooter), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.nodeNameSelect)(nodeName, onChangeNodeName, ['div', 'section']), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.bgPositionSelect)(bgPosition, onChangeBgPosition), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.bgSizeSelect)(bgSize, onChangeBgSize), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.paddingBeforeSelect)(paddingBefore, onChangePaddingBefore), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.paddingAfterSelect)(paddingAfter, onChangePaddingAfter), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.disableResponsiveDownsizingToggle)(disableResponsiveDownsizing, onChangeDisableResponsiveDownsizing), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.multilayerSelect)(multilayer, onChangeMultilayer)]
+      children: [(0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.nodeNameSelect)(nodeName, onChangeNodeName, ['div', 'section']), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.bgPositionSelect)(bgPosition, onChangeBgPosition), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.bgSizeSelect)(bgSize, onChangeBgSize), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.paddingBeforeSelect)(paddingBefore, onChangePaddingBefore), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.paddingAfterSelect)(paddingAfter, onChangePaddingAfter), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.disableResponsiveDownsizingToggle)(disableResponsiveDownsizing, onChangeDisableResponsiveDownsizing), (0,_functions_controls_js__WEBPACK_IMPORTED_MODULE_8__.multilayerSelect)(multilayer, onChangeMultilayer)]
     })]
   });
 
@@ -4630,7 +5197,7 @@ function Edit({
   // console.log( 'template[ 0 ][ 1 ].isBannerInner: ' + JSON.stringify( template[ 0 ][ 1 ].isBannerInner, null, 2 ) );
 
   const tmpBannerStyle = {
-    minHeight: '50vh'
+    minHeight: '0'
   };
 
   // add class names to blockProps
@@ -4796,8 +5363,8 @@ function save({
   const {
     nodeName,
     templateName,
-    belowNavbar,
-    touchFooter,
+    // belowNavbar,
+    // touchFooter,
     bgColor,
     // imgId,
     imgData,
@@ -4809,7 +5376,7 @@ function save({
     bannerType,
     bannerSize,
     bgAttachment,
-    bgAttachmentFixedLimited,
+    // bgAttachmentFixedLimited,
     bgSize,
     bgPosition,
     alignItems,
@@ -4838,7 +5405,7 @@ function save({
     bannerType,
     bannerSize,
     bgAttachment,
-    bgAttachmentFixedLimited,
+    // bgAttachmentFixedLimited,
     bgSize,
     bgPosition,
     alignItems,
@@ -4847,10 +5414,10 @@ function save({
     templateName,
     rounded,
     href
-  }, 'position-relative');
+  }, 'banner position-relative');
   bannerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_1__.addClassNames)({
-    belowNavbar,
-    touchFooter,
+    // belowNavbar, 
+    // touchFooter,
     bgColor,
     rounded,
     marginBefore,
@@ -4860,7 +5427,8 @@ function save({
     multilayer
   }, bannerClassName);
   let bannerInnerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_1__.addClassNames)({
-    isBannerInner: true
+    isBannerInner: true,
+    alignItems
   });
   if (!!templateName && templateName == 'column-row-banner') {
     bannerInnerClassName = (0,_functions_add_class_names_js__WEBPACK_IMPORTED_MODULE_1__.addClassNames)({
@@ -4945,8 +5513,7 @@ function save({
 
   // There might be no images at all, e.g. if background color banner
   const saveAttributes = (0,_functions_attributes_js__WEBPACK_IMPORTED_MODULE_2__.makeSaveAttributes)({
-    style: 'min-height: 50vh;',
-    // TODO: Replace by height classes if implemented
+    // style: 'min-height: 50vh;', // TODO: Replace by height classes if implemented
     href: href,
     target: target,
     rel: href ? rel ? rel + ' noopener noreferrer' : 'noopener noreferrer' : ''
@@ -4993,7 +5560,9 @@ const templates = [{
   title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Empty', 'bsx-blocks'),
   icon: _functions_icon_js__WEBPACK_IMPORTED_MODULE_1__.bannerEmpty,
   attributes: {
-    marginAfter: '5'
+    margin: {
+      xs: ["", "", "", "5"]
+    }
   },
   template: [['core/paragraph', {
     placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Change paragraph text or delete...', 'bsx-blocks')
@@ -5004,14 +5573,18 @@ const templates = [{
   title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Container with Heading', 'bsx-blocks'),
   icon: _functions_icon_js__WEBPACK_IMPORTED_MODULE_1__.bannerContainerWithHeading,
   attributes: {
-    marginAfter: '5'
+    margin: {
+      xs: ["", "", "", "5"]
+    }
   },
   template: [['bsx-blocks/container', {}, [['core/heading', {
     level: 1,
     textSize: 'display-1',
     textColor: 'white',
     textShadow: 'darker',
-    marginAfter: '0'
+    margin: {
+      xs: ["", "", "", "0"]
+    }
   }]]]],
   templateLock: false
 }, {
@@ -5021,14 +5594,18 @@ const templates = [{
   attributes: {
     bannerType: 'st',
     bannerSize: '3',
-    marginAfter: '5'
+    margin: {
+      xs: ["", "", "", "5"]
+    }
   },
   template: [['bsx-blocks/container', {}, [['core/heading', {
     level: 1,
     textSize: 'display-1',
     textColor: 'white',
     textShadow: 'darker',
-    marginAfter: '0'
+    margin: {
+      xs: ["", "", "", "0"]
+    }
   }]]]],
   templateLock: false
 }, {
@@ -5036,7 +5613,9 @@ const templates = [{
   title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Bottom bar Banner', 'bsx-blocks'),
   icon: _functions_icon_js__WEBPACK_IMPORTED_MODULE_1__.bannerBottomBarContainerHeading,
   attributes: {
-    marginAfter: '5'
+    margin: {
+      xs: ["", "", "", "5"]
+    }
   },
   template: [['bsx-blocks/column-rows', {
     templateName: 'default-auto',
@@ -5054,7 +5633,9 @@ const templates = [{
     textSize: 'display-1',
     textColor: 'white',
     textShadow: 'darker',
-    marginAfter: '0'
+    margin: {
+      xs: ["", "", "", "0"]
+    }
   }]]]]]]], ['bsx-blocks/column-row', {
     columnRowType: 'auto'
   }, [['bsx-blocks/wrapper', {
@@ -5065,7 +5646,9 @@ const templates = [{
     placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Add text...', 'bsx-blocks'),
     textSize: 'lead',
     textColor: 'white',
-    marginAfter: '0'
+    margin: {
+      xs: ["", "", "", "0"]
+    }
   }]]]]]]]]]],
   templateLock: false
 }, {
@@ -5073,7 +5656,9 @@ const templates = [{
   title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Heading Text Banner', 'bsx-blocks'),
   icon: _functions_icon_js__WEBPACK_IMPORTED_MODULE_1__.bannerContainerHeadingText,
   attributes: {
-    marginAfter: '5',
+    margin: {
+      xs: ["", "", "", "5"]
+    },
     bannerSize: '1',
     belowNavbar: true
   },
@@ -5084,7 +5669,9 @@ const templates = [{
     headingInheritFontWeight: true,
     textColor: 'white',
     textAlign: 'center',
-    marginAfter: '4'
+    margin: {
+      xs: ["", "", "", "4"]
+    }
   }, [['core/heading', {
     level: 1,
     textSize: 'display-1'
@@ -5105,7 +5692,9 @@ const templates = [{
   title: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Heading Text Button Color Banner', 'bsx-blocks'),
   icon: _functions_icon_js__WEBPACK_IMPORTED_MODULE_1__.bannerHeadingTextButtonColor,
   attributes: {
-    marginAfter: '5',
+    margin: {
+      xs: ["", "", "", "5"]
+    },
     bannerType: 'st',
     bgColor: 'primary',
     bannerSize: '2',
@@ -5116,14 +5705,18 @@ const templates = [{
     headingInheritTextColor: true,
     textAlign: 'center'
   }, [['core/heading', {
-    marginAfter: '0',
+    margin: {
+      xs: ["", "", "", "0"]
+    },
     level: 1
   }]]], ['bsx-blocks/wrapper', {
     textSize: 'lead',
     inverseTextColor: true,
     headingInheritTextColor: true,
     textAlign: 'center',
-    marginBefore: 4,
+    margin: {
+      xs: ["", "", "", "4"]
+    },
     paddingAfter: 3
   }, [['core/paragraph', {
     placeholder: (0,_wordpress_i18n__WEBPACK_IMPORTED_MODULE_0__.__)('Add text...', 'bsx-blocks')
@@ -5149,9 +5742,7 @@ const templates = [{
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   makeBannerClassNames: () => (/* binding */ makeBannerClassNames),
-/* harmony export */   makeBannerInnerClassNames: () => (/* binding */ makeBannerInnerClassNames),
-/* harmony export */   makeSrcsetJson: () => (/* binding */ makeSrcsetJson)
+/* harmony export */   makeBannerClassNames: () => (/* binding */ makeBannerClassNames)
 /* harmony export */ });
 const makeBannerClassNames = (attributes, className) => {
   const {
@@ -5170,8 +5761,14 @@ const makeBannerClassNames = (attributes, className) => {
   } = attributes;
   const classNames = className ? [className] : [];
   if (!!bannerType) {
-    // always set bannerType and bannerSize to keep debugging easy
-    classNames.push('banner-' + bannerType + '-' + bannerSize);
+    if (bannerType === 'st') {
+      // Do nothing, static height needs no class name.
+    } else if (bannerType === 'vh') {
+      // Multiple viewport dependent heights have been dropped out, remaining only full height `banner-vh`.
+      classNames.push('banner-' + bannerType);
+    } else {
+      classNames.push('banner-' + bannerType + '-' + bannerSize);
+    }
   } else {
     classNames.push('banner-' + bannerSize);
   }
@@ -5223,71 +5820,83 @@ const makeBannerClassNames = (attributes, className) => {
   }
   return classNames.join(' ');
 };
-const makeBannerInnerClassNames = (attributes, className) => {
-  const {
-    templateName
-  } = attributes;
-  const classNames = ['banner-inner', ...(className ? [className] : [])];
-  if (!!templateName && templateName == 'column-row-banner') {
-    classNames.push('w-100');
-    classNames.push('d-flex');
-    classNames.push('flex-column');
-  }
-  return classNames.join(' ');
-};
 
-// responsive sizes
-const responsivePortraitMediaIndexList = [{
-  media: '(orientation: portrait) and (max-width: 499.98px)',
-  imgSizeIndexShift: '-1'
-}, {
-  media: '(orientation: portrait)',
-  imgSizeIndexShift: '0'
-}];
-const responsiveMediaIndexList = [{
-  media: '(max-width: 999.98px)',
-  imgSizeIndexShift: '-3'
-}, {
-  media: '(max-width: 1399.98px)',
-  imgSizeIndexShift: '-2'
-}];
-const skipIndex = 0;
-const makeSrcsetJson = attributes => {
-  const {
-    calcImgSizes,
-    imgSizeIndex,
-    calcPortraitImgSizes,
-    portraitSizeIndex,
-    disableResponsiveDownsizing
-  } = attributes;
+// export const makeBannerInnerClassNames = (attributes, className) => {
 
-  // srcsetJson = "[ { media: '" + mobileMediaQuery + "', src: '" + url + "' }, { media: '" + smallMobileMediaQuery + "', src: '" + calcImgSizes[ ( imgSizeIndex - mobileSizeStep > 0 ? imgSizeIndex - mobileSizeStep : 0 ) ].url + "' }, { media: '', src: '" + calcImgSizes[ ( imgSizeIndex - smallMobileSizeStep > 0 ? imgSizeIndex - smallMobileSizeStep : 0 ) ].url + "' } ]";
-  let srcsetJson = '[ ';
-  responsivePortraitMediaIndexList.forEach((item, index) => {
-    // add item if img resulting indes > skipIndex (no square format)
-    if (!disableResponsiveDownsizing || index == 0) {
-      // always add 1st item, others only if downsizing is enabled
-      const currentPortraitImgSizeIndex = parseInt(portraitSizeIndex) + parseInt(item.imgSizeIndexShift);
-      if (typeof calcPortraitImgSizes !== 'undefined' && currentPortraitImgSizeIndex > skipIndex && currentPortraitImgSizeIndex < calcPortraitImgSizes.length) {
-        srcsetJson += '{ media: \'' + item.media + '\', src: \'' + calcPortraitImgSizes[currentPortraitImgSizeIndex].url + '\' }, ';
-      }
-    }
-  });
-  if (!disableResponsiveDownsizing) {
-    responsiveMediaIndexList.forEach((item, index) => {
-      // add item if img resulting indes > skipIndex (no square format)
-      const currentImgSizeIndex = parseInt(imgSizeIndex) + parseInt(item.imgSizeIndexShift);
-      if (currentImgSizeIndex > skipIndex && currentImgSizeIndex < calcImgSizes.length) {
-        srcsetJson += '{ media: \'' + item.media + '\', src: \'' + calcImgSizes[currentImgSizeIndex].url + '\' }, ';
-      }
-    });
-  }
-  if (srcsetJson.lastIndexOf(', ') == srcsetJson.length - 2) {
-    srcsetJson = srcsetJson.substring(0, srcsetJson.length - 2);
-  }
-  srcsetJson += ' ]';
-  return srcsetJson;
-};
+//     const {
+//         templateName,
+//     } = attributes;
+
+//     const classNames = ['banner-inner', ...(className ? [className] : [])];
+
+//     if (!!templateName && templateName == 'column-row-banner') {
+//         classNames.push('w-100');
+//         classNames.push('d-flex');
+//         classNames.push('flex-column');
+//     }
+
+//     return classNames.join(' ');
+// }
+
+// // responsive sizes
+// const responsivePortraitMediaIndexList = [
+//     {
+//         media: '(orientation: portrait) and (max-width: 499.98px)',
+//         imgSizeIndexShift: '-1',
+//     },
+//     {
+//         media: '(orientation: portrait)',
+//         imgSizeIndexShift: '0',
+//     },
+// ];
+// const responsiveMediaIndexList = [
+//     {
+//         media: '(max-width: 999.98px)',
+//         imgSizeIndexShift: '-3',
+//     },
+//     {
+//         media: '(max-width: 1399.98px)',
+//         imgSizeIndexShift: '-2',
+//     },
+// ];
+// const skipIndex = 0;
+// export const makeSrcsetJson = (attributes) => {
+
+//     const { 
+//         calcImgSizes, 
+//         imgSizeIndex, 
+//         calcPortraitImgSizes, 
+//         portraitSizeIndex, 
+//         disableResponsiveDownsizing,
+//     } = attributes;
+
+//     // srcsetJson = "[ { media: '" + mobileMediaQuery + "', src: '" + url + "' }, { media: '" + smallMobileMediaQuery + "', src: '" + calcImgSizes[ ( imgSizeIndex - mobileSizeStep > 0 ? imgSizeIndex - mobileSizeStep : 0 ) ].url + "' }, { media: '', src: '" + calcImgSizes[ ( imgSizeIndex - smallMobileSizeStep > 0 ? imgSizeIndex - smallMobileSizeStep : 0 ) ].url + "' } ]";
+//     let srcsetJson = '[ ';
+//     responsivePortraitMediaIndexList.forEach( ( item, index ) => {
+//         // add item if img resulting indes > skipIndex (no square format)
+//         if (! disableResponsiveDownsizing || index == 0) {
+//             // always add 1st item, others only if downsizing is enabled
+//             const currentPortraitImgSizeIndex = ( parseInt( portraitSizeIndex ) + parseInt( item.imgSizeIndexShift ));
+//             if (typeof calcPortraitImgSizes !== 'undefined' && currentPortraitImgSizeIndex > skipIndex && currentPortraitImgSizeIndex < calcPortraitImgSizes.length) {
+//                 srcsetJson += '{ media: \'' + item.media + '\', src: \'' + calcPortraitImgSizes[ currentPortraitImgSizeIndex ].url + '\' }, ';
+//             }
+//         }
+//     });
+//     if (! disableResponsiveDownsizing) {
+//         responsiveMediaIndexList.forEach( ( item, index ) => {
+//             // add item if img resulting indes > skipIndex (no square format)
+//             const currentImgSizeIndex = ( parseInt( imgSizeIndex ) + parseInt( item.imgSizeIndexShift ));
+//             if (currentImgSizeIndex > skipIndex && currentImgSizeIndex < calcImgSizes.length) {
+//                 srcsetJson += '{ media: \'' + item.media + '\', src: \'' + calcImgSizes[ currentImgSizeIndex ].url + '\' }, ';
+//             }
+//         });
+//     }
+//     if (srcsetJson.lastIndexOf( ', ' ) == srcsetJson.length - 2) {
+//         srcsetJson = srcsetJson.substring( 0, srcsetJson.length - 2);
+//     }
+//     srcsetJson += ' ]';
+//     return srcsetJson;
+// }
 
 /***/ }),
 

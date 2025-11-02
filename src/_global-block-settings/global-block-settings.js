@@ -29,6 +29,14 @@ import {
     // inverseTextColorToggle,
     // headingInheritTextColorToggle,
     // headingInheritFontWeightToggle,
+    // marginLeftSelect,
+    // marginRightSelect,
+    // marginBeforeSelect,
+    // marginAfterSelect,
+    // paddingBeforeSelect,
+    // paddingAfterSelect,
+    // paddingLeftSelect,
+    // paddingRightSelect,
     // bgColorSelect,
     // roundedToggle,
     // borderSelect,
@@ -74,6 +82,14 @@ export const addGlobalBlockSettings = createHigherOrderComponent( ( BlockEdit ) 
             fontWeight,
             textShadow,
             belowNavbar,
+            // marginBefore,
+            // marginAfter,
+            // marginLeft,
+            // marginRight,
+            // paddingBefore, 
+            // paddingAfter, 
+            // paddingLeft, 
+            // paddingRight,
             // additionaClassNames,
             // className,
             margin,
@@ -105,6 +121,14 @@ export const addGlobalBlockSettings = createHigherOrderComponent( ( BlockEdit ) 
             fontWeight,
             textShadow,
             belowNavbar,
+            // marginBefore,
+            // marginAfter,
+            // marginLeft,
+            // marginRight,
+            // paddingBefore, 
+            // paddingAfter, 
+            // paddingLeft, 
+            // paddingRight,
             margin,
             padding
         }, 'bsxui-core-block-wrapper' );
@@ -142,6 +166,32 @@ export const addGlobalBlockSettings = createHigherOrderComponent( ( BlockEdit ) 
         const onChangeBelowNavbar = ( value ) => {
             setAttributes( { belowNavbar: value } );
         };
+        
+        // const onChangeMarginBefore = ( value ) => {
+        //     setAttributes( { marginBefore: value } );
+        // };
+        // const onChangeMarginAfter = ( value ) => {
+        //     setAttributes( { marginAfter: value } );
+        // };
+        // const onChangeMarginLeft = ( value ) => {
+        //     setAttributes( { marginLeft: value } );
+        // };
+        // const onChangeMarginRight = ( value ) => {
+        //     setAttributes( { marginRight: value } );
+        // };
+
+        // const onChangePaddingBefore = ( value ) => {
+        //     setAttributes( { paddingBefore: value } );
+        // };
+        // const onChangePaddingAfter = ( value ) => {
+        //     setAttributes( { paddingAfter: value } );
+        // };
+        // const onChangePaddingLeft = ( value ) => {
+        //     setAttributes( { paddingLeft: value } );
+        // };
+        // const onChangePaddingRight = ( value ) => {
+        //     setAttributes( { paddingRight: value } );
+        // };
 
         // const onChangeAdditionaClassNames = ( value ) => {
         //     setAttributes( { additionaClassNames: value } );
@@ -294,6 +344,64 @@ export function addAttribute( settings ) {
                 },
             } );
         }
+    
+        // if ( typeof settings.attributes.marginBefore === 'undefined' ) {
+        //     settings.attributes = Object.assign( settings.attributes, {
+        //         marginBefore: { 
+        //             type: 'string',
+        //         }
+        //     } );
+        // }
+        // if ( typeof settings.attributes.marginAfter === 'undefined' ) {
+        //     settings.attributes = Object.assign( settings.attributes, {
+        //         marginAfter: { 
+        //             type: 'string',
+        //         }
+        //     } );
+        // }
+        // if ( typeof settings.attributes.marginLeft === 'undefined' ) {
+        //     settings.attributes = Object.assign( settings.attributes, {
+        //         marginLeft: { 
+        //             type: 'string',
+        //         }
+        //     } );
+        // }
+        // if ( typeof settings.attributes.marginRight === 'undefined' ) {
+        //     settings.attributes = Object.assign( settings.attributes, {
+        //         marginRight: { 
+        //             type: 'string',
+        //         }
+        //     } );
+        // }
+    
+        // if ( typeof settings.attributes.paddingBefore === 'undefined' ) {
+        //     settings.attributes = Object.assign( settings.attributes, {
+        //         paddingBefore: { 
+        //             type: 'string',
+        //         }
+        //     } );
+        // }
+        // if ( typeof settings.attributes.paddingAfter === 'undefined' ) {
+        //     settings.attributes = Object.assign( settings.attributes, {
+        //         paddingAfter: { 
+        //             type: 'string',
+        //         }
+        //     } );
+        // }
+        // if ( typeof settings.attributes.paddingLeft === 'undefined' ) {
+        //     settings.attributes = Object.assign( settings.attributes, {
+        //         paddingLeft: { 
+        //             type: 'string',
+        //         }
+        //     } );
+        // }
+        // if ( typeof settings.attributes.paddingRight === 'undefined' ) {
+        //     settings.attributes = Object.assign( settings.attributes, {
+        //         paddingRight: { 
+        //             type: 'string',
+        //         }
+        //     } );
+        // }
 
         if ( typeof settings.attributes.margin === 'undefined' ) {
             settings.attributes = Object.assign( settings.attributes, {
@@ -369,6 +477,14 @@ export function addSaveProps( extraProps, blockType, attributes ) {
         fontWeight,
         textShadow,
         belowNavbar,
+        // marginBefore,
+        // marginAfter,
+        // marginLeft,
+        // marginRight,
+        // paddingBefore, 
+        // paddingAfter, 
+        // paddingLeft, 
+        // paddingRight,
         // dataTest,
         // additionaClassNames,
         margin,
@@ -499,6 +615,14 @@ export function addSaveProps( extraProps, blockType, attributes ) {
             fontWeight,
             textShadow,
             belowNavbar,
+            // marginBefore,
+            // marginAfter,
+            // marginLeft,
+            // marginRight,
+            // paddingBefore, 
+            // paddingAfter, 
+            // paddingLeft, 
+            // paddingRight,
             margin,
             padding
         }, classNames.join( ' ' ) );
