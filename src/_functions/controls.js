@@ -569,7 +569,7 @@ export const marginSizesSelect = (value, onChangeFunction, allowedValues, sizeSt
 // Responsive Margin Control: Bearbeitet ein Array von Margin-Objekten
 import { Fragment } from 'react';
 
-export const responsivePositionPropertyControl = (propertyArray, onChangeFunction) => {
+export const responsivePositionPropertyControl = (propertyArray, onChangeFunction, propertyLabel) => {
     // propertyArray: [{ s, p, v }] -> size, position, value
     const handleChange = (index, key, newValue) => {
         const newArray = propertyArray.map((item, i) =>
@@ -584,7 +584,7 @@ export const responsivePositionPropertyControl = (propertyArray, onChangeFunctio
         onChangeFunction(propertyArray.filter((_, i) => i !== index));
     };
     return (
-        <PanelBody title={__('Responsive Margin', 'bsx-blocks')}>
+        <PanelBody title={propertyLabel ? propertyLabel : __('Property', 'bsx-blocks')}>
             {propertyArray.map((item, index) => (
                 // <div key={index} className="bsxui-flex-sols-4 bsxui-gap-xs">
                 <div key={index} style={{ display: 'flex', gap: '2px' }}>
@@ -607,8 +607,8 @@ export const responsivePositionPropertyControl = (propertyArray, onChangeFunctio
                     </div>
                 </div>
             ))}
-            <Button isPrimary onClick={handleAdd}>
-                {__('Add Margin', 'bsx-blocks')}
+            <Button className="is-secondary" onClick={handleAdd}>
+                {__('Add', 'bsx-blocks')} { propertyLabel ? propertyLabel : __('property', 'bsx-blocks') }
             </Button>
         </PanelBody>
     );

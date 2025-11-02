@@ -21,12 +21,9 @@ export default function save( { attributes } ) {
         belowNavbar,
         marginBefore,
         marginAfter,
-        paddingBefore,
-        paddingAfter,
-        paddingLeft,
-        paddingRight,
         sized,
         margin,
+		padding,
     } = attributes;
 
     let containerClassName = makeContainerClassNames( {
@@ -39,11 +36,8 @@ export default function save( { attributes } ) {
         belowNavbar, 
         marginBefore, 
         marginAfter, 
-        paddingBefore, 
-        paddingAfter,
-        paddingLeft,
-        paddingRight,
         margin,
+		padding,
     }, containerClassName );
 
 	return (

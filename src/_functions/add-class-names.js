@@ -122,6 +122,7 @@ export function addClassNames(attributes, classNamesString) {
         justifyContent,
         textColumns,
         margin,
+        padding,
     } = attributes;
 
     const classNames = (typeof classNamesString != 'undefined' && classNamesString.trim().length > 0) ? classNamesString.split(' ') : [];
@@ -182,11 +183,19 @@ export function addClassNames(attributes, classNamesString) {
 
     // Responsive margin – will replace all old margin... attributes.
 
-    // Responsive Margin Array auswerten
+    // Responsive margin Array
     if (margin && Array.isArray(margin)) {
         const responsiveMarginClasses = getResponsivePositionPropertyClasses('margin', margin);
         if (responsiveMarginClasses) {
             classNames.push(responsiveMarginClasses);
+        }
+    }
+
+    // Responsive padding Array
+    if (padding && Array.isArray(padding)) {
+        const responsivePaddingClasses = getResponsivePositionPropertyClasses('padding', padding);
+        if (responsivePaddingClasses) {
+            classNames.push(responsivePaddingClasses);
         }
     }
 

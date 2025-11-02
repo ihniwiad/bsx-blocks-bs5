@@ -32,19 +32,17 @@
 				}
 			}
 		},
-		"paddingBefore": {
-			"type": "string",
-			"default": ""
-		},
-		"paddingAfter": {
-			"type": "string",
-			"default": ""
-		},
-		"paddingLeft": {
-			"type": "string"
-		},
-		"paddingRight": {
-			"type": "string"
+		"padding": {
+			"type": "array",
+			"default": [],
+			"items": {
+				"type": "object",
+				"properties": {
+					"s": { "type": "string" },
+					"p": { "type": "array", "items": { "type": "string" } },
+					"v": { "type": "string" }
+				}
+			}
 		},
 		"sized": {
 			"type": "string"

@@ -23,10 +23,6 @@ import { getTemplate } from './../_functions/utilities.js';
 import { 
 	belowNavbarToggle,
 	responsivePositionPropertyControl,
-	paddingBeforeSelect,
-	paddingAfterSelect,
-	paddingLeftSelect,
-	paddingRightSelect,
 } from './../_functions/controls.js';
 
 
@@ -52,12 +48,9 @@ export default function Edit({ attributes, setAttributes }) {
 		isFluid,
 		containerBreakpoint,
 		belowNavbar,
-		paddingBefore,
-		paddingAfter,
-		paddingLeft,
-		paddingRight,
 		sized,
 		margin,
+		padding,
 	} = attributes;
 
 	// const hasInnerBlocks = () => {
@@ -84,23 +77,13 @@ export default function Edit({ attributes, setAttributes }) {
     };
 
 
-	// Responsive margin handler
+	// Responsive handlers
 	const onChangeMargin = (value) => {
 		setAttributes({ margin: value });
 	};
-
-    const onChangePaddingBefore = (value) => {
-        setAttributes({ paddingBefore: value });
-    };
-    const onChangePaddingAfter = (value) => {
-        setAttributes({ paddingAfter: value });
-    };
-    const onChangePaddingLeft = (value) => {
-        setAttributes({ paddingLeft: value });
-    };
-    const onChangePaddingRight = (value) => {
-        setAttributes({ paddingRight: value });
-    };
+	const onChangePadding = (value) => {
+		setAttributes({ padding: value });
+	};
 
     const onChangeSized = (value) => {
         setAttributes({ sized: value });
@@ -115,11 +98,8 @@ export default function Edit({ attributes, setAttributes }) {
     
     containerClassName = addClassNames({
         belowNavbar, 
-        paddingBefore, 
-        paddingAfter,
-        paddingLeft,
-        paddingRight,
 		margin,
+		padding,
     }, containerClassName);
 
     const controls = (
@@ -161,23 +141,12 @@ export default function Edit({ attributes, setAttributes }) {
 	                    help={ __('Has (non fluid) Container width from this breakpoint up', 'bsx-blocks') }
 	                />
 	            </PanelBody>
-				{ responsivePositionPropertyControl(margin, onChangeMargin) }
+				{ responsivePositionPropertyControl(margin, onChangeMargin, __('Margin', 'bsx-blocks')) }
+				{ responsivePositionPropertyControl(padding, onChangePadding, __('Padding', 'bsx-blocks')) }
 	        </InspectorControls>
 	        <InspectorAdvancedControls>
 	            {
 	                belowNavbarToggle(belowNavbar, onChangeBelowNavbar)
-	            }
-	            {
-	                paddingBeforeSelect(paddingBefore, onChangePaddingBefore)
-	            }
-	            {
-	                paddingAfterSelect(paddingAfter, onChangePaddingAfter)
-	            }
-	            {
-	                paddingLeftSelect(paddingLeft, onChangePaddingLeft)
-	            }
-	            {
-	                paddingRightSelect(paddingRight, onChangePaddingRight)
 	            }
 	        </InspectorAdvancedControls>
         </>
