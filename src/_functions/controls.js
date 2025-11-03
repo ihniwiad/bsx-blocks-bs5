@@ -27,6 +27,21 @@ import {
 
 // internal vars
 
+const textAlignOptions = [
+    { value: '', label: __('– unset –', 'bsx-blocks') },
+    { value: 'start', label: __('Left', 'bsx-blocks') },
+    { value: 'center', label: __('Center', 'bsx-blocks') },
+    { value: 'end', label: __('Right', 'bsx-blocks') },
+];
+
+const displayOptions = [
+    { value: '', label: __('– unset –', 'bsx-blocks') },
+    { value: 'block', label: __('Block', 'bsx-blocks') },
+    { value: 'inline', label: __('Inline', 'bsx-blocks') },
+    { value: 'flex', label: __('Flex', 'bsx-blocks') },
+    { value: 'grid', label: __('Grid', 'bsx-blocks') },
+];
+
 const paddingSizes = [
     { value: '', label: __('– unset –', 'bsx-blocks') },
     { value: '0', label: __('none (0)', 'bsx-blocks') },
@@ -54,6 +69,7 @@ const breakpoints = [
     { value: 'xl', label: __('XL', 'bsx-blocks') },
     { value: 'xxl', label: __('XXL', 'bsx-blocks') },
 ];
+const breakpointKeys = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
 const breakpointsWithUnset = [
     { value: '', label: __('– unset –', 'bsx-blocks') },
     ...breakpoints,
@@ -585,9 +601,9 @@ export const respSpacingControl = (spacingObj, onChangeFunction, label = 'Spacin
     ];
 
     // Active breakpoints: XS always, others only if present
-    const activeBreakpoints = ['xs', ...allBreakpoints.filter(bp => bp !== 'xs' && spacingObj[bp])];
+    const activeBreakpoints = ['xs', ...breakpointKeys.filter(bp => bp !== 'xs' && spacingObj[bp])];
     // FFor Add-Select: Breakpoints that are not yet present
-    const availableBreakpoints = allBreakpoints.filter(bp => bp !== 'xs' && !spacingObj[bp]);
+    const availableBreakpoints = breakpointKeys.filter(bp => bp !== 'xs' && !spacingObj[bp]);
 
     // Handler for changing a value
     const handleChange = (bp, posIdx, newValue) => {
@@ -695,24 +711,6 @@ export const respSpacingControl = (spacingObj, onChangeFunction, label = 'Spacin
     );
 };
 
-const allBreakpoints = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl'];
-
-const textAlignOptions = [
-    { value: '', label: __('– unset –', 'bsx-blocks') },
-    { value: 'left', label: __('Left', 'bsx-blocks') },
-    { value: 'center', label: __('Center', 'bsx-blocks') },
-    { value: 'right', label: __('Right', 'bsx-blocks') },
-    { value: 'justify', label: __('Justify', 'bsx-blocks') },
-];
-
-const displayOptions = [
-    { value: '', label: __('– unset –', 'bsx-blocks') },
-    { value: 'block', label: __('Block', 'bsx-blocks') },
-    { value: 'inline', label: __('Inline', 'bsx-blocks') },
-    { value: 'flex', label: __('Flex', 'bsx-blocks') },
-    { value: 'grid', label: __('Grid', 'bsx-blocks') },
-];
-
 // Generic responsive property control
 export const respPropertyControl = (propertyObj, onChangeFunction, label = 'Property', options) => {
     // Select options by label if not provided
@@ -725,9 +723,9 @@ export const respPropertyControl = (propertyObj, onChangeFunction, label = 'Prop
     }
 
     // Aktive Breakpoints: XS immer, weitere nur wenn vorhanden
-    const activeBreakpoints = ['xs', ...allBreakpoints.filter(bp => bp !== 'xs' && propertyObj[bp] !== undefined)];
+    const activeBreakpoints = ['xs', ...breakpointKeys.filter(bp => bp !== 'xs' && propertyObj[bp] !== undefined)];
     // Für Add-Select: Breakpoints, die noch nicht vorhanden sind
-    const availableBreakpoints = allBreakpoints.filter(bp => bp !== 'xs' && propertyObj[bp] === undefined);
+    const availableBreakpoints = breakpointKeys.filter(bp => bp !== 'xs' && propertyObj[bp] === undefined);
 
     // Handler für Wertänderung
     const handleChange = (bp, newValue) => {

@@ -69,7 +69,7 @@ function getResponsiveSpacingClasses(property, spacingObj) {
 /**
  * Generates responsive Bootstrap classes for a generic property object schema.
  * @param {string} property     e.g. 'textAlign', 'display'
- * @param {object} propertyObj  { xs: 'center', md: 'left', ... }
+ * @param {object} propertyObj  { xs: 'center', md: 'start', ... }
  * @returns {string}            class names string
  */
 function getResponsivePropertyClasses(property, propertyObj) {
