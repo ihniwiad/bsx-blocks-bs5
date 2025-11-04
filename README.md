@@ -7,12 +7,10 @@
 Example workspace setting (using publishing from workspace to WordPress):
 
 ```
-...
-  ┗ workspace
-    ┗ my-project
-      ┣ bsx-wordpress
-      ┗ bsx-blocks
-...
+<YOUR_USERS_FOLDER>
+  ┣ workspace
+  ┃ ┗ bsx-blocks-bs5
+  ┃
   ┗ Herd
     ┗ my-project-wordpress-folder
       ┗ wp-content
