@@ -23,6 +23,7 @@ import { getTemplate } from './../_functions/utilities.js';
 import { 
 	belowNavbarToggle,
 	respSpacingControl,
+	overflowSelect
 } from './../_functions/controls.js';
 import {
 	makeOnChange,
@@ -54,6 +55,7 @@ export default function Edit({ attributes, setAttributes }) {
 		sized,
 		margin,
 		padding,
+        overflow,
 	} = attributes;
 
 	// const hasInnerBlocks = () => {
@@ -87,6 +89,7 @@ export default function Edit({ attributes, setAttributes }) {
 	// Responsive handlers
 	const onChangeMargin = makeOnChange(setAttributes, 'margin');
 	const onChangePadding = makeOnChange(setAttributes, 'padding');
+	const onChangeOverflow = makeOnChange(setAttributes, 'overflow');
 
 
     let containerClassName = makeContainerClassNames({
@@ -99,6 +102,7 @@ export default function Edit({ attributes, setAttributes }) {
         belowNavbar, 
 		margin,
 		padding,
+        overflow,
     }, containerClassName);
 
     const controls = (
@@ -147,6 +151,9 @@ export default function Edit({ attributes, setAttributes }) {
 	            {
 	                belowNavbarToggle(belowNavbar, onChangeBelowNavbar)
 	            }
+				{
+					overflowSelect(overflow, onChangeOverflow)
+				}
 	        </InspectorAdvancedControls>
         </>
 	);

@@ -109,13 +109,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
         touchFooter,
         bgColor,
         imgId,
-        imgSizes,
+        // imgSizes, // DEPRECATED
         imgData,
         sizeIndex,
         alt,
         priority,
         portraitImgId,
-        portraitImgSizes,
+        // portraitImgSizes, // DEPRECATED
         portraitImgData,
         portraitSizeIndex,
         bannerType,
@@ -201,6 +201,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
     };
 
     async function onSelectImage(img, type = 'landscape') {
+        // console.log(`onSelectImage: type: ${type}`);
         if (typeof img.url !== 'undefined') {
             // Get all data of new image (detect even the unscaled original size and the non listed scaled sizes 1536px & 2048px).
             const sizes = await getAllImageSizes(img);
@@ -244,22 +245,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
     }
 
     const onDeleteImage = () => {
-        // avoid creating deprecated attr 'imgSizes'
-        if ( imgSizes && imgSizes.length > 0 ) {
-            // delete value of 'imgSizes'
-            setAttributes( {
-                imgId: '',
-                imgSizes: '',
-                imgData: '',
-            } );
-        }
-        else {
-            // skip 'imgSizes'
-            setAttributes( {
-                imgId: '',
-                imgData: '',
-            } );
-        }
+        setAttributes( {
+            imgId: '',
+            imgData: '',
+        } );
     };
 
     const onDeletePortraitImage = () => {

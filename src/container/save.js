@@ -24,6 +24,7 @@ export default function save( { attributes } ) {
         sized,
         margin,
 		padding,
+        overflow,
     } = attributes;
 
     let containerClassName = makeContainerClassNames( {
@@ -38,6 +39,7 @@ export default function save( { attributes } ) {
         marginAfter, 
         margin,
 		padding,
+        overflow,
     }, containerClassName );
 
 	return (

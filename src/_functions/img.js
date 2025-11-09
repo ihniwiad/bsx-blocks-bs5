@@ -31,21 +31,22 @@ async function doesImageExist(url) {
 /**
  * Scales dimensions proportionally.
  *
- * @param {number} originalWidth
- * @param {number} originalHeight
+ * @param {number} largestWidth
+ * @param {number} largestHeight
  * @param {number} max
  * @returns {{ width: number, height: number }}
  */
-function getScaledDimensions(originalWidth, originalHeight, max) {
-    if (originalWidth >= originalHeight) {
+function getScaledDimensions(largestWidth, largestHeight, max) {
+    // console.log(`getScaledDimensions: largestWidth: ${largestWidth},  largestHeight: ${largestHeight},  max: ${max} `)
+    if (largestWidth >= largestHeight) {
         return {
             width: max,
-            height: Math.round((originalHeight / originalWidth) * max),
+            height: Math.round((largestHeight / largestWidth) * max),
         };
     } else {
         return {
             height: max,
-            width: Math.round((originalWidth / originalHeight) * max),
+            width: Math.round((largestWidth / largestHeight) * max),
         };
     }
 }
@@ -57,6 +58,7 @@ function getScaledDimensions(originalWidth, originalHeight, max) {
  * @returns {Promise<Array<{ key: string, url: string, width: number, height: number }>>}
  */
 export async function getAllImageSizes(image) {
+    // console.log(`getAllImageSizes`, image)
     const sizes = image.sizes || {};
     const results = [];
   
@@ -73,11 +75,13 @@ export async function getAllImageSizes(image) {
         }
     }
 
-    let originalSize = null;
+    let largestUrl = null;
+    let largestWidth = null;
+    let largestHeight = null;
 
     // Load true original size
     if (image.originalImageURL) {
-        originalSize = await loadImageDimensions(image.originalImageURL);
+        const originalSize = await loadImageDimensions(image.originalImageURL);
         if (originalSize) {
             results.push({
                 key: 'original',
@@ -85,8 +89,19 @@ export async function getAllImageSizes(image) {
                 width: originalSize.width,
                 height: originalSize.height,
             });
+            largestUrl = image.originalImageURL;
+            largestWidth = originalSize.width;
+            largestHeight = originalSize.height;
         }
     }
+
+    // If original size is not goven, use full size
+    if (largestWidth === null || largestHeight === null) {
+        largestUrl = image?.sizes?.full?.url;
+        largestWidth = image?.sizes?.full?.width;
+        largestHeight = image?.sizes?.full?.height;
+    }
+    // console.log(`largestWidth: ${largestWidth}, largestHeight: ${largestHeight}`);
 
     // Include medium_large if available or reconstruct if missing
     if (sizes.medium_large?.url) {
@@ -96,14 +111,15 @@ export async function getAllImageSizes(image) {
             width: sizes.medium_large.width,
             height: sizes.medium_large.height,
         });
-    } else if (originalSize && originalSize.width > 770 && image.originalImageURL) {
-        const extMatch = image.originalImageURL.match(/\.(jpe?g|png|webp|gif|avif|svg)$/i);
+    } else if (largestWidth > 770 && largestUrl) {
+        // console.log(`test size: ${768}`);
+        const extMatch = largestUrl.match(/\.(jpe?g|png|webp|gif|avif|svg)$/i);
         const extension = extMatch ? extMatch[0] : '';
-        const base = image.originalImageURL.replace(/\-[0-9]+x[0-9]+(?=\.\w+$)/, '').replace(/\.(jpe?g|png|webp|gif|avif|svg)$/i, '');
+        const base = largestUrl.replace(/\-[0-9]+x[0-9]+(?=\.\w+$)/, '').replace(/\.(jpe?g|png|webp|gif|avif|svg)$/i, '');
     
         // Size `medium_large` has a differen calculation: It always reduces the width (not the height) to 768px.
         const mediumLargeWidth = 768;
-        const ratio = originalSize.height / originalSize.width;
+        const ratio = largestHeight / largestWidth;
         const mediumLargeHeight = Math.round(mediumLargeWidth * ratio);
         const mediumLargeUrl = `${base}-${mediumLargeWidth}x${mediumLargeHeight}${extension}`;
         if (await doesImageExist(mediumLargeUrl)) {
@@ -117,13 +133,14 @@ export async function getAllImageSizes(image) {
     }
   
     // Reconstructed 2048 and 1536 versions
-    if (originalSize && image.originalImageURL) {
-        const extMatch = image.originalImageURL.match(/\.(jpe?g|png|webp|gif|avif|svg)$/i);
+    if (largestUrl) {
+        const extMatch = largestUrl.match(/\.(jpe?g|png|webp|gif|avif|svg)$/i);
         const extension = extMatch ? extMatch[0] : '';
-        const base = image.originalImageURL.replace(/\-[0-9]+x[0-9]+(?=\.\w+$)/, '').replace(/\.(jpe?g|png|webp|gif|avif|svg)$/i, '');
+        const base = largestUrl.replace(/\-[0-9]+x[0-9]+(?=\.\w+$)/, '').replace(/\.(jpe?g|png|webp|gif|avif|svg)$/i, '');
     
         for (const max of [2048, 1536]) {
-            const { width, height } = getScaledDimensions(originalSize.width, originalSize.height, max);
+            // console.log(`test size: ${max}`);
+            const { width, height } = getScaledDimensions(largestWidth, largestHeight, max);
             const constructedUrl = `${base}-${width}x${height}${extension}`;
             if (await doesImageExist(constructedUrl)) {
                 results.push({
@@ -138,6 +155,8 @@ export async function getAllImageSizes(image) {
   
     // Sort by size (area) ascending
     results.sort((a, b) => a.width * a.height - b.width * b.height);
+
+    // console.log(`results:`, results)
   
     return results;
 }

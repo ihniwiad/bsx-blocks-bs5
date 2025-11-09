@@ -42,6 +42,10 @@
 		},
 		"sized": {
 			"type": "string"
+		},
+		"overflow": {
+			"type": "string",
+			"default": ""
 		}
 	},
 	"supports": {

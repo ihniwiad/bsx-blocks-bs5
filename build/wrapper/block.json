@@ -59,14 +59,43 @@
     "textColor": {
       "type": "string"
     },
+    "margin": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "minItems": 4,
+        "maxItems": 4
+      }
+    },
+    "padding": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "minItems": 4,
+        "maxItems": 4
+      }
+    },
     "textAlign": {
-      "type": "string"
+      "type": "object",
+      "default": {},
+      "additionalProperties": {
+        "type": "string"
+      }
     },
-    "resTextAlignBreakpoint": {
-      "type": "string"
-    },
-    "resTextAlign": {
-      "type": "string"
+    "display": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": {
+        "type": "string"
+      }
     },
     "border": {
       "type": "string"
@@ -80,50 +109,8 @@
     "height": {
       "type": "string"
     },
-    "marginBefore": {
-      "type": "string"
-    },
-    "marginAfter": {
-      "type": "string"
-    },
-    "resMargin1Breakpoint": {
-      "type": "string"
-    },
-    "resMargin1Position": {
-      "type": "string"
-    },
-    "resMargin1Size": {
-      "type": "string"
-    },
-    "resMargin2Breakpoint": {
-      "type": "string"
-    },
-    "resMargin2Position": {
-      "type": "string"
-    },
-    "resMargin2Size": {
-      "type": "string"
-    },
-    "paddingBefore": {
-      "type": "string"
-    },
-    "paddingAfter": {
-      "type": "string"
-    },
-    "marginLeft": {
-      "type": "string"
-    },
-    "paddingRight": {
-      "type": "string"
-    },
-    "paddingLeft": {
-      "type": "string"
-    },
     "touchFooter": {
       "type": "boolean"
-    },
-    "display": {
-      "type": "string"
     },
     "verticalAlign": {
       "type": "string"
@@ -174,6 +161,9 @@
       "type": "boolean"
     },
     "overflow": {
+      "type": "string"
+    },
+    "textColumns": {
       "type": "string"
     }
   },

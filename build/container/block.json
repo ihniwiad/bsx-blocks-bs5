@@ -20,30 +20,36 @@
       "type": "boolean",
       "default": false
     },
-    "marginBefore": {
-      "type": "string",
-      "default": ""
+    "margin": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "minItems": 4,
+        "maxItems": 4
+      }
     },
-    "marginAfter": {
-      "type": "string",
-      "default": ""
-    },
-    "paddingBefore": {
-      "type": "string",
-      "default": ""
-    },
-    "paddingAfter": {
-      "type": "string",
-      "default": ""
-    },
-    "marginLeft": {
-      "type": "string"
-    },
-    "paddingRight": {
-      "type": "string"
+    "padding": {
+      "type": "object",
+      "default": {},
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "minItems": 4,
+        "maxItems": 4
+      }
     },
     "sized": {
       "type": "string"
+    },
+    "overflow": {
+      "type": "string",
+      "default": ""
     }
   },
   "supports": {
