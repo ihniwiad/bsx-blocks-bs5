@@ -31,8 +31,11 @@
       "type": "boolean"
     },
     "gutter": {
-      "type": "string",
-      "default": ""
+      "type": "object",
+      "default": {},
+      "additionalProperties": {
+        "type": "string"
+      }
     },
     "rowReverse": {
       "type": "string"

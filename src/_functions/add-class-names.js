@@ -9,6 +9,7 @@ const propertyMap = {
     'padding': 'p',
     'textAlign': 'text',
     'display': 'd',
+    'gutter': 'g',
     // Add more properties as needed
 };
 
@@ -243,6 +244,14 @@ export function addClassNames(attributes, classNamesString) {
         }
     }
 
+    // Responsive gutter object
+    if (gutter && typeof gutter === 'object') {
+        const responsiveGutterClasses = getResponsivePropertyClasses('gutter', gutter);
+        if (responsiveGutterClasses) {
+            classNames.push(responsiveGutterClasses);
+        }
+    }
+
 
     // DEPRECATED - use padding object instead
     if (!!paddingBefore && paddingBefore === paddingAfter && paddingBefore === paddingLeft && paddingBefore === paddingRight) {
@@ -458,10 +467,6 @@ export function addClassNames(attributes, classNamesString) {
 
     if (!!position) {
         classNames.push('position-' + position);
-    }
-
-    if (typeof gutter !== '' && typeof gutter !== 'undefined') {
-        classNames.push('g-' + gutter);
     }
 
     if (rowReverse) {

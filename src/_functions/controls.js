@@ -42,6 +42,16 @@ const displayOptions = [
     { value: 'grid', label: __('Grid', 'bsx-blocks') },
 ];
 
+const gutterOptions = [
+    { value: '', label: __('– unset –', 'bsx-blocks') },
+    { value: '0', label: __('0', 'bsx-blocks') },
+    { value: '1', label: __('1', 'bsx-blocks') },
+    { value: '2', label: __('2', 'bsx-blocks') },
+    { value: '4', label: __('3', 'bsx-blocks') },
+    { value: '4', label: __('4', 'bsx-blocks') },
+    { value: '5', label: __('5', 'bsx-blocks') },
+];
+
 const paddingSizes = [
     { value: '', label: __('– unset –', 'bsx-blocks') },
     { value: '0', label: __('none (0)', 'bsx-blocks') },
@@ -719,6 +729,7 @@ export const respPropertyControl = (propertyObj, onChangeFunction, label = 'Prop
         const optLabel = label ? label.toLowerCase() : '';
         if (optLabel.includes('text')) usedOptions = textAlignOptions;
         else if (optLabel.includes('display')) usedOptions = displayOptions;
+        else if (optLabel.includes('gutter')) usedOptions = gutterOptions;
         // ...add more mappings as needed
     }
 
@@ -1644,9 +1655,3 @@ export const uiTemplateSelect = (templates, templateName, onChangeFunction) => {
         </div>
    )
 }
-
-
-
-
-
-

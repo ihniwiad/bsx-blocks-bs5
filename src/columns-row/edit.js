@@ -26,7 +26,11 @@ import { getTemplate } from './../_functions/utilities.js';
 import { 
 	marginAfterSelect,
 	displaySelect,
+	respPropertyControl,
 } from './../_functions/controls.js';
+import {
+	makeOnChange,
+} from './../_functions/block-handlers.js';
 
 
 // utils
@@ -174,10 +178,6 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 	// 	}
 	// };
 
-	const onChangeGutter = (value) => {
-		setAttributes({ gutter: value });
-	};
-
 	const onChangeRowReverse = (value) => {
 		setAttributes({ rowReverse: value });
 	};
@@ -201,6 +201,8 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 	const onChangeEnableInheritanceToCols = (value) => {
 		setAttributes({ enableInheritanceToCols: value });
 	};
+
+	const onChangeGutter = makeOnChange(setAttributes, 'gutter');
 
 	// value = { sizeXX: 'newValue' }
 	const inheritToCols = (value) => {
@@ -495,21 +497,14 @@ export default function Edit({ attributes, setAttributes, clientId }) {
 						checked={ !! formRow }
 						onChange={ onChangeFormRow }
 					/> */}
-					<SelectControl 
-						label={ __('Gutter', 'bsx-blocks') }
-						value={ gutter }
-						onChange={ onChangeGutter }
-						options={ [
-							{ value: '', label: __('– unset –', 'bsx-blocks') },
-							{ value: '0', label: __('0', 'bsx-blocks') },
-							{ value: '1', label: __('1', 'bsx-blocks') },
-							{ value: '2', label: __('2', 'bsx-blocks') },
-							{ value: '4', label: __('3', 'bsx-blocks') },
-							{ value: '4', label: __('4', 'bsx-blocks') },
-							{ value: '5', label: __('5', 'bsx-blocks') },
-						] }
-					/>
 				</PanelBody>
+				{
+					respPropertyControl(
+						gutter,
+						onChangeGutter,
+						__('Gutter', 'bsx-blocks'),
+					)
+				}
 
 				{ templateName === 'custom' && (
 					<PanelBody title={ __('Inherit Columns Settings', 'bsx-blocks') }>
