@@ -546,19 +546,36 @@ export function addSaveProps( extraProps, blockType, attributes ) {
         // check wp internal attributes, add custom class names for certain ones
         // NOTE: added class name will be updated but never removed (as WP currently does too)
 
+
+
+        // TODO: Refactor (does ever `attributes.textAlign` exist?)
+
+
         // textAlign
         const alignAllowedValues = [
-            'left',
+            'left', // As WordPress uses left / right values
             'center',
-            'right',
+            'right', // Both
+            'start', // Bootstrap values
+            'end',
         ];
+
+
+        // TODO: Get from gobal definitions (create it, include it into `controls.js` & `add-class-names.js`)
+
+
         const alignPrefix = 'text-';
         const textAlignAttrVal = attributes.textAlign != undefined ? attributes.textAlign : attributes.align;
         
         if ( !! textAlignAttrVal && alignAllowedValues.includes( textAlignAttrVal ) ) {
-            classNames.push( alignPrefix + textAlignAttrVal );
+            // Add class name
+            // classNames.push( alignPrefix + textAlignAttrVal );
+            classNames.push(addClassNames({
+                textAlign: attributes.textAlign,
+            }));
         }
         else {
+            // Remove class name
             for ( let i = 0; i < classNames.length; i++ ) {
                 if ( 
                     classNames[ i ].indexOf( alignPrefix ) == 0 

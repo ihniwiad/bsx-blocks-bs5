@@ -21,6 +21,12 @@ const spacingCombinedPosMap = {
     'x': 'x',
 };
 
+const textAlignMap = {
+    'left': 'start',
+    'center': 'center',
+    'right': 'end',
+};
+
 
 /**
  * Generates Bootstrap classes for the responsive margin/padding object schema.
@@ -229,10 +235,16 @@ export function addClassNames(attributes, classNamesString) {
     }
 
     // Responsive textAlign object
-    if (textAlign && typeof textAlign === 'object') {
-        const responsiveTextAlignClasses = getResponsivePropertyClasses('textAlign', textAlign);
-        if (responsiveTextAlignClasses) {
-            classNames.push(responsiveTextAlignClasses);
+    if (textAlign) {
+        if (typeof textAlign === 'object') {
+            const responsiveTextAlignClasses = getResponsivePropertyClasses('textAlign', textAlign);
+            if (responsiveTextAlignClasses) {
+                classNames.push(responsiveTextAlignClasses);
+            }
+        } else {
+            // Accept WordPress values 'left', 'center', 'right', transform to Bootstrap values
+            const textAlignValue = typeof textAlignMap[textAlign] !== 'undefined' ? textAlignMap[textAlign] : textAlign;
+            classNames.push(propertyMap['textAlign'] + '-' + textAlignValue);
         }
     }
 
@@ -351,9 +363,6 @@ export function addClassNames(attributes, classNamesString) {
         }
     }
 
-    // if (!!textAlign) {
-    //     classNames.push('text-' + textAlign);
-    // }
     if (!!resTextAlignBreakpoint && !!resTextAlign) {
         classNames.push('text-' + resTextAlignBreakpoint + '-' + resTextAlign);
     }

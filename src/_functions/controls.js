@@ -183,12 +183,12 @@ const bgStates = [
     { value: 'transparent', label: __('Transparent', 'bsx-blocks') },
 ];
 
-const textAlignValues = [
-    { value: '', label: __('– unset –', 'bsx-blocks') },
-    { value: 'left', label: __('left', 'bsx-blocks') },
-    { value: 'center', label: __('Center', 'bsx-blocks') },
-    { value: 'right', label: __('Right', 'bsx-blocks') },
-];
+// const textAlignValues = [
+//     { value: '', label: __('– unset –', 'bsx-blocks') },
+//     { value: 'left', label: __('left', 'bsx-blocks') },
+//     { value: 'center', label: __('Center', 'bsx-blocks') },
+//     { value: 'right', label: __('Right', 'bsx-blocks') },
+// ];
 
 const alignmentControls = [
     {
@@ -1421,7 +1421,7 @@ export const breakpointsSelect = (value, onChangeFunction, allowedValues, labelS
 }
 
 export const textAlignSelect = (value, onChangeFunction, allowedValues, labelString) => {
-    const defaultValues = textAlignValues;
+    const defaultValues = textAlignOptiona;
     return (
         <SelectControl 
             label={ (!! labelString ? ' ' + labelString : __('Text align', 'bsx-blocks')) }
